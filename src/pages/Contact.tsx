@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { IconMail, IconMapPin, IconPhone, IconGithub, IconClock, IconSend } from '../components/Icons';
 
@@ -14,6 +14,33 @@ export function Contact() {
   const [sent, setSent] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const ref = useScrollReveal();
+
+  useEffect(() => {
+    const pending = (window as any).__pendingContactFill;
+    if (pending) {
+      setForm(f => ({
+        name: pending.name ?? f.name,
+        email: pending.email ?? f.email,
+        subject: pending.subject ?? f.subject,
+        message: pending.message ?? f.message,
+      }));
+      delete (window as any).__pendingContactFill;
+    }
+
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<{ name?: string; email?: string; subject?: string; message?: string }>;
+      if (ce.detail) {
+        setForm(f => ({
+          name: ce.detail.name ?? f.name,
+          email: ce.detail.email ?? f.email,
+          subject: ce.detail.subject ?? f.subject,
+          message: ce.detail.message ?? f.message,
+        }));
+      }
+    };
+    window.addEventListener('tenaye-fill-contact', handler);
+    return () => window.removeEventListener('tenaye-fill-contact', handler);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

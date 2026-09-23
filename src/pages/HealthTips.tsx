@@ -85,7 +85,7 @@ function TipCard({ tip, category }: { tip: Tip; category: string }) {
           <ul className="space-y-1.5">
             {tip.actions.map(a => (
               <li key={a} className="flex items-start gap-2 text-xs text-gray-600">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#f0fafa]0 shrink-0 mt-1.5" />{a}
+                <span className="w-1.5 h-1.5 rounded-full bg-[#119197] shrink-0 mt-1.5" />{a}
               </li>
             ))}
           </ul>
@@ -231,12 +231,12 @@ export function HealthTips() {
           <h3 className="font-display font-extrabold text-2xl mb-2">Need Personalized Health Advice?</h3>
           <p className="text-teal-100 text-sm mb-6">Connect with our healthcare professionals for personalized guidance and support</p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <button
-              onClick={() => window.dispatchEvent(new CustomEvent('open-ai-assistant'))}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[#119197] font-bold text-sm hover:bg-[#e6f7f7] transition-colors"
+            <Link
+              to="/contact"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[#119197] font-bold text-sm hover:bg-[#e6f7f7] transition-colors cursor-pointer"
             >
-              <IconHeart size={16} /> Ask AI Assistant
-            </button>
+              <IconHeart size={16} /> Contact Health Team
+            </Link>
             <Link to="/diseases" className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-white text-white font-bold text-sm hover:bg-white/10 transition-colors">
               <IconBook size={16} /> Browse Disease Library
             </Link>

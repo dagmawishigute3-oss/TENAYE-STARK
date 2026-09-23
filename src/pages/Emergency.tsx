@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
-import { IconPhone, IconMapPin, IconClock, IconAlertTriangle, IconNavigation, IconStar2 } from '../components/Icons';
+import { IconPhone, IconMapPin, IconClock, IconAlertTriangle, IconNavigation, IconStar2, IconSearch } from '../components/Icons';
 
 const AMBULANCES = [
   { name: 'Red Cross Ambulance',       phone: '907', specialty: 'General Emergency',   icon: '🏥' },
@@ -35,6 +35,8 @@ type GeoState = 'idle' | 'loading' | 'granted' | 'denied';
 
 export function Emergency() {
   const [geoState, setGeoState] = useState<GeoState>('idle');
+  const [query, setQuery] = useState('');
+  const [showAllHospitals, setShowAllHospitals] = useState(false);
   const ref1 = useScrollReveal();
   const ref2 = useScrollReveal();
   const ref3 = useScrollReveal();
@@ -46,11 +48,28 @@ export function Emergency() {
     }
     setGeoState('loading');
     navigator.geolocation.getCurrentPosition(
-      () => setGeoState('granted'),
+      () => {
+        setGeoState('granted');
+        setShowAllHospitals(true);
+      },
       () => setGeoState('denied'),
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
     );
   };
+
+  const filteredAmbulances = AMBULANCES.filter(a =>
+    !query ||
+    a.name.toLowerCase().includes(query.toLowerCase()) ||
+    a.phone.includes(query) ||
+    a.specialty.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const filteredHospitals = HOSPITALS.filter(h =>
+    !query ||
+    h.name.toLowerCase().includes(query.toLowerCase()) ||
+    h.address.toLowerCase().includes(query.toLowerCase()) ||
+    h.phone.includes(query)
+  );
 
   return (
     <main className="pt-16 bg-gray-50 min-h-screen">
@@ -67,7 +86,7 @@ export function Emergency() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         {/* 3 top cards */}
-        <div ref={ref1} className="grid sm:grid-cols-3 gap-5 mb-12">
+        <div ref={ref1} className="grid sm:grid-cols-3 gap-5 mb-8">
           <div className="bg-white rounded-xl border border-gray-200 p-6 text-center hover:shadow-md transition-shadow">
             <IconPhone size={28} className="text-red-600 mx-auto mb-3" />
             <h3 className="font-display font-bold text-gray-900 text-sm mb-1">Emergency Hotline</h3>
@@ -81,7 +100,7 @@ export function Emergency() {
             <button
               onClick={handleSearchNearMe}
               disabled={geoState === 'loading'}
-              className="w-full py-2.5 rounded-lg border border-[#119197] text-[#119197] text-sm font-bold hover:bg-[#e6f7f7] transition-colors disabled:opacity-60 disabled:cursor-wait"
+              className="w-full py-2.5 rounded-lg border border-[#119197] text-[#119197] text-sm font-bold hover:bg-[#e6f7f7] transition-colors disabled:opacity-60 disabled:cursor-wait cursor-pointer"
             >
               {geoState === 'loading' ? 'Locating…' : 'Search Near Me'}
             </button>
@@ -90,48 +109,79 @@ export function Emergency() {
             <IconClock size={28} className="text-[#119197] mx-auto mb-3" />
             <h3 className="font-display font-bold text-gray-900 text-sm mb-1">24/7 Support</h3>
             <p className="text-xs text-gray-500 mb-4">Get help any time, day or night</p>
-            <button className="w-full py-2.5 rounded-lg border border-[#119197] text-[#119197] text-sm font-bold hover:bg-[#e6f7f7] transition-colors">Contact Support</button>
+            <button className="w-full py-2.5 rounded-lg border border-[#119197] text-[#119197] text-sm font-bold hover:bg-[#e6f7f7] transition-colors cursor-pointer">Contact Support</button>
           </div>
+        </div>
+
+        {/* Instant Search Bar */}
+        <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 mb-10 shadow-xs">
+          <IconSearch size={18} className="text-gray-400 shrink-0" />
+          <input
+            type="text"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search emergency hospitals, ambulance dispatch, or sub-cities (e.g., Tikur Anbessa, Lideta, 907)…"
+            className="flex-1 text-gray-800 text-sm placeholder-gray-400 outline-none bg-transparent"
+          />
+          {query && (
+            <button onClick={() => setQuery('')} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-0.5 rounded cursor-pointer">
+              Clear
+            </button>
+          )}
         </div>
 
         {/* Emergency Call Services */}
         <div ref={ref2} className="mb-12">
           <h2 className="font-display font-extrabold text-2xl text-gray-900 mb-1">Emergency Call Services</h2>
           <p className="text-gray-500 text-sm mb-6">Direct access to emergency response teams. Click to call immediately.</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {AMBULANCES.map(a => (
-              <div key={a.name} className="bg-white rounded-xl border border-gray-200 p-5 text-center hover:shadow-md hover:border-[#cceef0] transition-all">
-                <div className="relative inline-block mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-[#e6f7f7] flex items-center justify-center mx-auto">
-                    <IconPhone size={22} className="text-[#119197]" />
+          {filteredAmbulances.length === 0 ? (
+            <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500 text-sm">
+              No emergency services matching "{query}". Call national hotline <a href="tel:907" className="text-red-600 font-bold underline">907</a>.
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {filteredAmbulances.map(a => (
+                <div key={a.name} className="bg-white rounded-xl border border-gray-200 p-5 text-center hover:shadow-md hover:border-[#cceef0] transition-all">
+                  <div className="relative inline-block mb-3">
+                    <div className="w-12 h-12 rounded-xl bg-[#e6f7f7] flex items-center justify-center mx-auto">
+                      <IconPhone size={22} className="text-[#119197]" />
+                    </div>
+                    <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-[#dc2626] text-white text-[9px] font-bold">24/7</span>
                   </div>
-                  <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-[#dc2626] text-white text-[9px] font-bold">24/7</span>
+                  <p className="font-display font-bold text-gray-900 text-sm mb-1 leading-tight">{a.name}</p>
+                  <p className="text-[10px] text-gray-400 mb-3">{a.specialty}</p>
+                  <a href={`tel:${a.phone}`} className="flex items-center justify-center gap-2 w-full py-2 rounded-lg bg-[#dc2626] hover:bg-[#b91c1c] text-white text-xs font-bold transition-colors">
+                    <IconPhone size={13} /> Call {a.phone}
+                  </a>
                 </div>
-                <p className="font-display font-bold text-gray-900 text-sm mb-1 leading-tight">{a.name}</p>
-                <p className="text-[10px] text-gray-400 mb-3">{a.specialty}</p>
-                <a href={`tel:${a.phone}`} className="flex items-center justify-center gap-2 w-full py-2 rounded-lg bg-[#dc2626] hover:bg-[#b91c1c] text-white text-xs font-bold transition-colors">
-                  <IconPhone size={13} /> Call {a.phone}
-                </a>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Nearby Hospitals — only after user grants location */}
+        {/* Nearby Hospitals */}
         <div ref={ref3}>
-          {geoState === 'idle' && (
+          {geoState === 'idle' && !query && !showAllHospitals && (
             <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center">
               <div className="w-14 h-14 rounded-full bg-[#e6f7f7] flex items-center justify-center mx-auto mb-4">
                 <IconMapPin size={26} className="text-[#119197]" />
               </div>
               <h2 className="font-display font-bold text-gray-900 text-lg mb-2">Find Hospitals Near You</h2>
-              <p className="text-gray-400 text-sm mb-6 max-w-xs mx-auto">Click "Search Near Me" above to allow location access and discover nearby hospitals.</p>
-              <button
-                onClick={handleSearchNearMe}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#119197] hover:bg-[#0c6e73] text-white font-bold text-sm transition-colors"
-              >
-                <IconNavigation size={15} /> Search Near Me
-              </button>
+              <p className="text-gray-400 text-sm mb-6 max-w-xs mx-auto">Click "Search Near Me" to find nearby hospitals, or browse the complete referral hospital directory below.</p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  onClick={handleSearchNearMe}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#119197] hover:bg-[#0c6e73] text-white font-bold text-sm transition-colors cursor-pointer"
+                >
+                  <IconNavigation size={15} /> Search Near Me
+                </button>
+                <button
+                  onClick={() => setShowAllHospitals(true)}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm transition-colors cursor-pointer"
+                >
+                  Browse All Hospitals ({HOSPITALS.length})
+                </button>
+              </div>
             </div>
           )}
 
@@ -153,48 +203,71 @@ export function Emergency() {
             </div>
           )}
 
-          {geoState === 'granted' && (
+          {(geoState === 'granted' || Boolean(query) || showAllHospitals) && (
             <>
-              <h2 className="font-display font-extrabold text-xl text-gray-900 mb-6">
-                Nearby Hospitals <span className="text-gray-400 font-normal text-base">({HOSPITALS.length})</span>
-              </h2>
-              <div className="grid sm:grid-cols-2 gap-5 mb-10">
-                {HOSPITALS.map(h => (
-                  <div key={h.name} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-gray-300 transition-all">
-                    <div className="flex justify-between items-start gap-3 mb-2">
-                      <h3 className="font-display font-bold text-gray-900 text-sm leading-tight">{h.name}</h3>
-                      <div className="text-right shrink-0">
-                        <p className="font-display font-bold text-[#119197] text-sm">{h.distance}</p>
-                        <p className="text-[10px] text-gray-400">away</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 mb-2">
-                      <span className="badge badge-teal">24/7 Emergency</span>
-                      <span className="badge badge-low">Open Now</span>
-                    </div>
-                    <div className="mb-1">
-                      <Stars rating={h.rating} />
-                      <span className="text-[10px] text-gray-400">({h.reviews.toLocaleString()} reviews)</span>
-                    </div>
-                    <div className="space-y-0.5 mb-4">
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                        <IconMapPin size={12} className="text-gray-400 shrink-0" />{h.address}
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                        <IconPhone size={12} className="text-gray-400 shrink-0" />{h.phone}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <a href={`tel:${h.phone}`} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors">
-                        <IconPhone size={13} /> Call
-                      </a>
-                      <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-colors">
-                        <IconNavigation size={13} /> Directions
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <h2 className="font-display font-extrabold text-xl text-gray-900">
+                  {geoState === 'granted' ? 'Nearby Hospitals' : 'Referral Hospitals & Medical Centers'}{' '}
+                  <span className="text-gray-400 font-normal text-base">({filteredHospitals.length})</span>
+                </h2>
+                {geoState !== 'granted' && (
+                  <button
+                    onClick={handleSearchNearMe}
+                    disabled={geoState === 'loading'}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#119197] text-[#119197] text-xs font-semibold hover:bg-[#e6f7f7] transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <IconNavigation size={12} /> {geoState === 'loading' ? 'Locating…' : 'Calculate GPS Distances'}
+                  </button>
+                )}
               </div>
+              {filteredHospitals.length === 0 ? (
+                <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500 text-sm mb-10">
+                  No hospitals matching "{query}". In a critical emergency, call <a href="tel:907" className="text-red-600 font-bold underline">907</a> immediately.
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-5 mb-10">
+                  {filteredHospitals.map(h => (
+                    <div key={h.name} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-gray-300 transition-all">
+                      <div className="flex justify-between items-start gap-3 mb-2">
+                        <h3 className="font-display font-bold text-gray-900 text-sm leading-tight">{h.name}</h3>
+                        <div className="text-right shrink-0">
+                          <p className="font-display font-bold text-[#119197] text-sm">{h.distance}</p>
+                          <p className="text-[10px] text-gray-400">away</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mb-2">
+                        <span className="badge badge-teal">24/7 Emergency</span>
+                        <span className="badge badge-low">Open Now</span>
+                      </div>
+                      <div className="mb-1">
+                        <Stars rating={h.rating} />
+                        <span className="text-[10px] text-gray-400">({h.reviews.toLocaleString()} reviews)</span>
+                      </div>
+                      <div className="space-y-0.5 mb-4">
+                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                          <IconMapPin size={12} className="text-gray-400 shrink-0" />{h.address}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                          <IconPhone size={12} className="text-gray-400 shrink-0" />{h.phone}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <a href={`tel:${h.phone}`} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors">
+                          <IconPhone size={13} /> Call
+                        </a>
+                        <a
+                          href={`https://maps.google.com/?q=${encodeURIComponent(h.name + ' ' + h.address)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-colors"
+                        >
+                          <IconNavigation size={13} /> Directions
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
 

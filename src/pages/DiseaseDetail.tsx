@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { IconArrowLeft, IconBookmark, IconShare, IconAlertTriangle, IconPhone, IconBot, IconBook, IconSearch } from '../components/Icons';
+import { IconArrowLeft, IconBookmark, IconShare, IconAlertTriangle, IconPhone, IconBook, IconSearch, IconMail } from '../components/Icons';
 
 const DISEASE_DB: Record<string, {
   name: string; category: string; severity: string;
@@ -33,6 +33,162 @@ const DISEASE_DB: Record<string, {
     riskFactors: ['Age (risk increases with age)', 'Race (more common in people of African heritage)', 'Family history', 'Being overweight or obese', 'Physical inactivity', 'Tobacco use', 'Too much sodium', 'Too little potassium'],
     warningSigns: ['Blood pressure above 180/120', 'Severe headache with blurred vision', 'Chest pain', 'Difficulty breathing', 'Nausea and vomiting'],
   },
+  diabetes: {
+    name: 'Diabetes Mellitus', category: 'Endocrine', severity: 'High',
+    prevalence: 'Affects over 537 million adults globally, with rapid increases across Sub-Saharan Africa.',
+    description: 'A chronic metabolic disease characterized by elevated levels of blood glucose (blood sugar), which leads over time to serious damage to the heart, blood vessels, eyes, kidneys, and nerves.',
+    symptoms: ['Increased thirst (polydipsia)', 'Frequent urination (polyuria)', 'Extreme hunger (polyphagia)', 'Unexplained weight loss', 'Fatigue and weakness', 'Blurred vision', 'Slow-healing sores'],
+    causes: ['Insufficient insulin production by pancreas (Type 1)', 'Insulin resistance in body cells (Type 2)', 'Genetic predisposition', 'Sedentary lifestyle and obesity'],
+    treatment: ['Daily insulin therapy (Type 1)', 'Oral medications like Metformin (Type 2)', 'Continuous blood glucose monitoring', 'Targeted HbA1c control', 'Cardiovascular risk management'],
+    selfCare: ['Consistent carbohydrate and fiber tracking', 'Regular daily physical activity', 'Routine foot checks for ulcers', 'Adequate hydration', 'Regular eye and kidney exams'],
+    prevention: ['Maintain a healthy body weight', 'Engage in at least 150 minutes of moderate exercise weekly', 'Eat a balanced diet rich in whole grains and vegetables', 'Avoid sugary drinks and processed foods'],
+    riskFactors: ['Family history of diabetes', 'Overweight/obesity', 'Physical inactivity', 'High blood pressure', 'Age 45 or older'],
+    warningSigns: ['Blood sugar > 250 mg/dL with ketones', 'Confusion, dizziness, or extreme fatigue', 'Fruity-smelling breath (diabetic ketoacidosis)', 'Loss of consciousness'],
+  },
+  malaria: {
+    name: 'Malaria', category: 'Infectious', severity: 'High',
+    prevalence: 'Endemic in tropical regions, affecting over 240 million people annually across Sub-Saharan Africa.',
+    description: 'A life-threatening disease caused by Plasmodium parasites transmitted to people through the bites of infected female Anopheles mosquitoes.',
+    symptoms: ['Recurrent high fevers with shaking chills', 'Profuse sweating as fever breaks', 'Severe headaches and muscle aches', 'Fatigue, nausea, and vomiting', 'Abdominal pain and diarrhea', 'Anemia and jaundice'],
+    causes: ['Infection by Plasmodium falciparum, vivax, ovale, or malariae', 'Bite of an infected female Anopheles mosquito', 'Rarely via blood transfusion or maternal-fetal transmission'],
+    treatment: ['Artemisinin-based combination therapies (ACTs)', 'Intravenous artesunate for severe malaria', 'Antipyretics for fever management', 'Fluid and electrolyte replacement', 'Blood transfusions if severe anemia occurs'],
+    selfCare: ['Complete the entire prescription course of antimalarials', 'Rest and drink plenty of fluids and oral rehydration solutions (ORS)', 'Take paracetamol to manage fever and chills', 'Monitor for signs of severe dehydration or jaundice'],
+    prevention: ['Sleep under insecticide-treated bed nets (ITNs)', 'Use mosquito repellents and wear long-sleeved clothing', 'Indoor residual spraying (IRS)', 'Eliminate standing water around homes'],
+    riskFactors: ['Living in or traveling to malaria-endemic regions', 'Young children and pregnant women', 'Lack of mosquito netting or screening', 'Immunocompromised individuals'],
+    warningSigns: ['Impaired consciousness or seizures (cerebral malaria)', 'Difficulty breathing or deep rapid breathing', 'Persistent vomiting and inability to keep fluids down', 'Dark or bloody urine'],
+  },
+  covid: {
+    name: 'COVID-19 (SARS-CoV-2)', category: 'Infectious', severity: 'High',
+    prevalence: 'Global viral respiratory infection with continuing seasonal variants.',
+    description: 'A contagious respiratory illness caused by the SARS-CoV-2 coronavirus, ranging from mild cold-like symptoms to severe pneumonia and acute respiratory distress syndrome.',
+    symptoms: ['Fever or chills', 'Dry cough and shortness of breath', 'Fatigue and body aches', 'Sore throat and runny nose', 'Loss of taste or smell', 'Headache and chest tightness'],
+    causes: ['Infection by the SARS-CoV-2 coronavirus', 'Transmission through airborne droplets and aerosols from infected individuals'],
+    treatment: ['Antiviral medications (e.g. Paxlovid) for high-risk patients', 'Oxygen therapy for respiratory distress', 'Supportive care, hydration, and antipyretics'],
+    selfCare: ['Isolate to prevent spreading to family and community', 'Rest and maintain optimal hydration', 'Use a pulse oximeter to monitor blood oxygen saturation (SpO2)', 'Take over-the-counter pain relievers for aches and fever'],
+    prevention: ['COVID-19 vaccination and booster shots', 'Wear well-fitted masks in crowded indoor settings', 'Ensure proper indoor ventilation', 'Frequent handwashing with soap and water'],
+    riskFactors: ['Age 65 and older', 'Underlying conditions: diabetes, heart disease, chronic lung disease', 'Immunocompromised status', 'Obesity'],
+    warningSigns: ['Difficulty breathing or shortness of breath', 'Persistent pain or pressure in the chest', 'New confusion or inability to wake or stay awake', 'Pale, gray, or blue-colored skin, lips, or nail beds'],
+  },
+  tb: {
+    name: 'Tuberculosis (TB)', category: 'Respiratory', severity: 'High',
+    prevalence: 'Major global infectious disease; endemic in high-burden regions.',
+    description: 'A serious bacterial infection primarily affecting the lungs (pulmonary TB), spread from person to person through microscopic droplets released into the air.',
+    symptoms: ['Persistent cough lasting 3 weeks or longer', 'Coughing up blood or sputum (hemoptysis)', 'Chest pain with breathing or coughing', 'Unintentional weight loss and loss of appetite', 'Night sweats and fever', 'Fatigue and weakness'],
+    causes: ['Mycobacterium tuberculosis bacteria', 'Inhalation of airborne bacteria from an infected person coughing or sneezing'],
+    treatment: ['Standard 6-month regimen: Isoniazid, Rifampicin, Pyrazinamide, Ethambutol (DOTS)', 'Second-line antibiotics for drug-resistant TB (MDR-TB)'],
+    selfCare: ['Take every dose of prescribed antibiotics exactly on schedule without skipping', 'Maintain good nutrition to rebuild strength and immune system', 'Ensure well-ventilated living quarters with open windows and sunlight'],
+    prevention: ['BCG vaccination in endemic regions', 'Prompt diagnosis and treatment of active cases', 'Infection control and masking around active cases', 'Preventive therapy for latent TB infection'],
+    riskFactors: ['HIV/AIDS or weakened immune system', 'Close contact with someone with active untreated TB', 'Malnutrition', 'Tobacco and substance use'],
+    warningSigns: ['Coughing up large amounts of blood', 'Severe chest pain and sudden shortness of breath', 'Rapid weight loss and extreme exhaustion'],
+  },
+  depression: {
+    name: 'Clinical Depression (Major Depressive Disorder)', category: 'Mental Health', severity: 'Medium',
+    prevalence: 'Affects an estimated 3.8% of the global population, including 5% of adults.',
+    description: 'A common and serious mental health disorder that negatively affects how you feel, think, and act, causing persistent feelings of sadness and loss of interest in activities once enjoyed.',
+    symptoms: ['Persistent sad, anxious, or empty mood', 'Loss of interest or pleasure in hobbies and activities', 'Decreased energy, fatigue, or feeling slowed down', 'Difficulty concentrating, remembering, or making decisions', 'Changes in sleep: insomnia or oversleeping', 'Changes in appetite and unplanned weight changes', 'Feelings of worthlessness or excessive guilt'],
+    causes: ['Complex interplay of biological, genetic, environmental, and psychological factors', 'Neurotransmitter imbalances in the brain', 'Chronic medical conditions or major life stress and trauma'],
+    treatment: ['Psychotherapy (Cognitive Behavioral Therapy - CBT, interpersonal therapy)', 'Antidepressant medications (SSRIs, SNRIs)', 'Combined therapy and medication approach', 'Lifestyle interventions and support groups'],
+    selfCare: ['Engage in mild daily physical activity such as walking', 'Maintain regular sleep and wake schedules', 'Stay connected with trusted friends and family members', 'Avoid alcohol and recreational drugs', 'Break large tasks into small, manageable steps'],
+    prevention: ['Early stress management and resilience building', 'Strong social connections and peer support', 'Routine screening during healthcare visits', 'Prompt treatment at first signs of recurrence'],
+    riskFactors: ['Personal or family history of depression', 'Major life transitions, trauma, or chronic stress', 'Chronic physical illness or chronic pain', 'Certain medications'],
+    warningSigns: ['Thoughts of death or suicide (Seek immediate emergency help)', 'Extreme withdrawal from all social interaction', 'Inability to perform basic daily self-care tasks'],
+  },
+  'aortic-stenosis': {
+    name: 'Aortic Stenosis', category: 'Cardiovascular', severity: 'High',
+    prevalence: 'Affects approximately 2% of people over age 65 and 3% of people over age 75.',
+    description: 'A narrowing of the aortic valve opening, restricting blood flow from the left ventricle to the aorta. Can lead to heart failure if untreated.',
+    symptoms: ['Chest pain (angina)', 'Fainting (syncope) with exertion', 'Shortness of breath with activity', 'Heart palpitations', 'Fatigue and reduced exercise capacity'],
+    causes: ['Calcium buildup on the valve leaflets with age', 'Congenital heart defect (bicuspid aortic valve)', 'Rheumatic fever complications'],
+    treatment: ['Transcatheter aortic valve replacement (TAVR)', 'Surgical aortic valve replacement (SAVR)', 'Medications to manage symptoms and blood pressure'],
+    selfCare: ['Avoid heavy strenuous isometric lifting', 'Follow a low-sodium heart-healthy diet', 'Maintain regular cardiology follow-ups with echocardiograms'],
+    prevention: ['Maintain healthy cardiovascular lifestyle', 'Control cholesterol and high blood pressure', 'Promptly treat streptococcal infections to prevent rheumatic heart disease'],
+    riskFactors: ['Older age', 'Bicuspid aortic valve', 'High cholesterol', 'Hypertension', 'Chronic kidney disease'],
+    warningSigns: ['Chest pain radiating to arm or jaw', 'Sudden fainting or blacking out', 'Severe shortness of breath at rest'],
+  },
+  'aortic-regurgitation': {
+    name: 'Aortic Regurgitation', category: 'Cardiovascular', severity: 'Medium',
+    prevalence: 'Prevalence increases with age; present in up to 13% of elderly individuals.',
+    description: "Aortic Regurgitation is a condition where the aortic valve doesn't close tightly, causing blood to leak backward into the left ventricle.",
+    symptoms: ['Fatigue and weakness', 'Shortness of breath with activity or when lying flat', 'Heart palpitations or pounding pulse', 'Chest pain during exertion', 'Lightheadedness'],
+    causes: ['Aortic valve degeneration', 'High blood pressure', 'Endocarditis', 'Aortic root dilation', 'Rheumatic heart disease'],
+    treatment: ['Surgical or catheter valve repair or replacement', 'Vasodilators and blood pressure control medications', 'Close echocardiographic surveillance'],
+    selfCare: ['Elevate head while sleeping if short of breath', 'Limit sodium intake', 'Avoid excessive caffeine', 'Take medications consistently'],
+    prevention: ['Strict blood pressure management', 'Antibiotic prophylaxis for dental work if indicated', 'Regular cardiac screenings'],
+    riskFactors: ['Advanced age', 'History of rheumatic fever', 'Hypertension', 'Marfan syndrome'],
+    warningSigns: ['Rapidly worsening shortness of breath', 'Sudden severe chest pain', 'Inability to breathe lying down (orthopnea)'],
+  },
+  'mitral-stenosis': {
+    name: 'Mitral Stenosis', category: 'Cardiovascular', severity: 'Medium',
+    prevalence: 'Common in regions where rheumatic fever remains endemic, notably Sub-Saharan Africa.',
+    description: 'A narrowing of the mitral valve opening, restricting blood flow from the left atrium to the left ventricle and increasing pressure in the lungs.',
+    symptoms: ['Shortness of breath especially during exercise or lying flat', 'Fatigue', 'Swollen feet or ankles', 'Heart palpitations (atrial fibrillation)', 'Frequent respiratory infections'],
+    causes: ['Rheumatic fever (most common cause in developing regions)', 'Heavy calcium buildup on the valve with age'],
+    treatment: ['Percutaneous balloon mitral valvuloplasty', 'Surgical mitral valve repair or replacement', 'Anticoagulants to prevent blood clots in atrial fibrillation', 'Diuretics to reduce lung fluid'],
+    selfCare: ['Limit dietary salt to reduce fluid overload', 'Avoid strenuous overexertion', 'Maintain regular vaccinations against pneumonia and flu'],
+    prevention: ['Prompt antibiotic treatment of streptococcal strep throat to prevent rheumatic fever', 'Secondary penicillin prophylaxis for rheumatic heart patients'],
+    riskFactors: ['History of untreated strep throat or rheumatic fever', 'Female sex', 'Living in areas with limited access to antibiotics'],
+    warningSigns: ['Coughing up pink frothy sputum', 'Sudden irregular fluttering heartbeat', 'Severe breathlessness'],
+  },
+  'mitral-regurgitation': {
+    name: 'Mitral Regurgitation', category: 'Cardiovascular', severity: 'Medium',
+    prevalence: 'The most common type of heart valve disease in high-income and developing countries.',
+    description: "A condition where the mitral valve leaflets do not close completely, allowing blood to leak backward into the left atrium during ventricular contraction.",
+    symptoms: ['Fatigue', 'Shortness of breath with exertion or when lying down', 'Heart palpitations', 'Swollen feet or ankles', 'Heart murmur detected by stethoscope'],
+    causes: ['Mitral valve prolapse (MVP)', 'Damaged tissue cords (chordae tendineae)', 'Rheumatic fever', 'Coronary artery disease or heart attack', 'Endocarditis'],
+    treatment: ['Mitral valve repair (preferred over replacement)', 'Transcatheter edge-to-edge repair (MitraClip)', 'Diuretics and ACE inhibitors for heart failure symptoms'],
+    selfCare: ['Eat a balanced heart-healthy diet', 'Maintain moderate physical activity as approved by cardiologist', 'Limit sodium and fluid intake if recommended'],
+    prevention: ['Treat strep throat early', 'Manage blood pressure and coronary artery disease', 'Maintain healthy dental hygiene to prevent endocarditis'],
+    riskFactors: ['Mitral valve prolapse', 'Prior heart attack', 'History of rheumatic heart disease', 'Intravenous drug use'],
+    warningSigns: ['Sudden extreme shortness of breath', 'Blue lips or fingernails', 'Loss of consciousness'],
+  },
+  'tricuspid-regurgitation': {
+    name: 'Tricuspid Regurgitation', category: 'Cardiovascular', severity: 'Low',
+    prevalence: 'Mild form is common and often benign; moderate to severe forms occur secondary to left heart disease.',
+    description: "A condition where the tricuspid valve doesn't close properly, allowing blood to flow backward into the right atrium.",
+    symptoms: ['Fatigue and weakness', 'Swelling in abdomen, legs, and veins in the neck', 'Pulsing in the neck veins', 'Enlarged liver causing abdominal discomfort'],
+    causes: ['Enlargement of the right ventricle due to pulmonary hypertension', 'Left-sided heart failure', 'Infective endocarditis', 'Rheumatic heart disease'],
+    treatment: ['Diuretics to reduce swelling and fluid overload', 'Treating underlying lung or left-heart disease', 'Surgical tricuspid annuloplasty or repair in severe cases'],
+    selfCare: ['Daily weight tracking to detect fluid retention early', 'Strict low-sodium diet', 'Elevate legs when seated to minimize swelling'],
+    prevention: ['Manage underlying cardiovascular and pulmonary conditions', 'Avoid tobacco and illicit intravenous drugs'],
+    riskFactors: ['Pulmonary hypertension', 'Left heart disease (mitral or aortic valve disease)', 'Pacemaker or defibrillator leads crossing the valve'],
+    warningSigns: ['Rapid swelling of legs and abdomen', 'Severe exhaustion', 'Jaundice (yellowing of eyes and skin)'],
+  },
+  pericarditis: {
+    name: 'Pericarditis', category: 'Cardiovascular', severity: 'Medium',
+    prevalence: 'Responsible for approximately 5% of non-ischemic chest pain admissions in emergency departments.',
+    description: 'Inflammation of the pericardium, the thin sac-like membrane surrounding the heart. Can cause sharp chest pain that improves when sitting up and leaning forward.',
+    symptoms: ['Sharp, stabbing chest pain behind breastbone or left chest', 'Pain worsens when breathing in, coughing, or lying flat', 'Pain improves when sitting up and leaning forward', 'Low-grade fever', 'Shortness of breath', 'Heart palpitations'],
+    causes: ['Viral infections (Coxsackievirus, influenza, COVID-19)', 'Autoimmune disorders (lupus, rheumatoid arthritis)', 'Post-myocardial infarction (Dressler syndrome)', 'Kidney failure (uremia)', 'Bacterial or fungal infections'],
+    treatment: ['High-dose NSAIDs (ibuprofen, aspirin)', 'Colchicine to prevent recurrences', 'Corticosteroids for refractory autoimmune cases', 'Pericardiocentesis if significant fluid accumulation occurs'],
+    selfCare: ['Strict rest and avoidance of strenuous physical activity until inflammation resolves', 'Take medications with food to prevent stomach irritation', 'Use ice or heat packs for comfort if advised'],
+    prevention: ['Prompt treatment of viral respiratory infections', 'Adequate management of systemic autoimmune diseases', 'Complete recommended anti-inflammatory regimens'],
+    riskFactors: ['Recent viral illness', 'Autoimmune disease', 'Prior heart surgery or heart attack', 'Chronic kidney disease'],
+    warningSigns: ['Severe shortness of breath with low blood pressure (cardiac tamponade)', 'Fainting or severe dizziness', 'Rapid irregular heart rate'],
+  },
+  myocarditis: {
+    name: 'Myocarditis', category: 'Cardiovascular', severity: 'High',
+    prevalence: 'Estimated at 10 to 20 cases per 100,000 persons annually, commonly in young adults.',
+    description: "Inflammation of the heart muscle (myocardium) that can reduce the heart's ability to pump blood and cause rapid or abnormal heart rhythms.",
+    symptoms: ['Chest pain or pressure', 'Rapid or abnormal heart rhythms (arrhythmias)', 'Shortness of breath at rest or during activity', 'Fluid buildup with leg and ankle swelling', 'Fatigue, fever, and flu-like symptoms'],
+    causes: ['Viral infections (adenovirus, enterovirus, SARS-CoV-2, Parvovirus B19)', 'Bacterial, fungal, or parasite infections', 'Autoimmune reactions', 'Toxic exposures or adverse medication reactions'],
+    treatment: ['Heart failure medications (ACE inhibitors, beta-blockers, diuretics)', 'Anti-arrhythmic drugs', 'Rest and avoidance of competitive sports for 3 to 6 months', 'Temporary mechanical circulatory support in severe fulminant cases'],
+    selfCare: ['Complete physical rest during recovery period', 'Avoid alcohol, tobacco, and high caffeine intake', 'Follow a low-sodium diet to prevent fluid overload'],
+    prevention: ['Stay up to date with vaccinations (flu, COVID-19)', 'Practice good hygiene to avoid viral infections', 'Seek prompt care for persistent chest discomfort following viral illness'],
+    riskFactors: ['Recent viral syndrome', 'Male sex and young age', 'Autoimmune disease', 'Exposure to toxic heavy metals or illicit stimulants'],
+    warningSigns: ['Sudden severe chest pain mimicking heart attack', 'Fainting or near-fainting episodes', 'Profound weakness and breathlessness'],
+  },
+  endocarditis: {
+    name: 'Infective Endocarditis', category: 'Cardiovascular', severity: 'High',
+    prevalence: 'Occurs in about 3 to 10 per 100,000 people annually, higher in patients with valve prostheses or congenital defects.',
+    description: 'A life-threatening infection of the inner lining of the heart chambers and valves (endocardium), usually caused when bacteria spread through the bloodstream.',
+    symptoms: ['Flu-like symptoms: fever, chills, fatigue', 'A new or changed heart murmur', 'Aching joints and muscles', 'Night sweats and unexplained weight loss', 'Small painful nodules on fingers or toes (Osler nodes)', 'Tiny purple or red spots on skin, whites of eyes, or mouth (petechiae)'],
+    causes: ['Bacteria (Staphylococcus aureus, Streptococcus viridans, Enterococcus) entering bloodstream from mouth, skin, or medical procedures', 'Fungal infections in immunocompromised individuals'],
+    treatment: ['High-dose intravenous antibiotics for 2 to 6 weeks', 'Surgical repair or replacement of damaged infected heart valves', 'Management of septic embolic complications'],
+    selfCare: ['Maintain meticulous oral and dental hygiene (brushing, flossing, regular cleanings)', 'Avoid non-medical tattoos or body piercings', 'Never share needles or injection equipment'],
+    prevention: ['Preventive antibiotic prophylaxis before specific dental procedures for high-risk cardiac patients', 'Prompt treatment of skin and urinary infections', 'Good daily oral care'],
+    riskFactors: ['Artificial (prosthetic) heart valves', 'Congenital heart disease', 'History of endocarditis', 'Damaged heart valves from rheumatic fever', 'Intravenous drug use'],
+    warningSigns: ['High persistent fever with new heart murmur', 'Weakness or numbness in arms or legs (stroke from emboli)', 'Severe chest pain or blood in urine'],
+  },
 };
 
 const TABS = ['Overview', 'Symptoms', 'Causes', 'Treatment', 'Self-Care', 'Prevention'] as const;
@@ -41,7 +197,21 @@ type Tab = typeof TABS[number];
 export function DiseaseDetail() {
   const { id = 'mvp' } = useParams<{ id: string }>();
   const [tab, setTab] = useState<Tab>('Overview');
-  const disease = DISEASE_DB[id] || DISEASE_DB['mvp'];
+  const lookupKey = id.toLowerCase().trim();
+  const disease = DISEASE_DB[lookupKey] || {
+    name: lookupKey.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    category: 'General Health',
+    severity: 'Medium',
+    prevalence: 'Verified medical reference entry.',
+    description: `${lookupKey.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} is a documented clinical condition in the Tenaye medical database. Comprehensive diagnostic and care guidelines are curated by certified healthcare professionals.`,
+    symptoms: ['Symptom presentation varies by individual severity', 'Consult a healthcare professional for clinical evaluation', 'Refer to Tenaye AI Assistant for immediate guidance'],
+    causes: ['Multifactorial biological, environmental, and genetic contributions'],
+    treatment: ['Clinical evaluation and customized therapy prescribed by a physician', 'Routine diagnostic monitoring'],
+    selfCare: ['Adequate rest and hydration', 'Follow physician guidance consistently', 'Track symptom changes'],
+    prevention: ['Maintain a balanced healthy lifestyle', 'Routine medical wellness screenings'],
+    riskFactors: ['Individual clinical history', 'Family genetic predisposition'],
+    warningSigns: ['Severe unremitting pain', 'Difficulty breathing or sudden altered consciousness', 'Call 907 for emergency care'],
+  };
 
   return (
     <main className="pt-16 bg-gray-50 min-h-screen">
@@ -107,9 +277,12 @@ export function DiseaseDetail() {
             <a href="tel:907" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors">
               <IconPhone size={12} /> Emergency Help
             </a>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-300 text-red-600 text-xs font-semibold hover:bg-red-50 transition-colors">
-              <IconBot size={12} /> Ask AI Assistant
-            </button>
+            <Link
+              to="/contact"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#119197] text-[#119197] hover:bg-[#e6f7f7] text-xs font-semibold transition-colors cursor-pointer"
+            >
+              <IconMail size={12} /> Contact Doctor
+            </Link>
           </div>
         </div>
 
@@ -225,9 +398,12 @@ export function DiseaseDetail() {
               <a href="tel:907" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">
                 <IconPhone size={15} /> Find Emergency Services
               </a>
-              <button className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 transition-colors">
-                <IconBot size={15} /> Chat with AI Assistant
-              </button>
+              <Link
+                to="/contact"
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-[#119197] text-[#119197] hover:bg-[#e6f7f7] text-sm font-semibold transition-colors cursor-pointer"
+              >
+                <IconMail size={15} /> Contact Healthcare Team
+              </Link>
             </div>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-5">

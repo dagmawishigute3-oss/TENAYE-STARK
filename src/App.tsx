@@ -1,14 +1,8 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-
-function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, [pathname]);
-  return null;
-}
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
-import { AIAssistant } from './components/AIAssistant';
+import { Assistant } from './components/Assistant';
 import { Home } from './pages/Home';
 import { Emergency } from './pages/Emergency';
 import { Diseases } from './pages/Diseases';
@@ -18,12 +12,45 @@ import { HealthTips } from './pages/HealthTips';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [pathname]);
+  return null;
+}
+
+function NavigationListener() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    (window as any).__tenayeNavigate = (target: string) => {
+      navigate(target);
+    };
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<{ path: string; search?: string }>;
+      if (ce.detail?.path) {
+        const query = ce.detail.search ? `?search=${encodeURIComponent(ce.detail.search)}` : '';
+        navigate(ce.detail.path + query);
+      }
+    };
+    window.addEventListener('tenaye-navigate', handler);
+    return () => {
+      window.removeEventListener('tenaye-navigate', handler);
+    };
+  }, [navigate]);
+  return null;
+}
+
 export default function App() {
-  useEffect(() => { document.title = 'Tenaye'; }, []);
+  useEffect(() => {
+    document.title = 'Tenaye (ጤናዬ) — Health Companion';
+  }, []);
+
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <ScrollToTop />
+        <NavigationListener />
         <Navbar />
         <div className="flex-1">
           <Routes>
@@ -38,7 +65,8 @@ export default function App() {
           </Routes>
         </div>
         <Footer />
-        <AIAssistant />
+        {/* Voxide Assistant Widget: Mounted once in the true root */}
+        <Assistant />
       </div>
     </BrowserRouter>
   );

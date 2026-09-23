@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import {
   IconShield, IconAward, IconUsers, IconCheck,
@@ -26,11 +26,21 @@ const FEATURED = [
 ];
 
 export function Home() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const statsRef = useScrollReveal();
   const whyRef = useScrollReveal();
   const featuredRef = useScrollReveal();
   const ctaRef = useScrollReveal();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      navigate(`/diseases?search=${encodeURIComponent(query.trim())}`);
+    } else {
+      navigate('/diseases');
+    }
+  };
 
   return (
     <main className="pt-16">
@@ -47,7 +57,7 @@ export function Home() {
             </p>
 
             {/* Search bar */}
-            <div className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 mb-3 shadow-md max-w-lg">
+            <form onSubmit={handleSearch} className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 mb-3 shadow-md max-w-lg">
               <IconSearch size={18} className="text-gray-400 shrink-0" />
               <input
                 type="text"
@@ -56,12 +66,15 @@ export function Home() {
                 placeholder="Search diseases, symptoms, or conditions…"
                 className="flex-1 text-gray-800 text-sm placeholder-gray-400 outline-none bg-transparent"
               />
-            </div>
+              <button type="submit" className="text-xs font-bold text-[#119197] hover:text-[#0c6e73] px-2 py-1">
+                Search
+              </button>
+            </form>
             <p className="text-teal-100/80 text-xs mb-8">
               Popular searches:{' '}
-              <Link to="/diseases" className="underline hover:text-white">Diabetes symptoms</Link>{' '}
-              <Link to="/diseases" className="underline hover:text-white">Heart disease prevention</Link>{' '}
-              <Link to="/diseases" className="underline hover:text-white">Anxiety treatment</Link>
+              <Link to="/diseases?search=Diabetes" className="underline hover:text-white">Diabetes symptoms</Link>{' '}
+              <Link to="/diseases?search=Heart" className="underline hover:text-white">Heart disease prevention</Link>{' '}
+              <Link to="/diseases?search=Anxiety" className="underline hover:text-white">Anxiety treatment</Link>
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -151,9 +164,9 @@ export function Home() {
             <a href="tel:907" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold text-sm transition-colors">
               <IconPhone size={16} /> Emergency Services
             </a>
-            <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-white text-white font-semibold text-sm hover:bg-white/10 transition-colors">
-              AI Health Assistant
-            </button>
+            <Link to="/first-aid" className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-white text-white font-semibold text-sm hover:bg-white/10 transition-colors">
+              First Aid Guides
+            </Link>
           </div>
         </div>
 

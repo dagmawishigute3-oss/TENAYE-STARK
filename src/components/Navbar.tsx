@@ -24,7 +24,10 @@ const LANGUAGES = [
 export function Navbar() {
   const [open, setOpen]         = useState(false);
   const [langOpen, setLangOpen] = useState(false);
-  const [lang, setLang]         = useState(LANGUAGES[0]);
+  const [lang, setLang]         = useState(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('tenaye_lang') : null;
+    return LANGUAGES.find(l => l.code === saved) || LANGUAGES[0];
+  });
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
@@ -100,7 +103,14 @@ export function Navbar() {
                 {LANGUAGES.map(l => (
                   <button
                     key={l.code}
-                    onClick={() => { setLang(l); setLangOpen(false); }}
+                    onClick={() => {
+                      setLang(l);
+                      setLangOpen(false);
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('tenaye_lang', l.code);
+                        window.dispatchEvent(new CustomEvent('tenaye-lang-change', { detail: { lang: l.code } }));
+                      }
+                    }}
                     className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-slate-50 ${
                       lang.code === l.code ? 'text-[#119197] bg-[#e6f7f7]' : 'text-slate-700'
                     }`}

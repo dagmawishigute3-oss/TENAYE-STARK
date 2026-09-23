@@ -20,10 +20,10 @@ const VALUES = [
 ];
 
 const TEAM = [
-  { name: 'Yonatan Muluken', role: 'Main & Co-founder', initials: 'Y', color: 'bg-[#119197]', desc: 'Project founder and team leader; designed the full website architecture, developed the complete platform, and initiated the core concept and technical direction of the project.' },
-  { name: 'Nahom Tibebu', role: 'Co-founder', initials: 'N', color: 'bg-[#119197]', desc: 'Manages medical data acquisition and verification. Compiled comprehensive disease information for the medical reference library.' },
-  { name: 'Dagmawi Shigute', role: 'Co-founder', initials: 'D', color: 'bg-[#119197]', desc: 'Conducts medical research and content organization. Ensures accuracy and accessibility of patient education materials.' },
-  { name: 'Ayub Ebrahim', role: 'Co-founder', initials: 'A', color: 'bg-[#119197]', desc: 'Oversees data quality assurance and medical content validation. Maintains information integrity across the platform.' },
+  { name: 'Yonatan Muluken', role: 'Founder & Lead Architect', initials: 'Y', color: 'bg-[#119197]', desc: 'Designed the complete website architecture, developed the full platform, and led the technical engineering of the project.' },
+  { name: 'Nahom Tibebu', role: 'Founder & Medical Data Lead', initials: 'N', color: 'bg-[#119197]', desc: 'Manages medical data acquisition and verification. Compiled comprehensive disease information for the medical reference library.' },
+  { name: 'Dagmawi Shigute', role: 'Founder & Clinical Research Lead', initials: 'D', color: 'bg-[#119197]', desc: 'Conducts medical research and content organization. Ensures accuracy and accessibility of patient education materials.' },
+  { name: 'Ayub Ebrahim', role: 'Founder & Quality Assurance Lead', initials: 'A', color: 'bg-[#119197]', desc: 'Oversees data quality assurance and medical content validation. Maintains information integrity across the platform.' },
 ];
 
 export function About() {
@@ -112,7 +112,7 @@ export function About() {
                   {m.initials}
                 </div>
                 <h3 className="font-display font-bold text-gray-900 text-sm mb-1">{m.name}</h3>
-                <p className="text-[11px] text-gray-400 mb-4">Founder &amp; Developer</p>
+                <p className="text-[11px] text-[#119197] font-semibold mb-4">{m.role}</p>
                 <div className="flex justify-center gap-2">
                   {/* Twitter/X */}
                   <button className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-900 hover:text-white text-gray-500 flex items-center justify-center transition-colors">

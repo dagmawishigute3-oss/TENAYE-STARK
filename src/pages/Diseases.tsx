@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { IconSearch, IconBook, IconFilter, IconPhone, IconAlertTriangle, IconChevronRight } from '../components/Icons';
 
@@ -17,15 +17,26 @@ const DISEASES = [
   { id: 'endocarditis', name: 'Endocarditis', category: 'Cardiovascular', severity: 'High' as const, symptoms: ['Fever', 'New or changed heart murmur', 'Fatigue'], desc: 'An infection of the inner lining of the heart chambers and valves, usually caused by bacteria.' },
   { id: 'malaria', name: 'Malaria', category: 'Infectious', severity: 'High' as const, symptoms: ['Fever', 'Chills', 'Headache', 'Fatigue'], desc: 'Plasmodium parasite transmitted via Anopheles mosquito bites, causing cyclic fever episodes.' },
   { id: 'tb', name: 'Tuberculosis', category: 'Respiratory', severity: 'High' as const, symptoms: ['Persistent cough', 'Night sweats', 'Weight loss'], desc: 'Mycobacterium tuberculosis bacteria causing primarily lung infection, spread through air.' },
+  { id: 'covid', name: 'COVID-19 (SARS-CoV-2)', category: 'Infectious', severity: 'High' as const, symptoms: ['Fever', 'Dry cough', 'Fatigue', 'Headache', 'Sore throat', 'Loss of taste or smell'], desc: 'Contagious viral respiratory disease caused by SARS-CoV-2. Presents with fever, cough, sore throat, fatigue, and headache, potentially progressing to severe pneumonia.' },
   { id: 'hypertension', name: 'Hypertension', category: 'Cardiovascular', severity: 'Medium' as const, symptoms: ['Headache', 'Dizziness', 'Chest pain'], desc: 'Chronic high blood pressure that significantly increases risk of heart disease and stroke.' },
 ];
 
 const SEVERITY_LABEL: Record<string, string> = { High: 'High', Medium: 'Moderate', Low: 'Low' };
 
 export function Diseases() {
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('All Categories');
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || searchParams.get('q') || '';
+  const initialCat = searchParams.get('category') || 'All Categories';
+  const [query, setQuery] = useState(initialSearch);
+  const [category, setCategory] = useState(initialCat);
   const ref = useScrollReveal();
+
+  useEffect(() => {
+    const s = searchParams.get('search') || searchParams.get('q');
+    if (s !== null) setQuery(s);
+    const c = searchParams.get('category');
+    if (c !== null) setCategory(c);
+  }, [searchParams]);
 
   const filtered = DISEASES.filter(d => {
     const mq = !query || d.name.toLowerCase().includes(query.toLowerCase()) || d.symptoms.some(s => s.toLowerCase().includes(query.toLowerCase()));
@@ -161,7 +172,12 @@ export function Diseases() {
               <h3 className="font-display font-extrabold text-xl mb-2">Need More Help?</h3>
               <p className="text-teal-100 text-sm mb-5">Can't find what you're looking for? Get instant support from our health resources.</p>
               <div className="flex gap-3 justify-center">
-                <button className="px-5 py-2.5 rounded-xl bg-white text-[#119197] font-bold text-sm hover:bg-[#e6f7f7] transition-colors">Ask AI</button>
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-ai-assistant'))}
+                  className="px-5 py-2.5 rounded-xl bg-white text-[#119197] font-bold text-sm hover:bg-[#e6f7f7] transition-colors cursor-pointer"
+                >
+                  Ask AI
+                </button>
                 <a href="tel:907" className="px-5 py-2.5 rounded-xl border-2 border-white text-white font-bold text-sm hover:bg-white/10 transition-colors flex items-center gap-2">
                   <IconPhone size={15} /> Emergency Help
                 </a>
