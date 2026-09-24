@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400" style="background:#ffffff;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14a2a8"/>
+      <stop offset="100%" stop-color="#0e7c82"/>
+    </linearGradient>
+    <linearGradient id="scrubPants" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d6368"/>
+      <stop offset="100%" stop-color="#08474b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Clean Ground Baseline -->
+  <line x1="40" y1="340" x2="460" y2="340" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Main Illustration Group -->
+  <g transform="translate(0, 10)">
+    
+  <!-- Victim flat on back -->
+  <circle cx="110" cy="290" r="22" fill="#ffedd5" stroke="#1e293b" stroke-width="2.5"/>
+  <path d="M130,300 L320,300" fill="none" stroke="#64748b" stroke-width="24" stroke-linecap="round"/>
+  <!-- Rescuer delivering chest compressions -->
+  <circle cx="200" cy="120" r="24" fill="#ffedd5" stroke="#1e293b" stroke-width="2.5"/>
+  <path d="M200,145 L200,230" fill="none" stroke="url(#tealGrad)" stroke-width="28" stroke-linecap="round"/>
+  <path d="M200,230 L180,335 M220,230 L250,335" fill="none" stroke="url(#scrubPants)" stroke-width="12" stroke-linecap="round"/>
+  <!-- Locked arms perpendicular at 90° -->
+  <path d="M190,165 L175,230 L175,290" fill="none" stroke="url(#tealGrad)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M210,165 L180,230 L175,290" fill="none" stroke="url(#tealGrad)" stroke-width="10" stroke-linecap="round"/>
+  <line x1="175" y1="230" x2="175" y2="290" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+  <!-- Cycle Badge: 30:2 -->
+  <rect x="290" y="150" width="130" height="48" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="300" y="172" font-size="14" font-weight="900" fill="#1d4ed8">30 : 2 CPR CYCLE</text>
+  <text x="300" y="188" font-size="9" font-weight="600" fill="#1e40af">100–120 compressions / min</text>
+
+  </g>
+
+  <!-- Professional Clinical Status Tag -->
+  <rect x="25" y="20" width="14" height="14" rx="4" fill="#119197"/>
+  <text x="46" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#0f766e" letter-spacing="0.3">STAGE 2: CONTINUOUS 30:2 CPR CYCLE</text>
+  <text x="46" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="500" fill="#64748b">Begin standard 30 compressions followed by 2 breaths; do not attempt to drain water from lungs</text>
+</svg>

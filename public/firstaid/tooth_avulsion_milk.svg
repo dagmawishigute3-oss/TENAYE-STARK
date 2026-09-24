@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400" style="background:#ffffff;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14a2a8"/>
+      <stop offset="100%" stop-color="#0e7c82"/>
+    </linearGradient>
+    <linearGradient id="scrubPants" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d6368"/>
+      <stop offset="100%" stop-color="#08474b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Clean Ground Baseline -->
+  <line x1="40" y1="340" x2="460" y2="340" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Main Illustration Group -->
+  <g transform="translate(0, 10)">
+    
+  <!-- Tooth submerged in cup of cold fresh milk -->
+  <rect x="190" y="160" width="80" height="110" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="3"/>
+  <!-- Cold Milk level -->
+  <rect x="195" y="190" width="70" height="75" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+  <!-- Tooth floating inside milk -->
+  <g transform="translate(215, 205) scale(0.9)">
+    <path d="M15,10 C15,0 35,0 35,10 C35,18 30,22 25,22 C20,22 15,18 15,10 Z" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>
+    <path d="M18,22 L17,35 M32,22 L33,35" stroke="#fef08a" stroke-width="3"/>
+  </g>
+  <!-- Rescuer placing lid on cup -->
+  <circle cx="120" cy="130" r="24" fill="#ffedd5" stroke="#1e293b" stroke-width="2.5"/>
+  <path d="M120,155 L120,240" fill="none" stroke="url(#tealGrad)" stroke-width="28" stroke-linecap="round"/>
+  <path d="M120,240 L100,335 M140,240 L160,335" fill="none" stroke="url(#scrubPants)" stroke-width="12" stroke-linecap="round"/>
+  <path d="M130,170 L180,165 L210,160" fill="none" stroke="url(#tealGrad)" stroke-width="10" stroke-linecap="round"/>
+  <rect x="300" y="170" width="160" height="46" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="310" y="190" font-size="11" font-weight="900" fill="#1d4ed8">SUBMERGE IN COLD MILK</text>
+  <text x="310" y="206" font-size="9" font-weight="600" fill="#1e40af">Preserves ligament cells (1 hour)</text>
+
+  </g>
+
+  <!-- Professional Clinical Status Tag -->
+  <rect x="25" y="20" width="14" height="14" rx="4" fill="#119197"/>
+  <text x="46" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#0f766e" letter-spacing="0.3">STAGE 2: PRESERVE IN COLD WHOLE MILK</text>
+  <text x="46" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="500" fill="#64748b">Immerse tooth in fresh cold milk or patient's saliva; rush to dentist within 60 minutes</text>
+</svg>

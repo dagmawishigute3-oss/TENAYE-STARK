@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400" style="background:#ffffff;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14a2a8"/>
+      <stop offset="100%" stop-color="#0e7c82"/>
+    </linearGradient>
+    <linearGradient id="scrubPants" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d6368"/>
+      <stop offset="100%" stop-color="#08474b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Clean Ground Baseline -->
+  <line x1="40" y1="340" x2="460" y2="340" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Main Illustration Group -->
+  <g transform="translate(0, 10)">
+    
+  <!-- Victim lying supine with knees bent up -->
+  <circle cx="100" cy="285" r="22" fill="#ffedd5" stroke="#1e293b" stroke-width="2.5"/>
+  <path d="M120,295 L220,295" fill="none" stroke="#64748b" stroke-width="24" stroke-linecap="round"/>
+  <!-- Bent Knees relieving tension -->
+  <path d="M220,295 L260,230 L300,320" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Rescuer reassuring -->
+  <circle cx="170" cy="150" r="24" fill="#ffedd5" stroke="#1e293b" stroke-width="2.5"/>
+  <path d="M170,175 L170,255" fill="none" stroke="url(#tealGrad)" stroke-width="28" stroke-linecap="round"/>
+  <path d="M170,255 L150,335 M190,255 L215,335" fill="none" stroke="url(#scrubPants)" stroke-width="12" stroke-linecap="round"/>
+  <path d="M160,190 L125,230 L115,270" fill="none" stroke="url(#tealGrad)" stroke-width="10" stroke-linecap="round"/>
+  <!-- Knee Flexion Angle Indicator -->
+  <path d="M245,260 Q260,250 270,265" fill="none" stroke="#22c55e" stroke-width="2.5"/>
+  <rect x="290" y="160" width="160" height="46" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="300" y="180" font-size="11" font-weight="800" fill="#15803d">FLEX BOTH KNEES</text>
+  <text x="300" y="196" font-size="9" font-weight="600" fill="#166534">Relieves intra-abdominal tension</text>
+
+  </g>
+
+  <!-- Professional Clinical Status Tag -->
+  <rect x="25" y="20" width="14" height="14" rx="4" fill="#119197"/>
+  <text x="46" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#0f766e" letter-spacing="0.3">STAGE 1: SUPINE POSITION WITH KNEES FLEXED</text>
+  <text x="46" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="500" fill="#64748b">Bend patient's knees upward to relax abdominal muscles and reduce strain on wound edges</text>
+</svg>

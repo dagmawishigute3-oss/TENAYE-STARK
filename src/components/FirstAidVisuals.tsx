@@ -243,468 +243,368 @@ export function TopicIcon({ id, className = 'w-10 h-10' }: { id: string; classNa
   }
 }
 
+export const TOPIC_IMAGES: Record<string, string> = {
+  cpr: '/firstaid/cpr_compressions.jpg',
+  bleeding: '/firstaid/bleeding.jpg',
+  choking: '/firstaid/choking.jpg',
+  fracture: '/firstaid/fracture.jpg',
+  burns: '/firstaid/burns.jpg',
+  sprains: '/firstaid/sprains.jpg',
+  'recovery-position': '/firstaid/recovery-position.jpg',
+  'heart-attack': '/firstaid/heart-attack.jpg',
+  stroke: '/firstaid/stroke.jpg',
+  seizures: '/firstaid/seizures.jpg',
+  snakebite: '/firstaid/snakebite.jpg',
+  asthma: '/firstaid/asthma.jpg',
+  anaphylaxis: '/firstaid/anaphylaxis.jpg',
+  nosebleed: '/firstaid/nosebleed.svg',
+  poisoning: '/firstaid/poisoning.svg',
+  'heat-stroke': '/firstaid/heat_stroke.svg',
+  hypothermia: '/firstaid/hypothermia.svg',
+  shock: '/firstaid/shock.svg',
+  'spinal-injury': '/firstaid/spinal_injury.svg',
+  drowning: '/firstaid/drowning.svg',
+  'chest-wound': '/firstaid/chest_wound.svg',
+  evisceration: '/firstaid/evisceration.svg',
+  'diabetic-emergency': '/firstaid/diabetic_emergency.svg',
+  'eye-splash': '/firstaid/eye_splash.svg',
+  'tooth-avulsion': '/firstaid/tooth_avulsion.svg',
+  'electrical-shock': '/firstaid/electrical_shock.svg',
+};
+
+export interface TopicStageInfo {
+  stage1: string;
+  stage2: string;
+  stage1Title: string;
+  stage2Title: string;
+  stage1Subtitle: string;
+  stage2Subtitle: string;
+}
+
+export const TOPIC_STAGE_IMAGES: Record<string, TopicStageInfo> = {
+  cpr: {
+    stage1: '/firstaid/cpr_compressions.jpg',
+    stage2: '/firstaid/rescue_breathing.jpg',
+    stage1Title: 'Stage 1: Chest Compressions (100–120 BPM)',
+    stage2Title: 'Stage 2: Airway & Rescue Breathing (30:2)',
+    stage1Subtitle: 'Locked elbows at 90°, interlocked hands on lower sternum, 5–6 cm depth.',
+    stage2Subtitle: 'Head-tilt chin-lift maneuver, seal mouth completely, deliver 2 gentle breaths.',
+  },
+  bleeding: {
+    stage1: '/firstaid/bleeding.jpg',
+    stage2: '/firstaid/bleeding_tourniquet.jpg',
+    stage1Title: 'Stage 1: Direct Continuous Pressure',
+    stage2Title: 'Stage 2: Windlass Tourniquet',
+    stage1Subtitle: 'Two-handed continuous direct pressure with sterile pad; elevate limb above heart.',
+    stage2Subtitle: 'Windlass tourniquet placed 5–7 cm above wound, tightened until arterial flow stops.',
+  },
+  choking: {
+    stage1: '/firstaid/choking_back_blows.jpg',
+    stage2: '/firstaid/choking.jpg',
+    stage1Title: 'Stage 1: 5 Sharp Back Blows',
+    stage2Title: 'Stage 2: 5 Heimlich Abdominal Thrusts',
+    stage1Subtitle: 'Victim bent forward, 5 distinct sharp heel-of-hand blows between shoulder blades.',
+    stage2Subtitle: 'Clenched fist positioned just above navel, pulling sharply inward and upward.',
+  },
+  fracture: {
+    stage1: '/firstaid/fracture_sling.jpg',
+    stage2: '/firstaid/fracture.jpg',
+    stage1Title: 'Stage 1: Limb Support & Triangular Arm Sling',
+    stage2Title: 'Stage 2: Rigid Splint Immobilization',
+    stage1Subtitle: 'Gentle support of deformed limb in natural position with broad triangular sling.',
+    stage2Subtitle: 'Rigid splint immobilizing joints above and below fracture, secured with soft ties.',
+  },
+  burns: {
+    stage1: '/firstaid/burns.jpg',
+    stage2: '/firstaid/burns_dressing.jpg',
+    stage1Title: 'Stage 1: Cool Running Tap Water (20m)',
+    stage2Title: 'Stage 2: Loose Sterile Film Covering',
+    stage1Subtitle: 'Irrigate burn under clean, cool running water for 10–20 minutes (never use ice).',
+    stage2Subtitle: 'Drape clear cling film loosely over burn without tension; preserve blisters.',
+  },
+  'recovery-position': {
+    stage1: '/firstaid/recovery_prep.jpg',
+    stage2: '/firstaid/recovery-position.jpg',
+    stage1Title: 'Stage 1: Limb 90° Prep & Hand to Cheek',
+    stage2Title: 'Stage 2: Lateral Recumbent Roll',
+    stage1Subtitle: 'Near arm at 90°, opposite hand to cheek, far knee bent up forming pivot lever.',
+    stage2Subtitle: 'Patient rolled onto side with bent knee stabilization and head tilted back.',
+  },
+  sprains: {
+    stage1: '/firstaid/sprains_ice.jpg',
+    stage2: '/firstaid/sprains.jpg',
+    stage1Title: 'Stage 1: R.I.C.E. Rest & Ice Pack (20m)',
+    stage2Title: 'Stage 2: Figure-8 Crepe Compression Wrap',
+    stage1Subtitle: 'Elevate joint above heart on pillows; apply cloth-wrapped cold pack for 20 minutes.',
+    stage2Subtitle: 'Figure-8 elastic wrap from distal to proximal; snug support without restricting flow.',
+  },
+  'heart-attack': {
+    stage1: '/firstaid/heart-attack.jpg',
+    stage2: '/firstaid/heart_attack_aspirin.jpg',
+    stage1Title: 'Stage 1: Semi-Recumbent "W" Position',
+    stage2Title: 'Stage 2: 300mg Chewable Aspirin & Call 907',
+    stage1Subtitle: 'Patient propped up at 45° with bent knees in "W" position to minimize cardiac burden.',
+    stage2Subtitle: 'Loosen tight neck collar; patient chews 300mg adult aspirin to slow clot formation.',
+  },
+  stroke: {
+    stage1: '/firstaid/stroke.jpg',
+    stage2: '/firstaid/stroke_dispatch.jpg',
+    stage1Title: 'Stage 1: F.A.S.T. Assessment',
+    stage2Title: 'Stage 2: Immediate 907 Dispatch',
+    stage1Subtitle: 'Evaluate facial droop, unilateral arm downward drift, and speech slurring.',
+    stage2Subtitle: 'Call 907 emergency dispatch; record exact onset time; no food, water, or aspirin.',
+  },
+  seizures: {
+    stage1: '/firstaid/seizures.jpg',
+    stage2: '/firstaid/seizures_recovery.jpg',
+    stage1Title: 'Stage 1: Cushion Head & Clear Hazards',
+    stage2Title: 'Stage 2: Post-Ictal Recovery Position',
+    stage1Subtitle: 'Cushion head with soft folded cloth; clear away sharp hazards; do not restrain.',
+    stage2Subtitle: 'Roll onto side immediately after convulsions stop; tilt head back to drain secretions.',
+  },
+  snakebite: {
+    stage1: '/firstaid/snakebite_immobilize.jpg',
+    stage2: '/firstaid/snakebite.jpg',
+    stage1Title: 'Stage 1: Calm Rest & Keep Limb Low',
+    stage2Title: 'Stage 2: Broad Pressure Bandage & Splint',
+    stage1Subtitle: 'Keep victim motionless with bitten limb lower than heart; do not cut or suck venom.',
+    stage2Subtitle: 'Apply broad pressure bandage up entire limb; immobilize with splint to halt venom flow.',
+  },
+  asthma: {
+    stage1: '/firstaid/asthma.jpg',
+    stage2: '/firstaid/asthma_calm.jpg',
+    stage1Title: 'Stage 1: Inhaler & Spacer Chamber Assistance',
+    stage2Title: 'Stage 2: Pursed-Lip Breathing & Loosen Collar',
+    stage1Subtitle: 'Keep patient seated upright; assist with 4 separate puffs of reliever inhaler via spacer.',
+    stage2Subtitle: 'Loosen restrictive neck clothing; guide slow calm breaths through pursed lips.',
+  },
+  anaphylaxis: {
+    stage1: '/firstaid/anaphylaxis.jpg',
+    stage2: '/firstaid/anaphylaxis_position.jpg',
+    stage1Title: 'Stage 1: 90° Epinephrine Auto-Injector (EpiPen)',
+    stage2Title: 'Stage 2: Shock Position & Dispatch 907',
+    stage1Subtitle: 'Firmly grasp EpiPen and inject into outer mid-thigh at 90°; hold for 3 full seconds.',
+    stage2Subtitle: 'Lay patient flat with legs elevated on cushions; call 907 immediately; monitor airway.',
+  },
+  nosebleed: {
+    stage1: '/firstaid/nosebleed.svg',
+    stage2: '/firstaid/nosebleed_ice.svg',
+    stage1Title: 'Stage 1: Lean Forward & Pinch Soft Nostrils',
+    stage2Title: 'Stage 2: Cold Ice Pack on Nasal Bridge',
+    stage1Subtitle: 'Sit upright, lean forward slightly, and pinch the soft lower nose shut for 10–15 minutes.',
+    stage2Subtitle: 'Apply cloth-wrapped ice pack to the bridge of the nose to constrict bleeding vessels.',
+  },
+  poisoning: {
+    stage1: '/firstaid/poisoning.svg',
+    stage2: '/firstaid/poisoning_recovery.svg',
+    stage1Title: 'Stage 1: Secure Container & Call 907 Poison Control',
+    stage2Title: 'Stage 2: Lateral Recovery Position',
+    stage1Subtitle: 'Keep chemical container for identification; call 907 immediately; do not induce vomiting.',
+    stage2Subtitle: 'If unconscious or nauseous, roll onto side to ensure airway drainage and avoid choking.',
+  },
+  'heat-stroke': {
+    stage1: '/firstaid/heat_stroke.svg',
+    stage2: '/firstaid/heat_stroke_hydration.svg',
+    stage1Title: 'Stage 1: Active Cooling & Cold Packs to Pulse Points',
+    stage2Title: 'Stage 2: Continuous Fanning & Sips of Cool Water',
+    stage1Subtitle: 'Move to shade, strip excess clothes, place cold wet cloths/ice on neck, armpits, and groin.',
+    stage2Subtitle: 'Fan body continuously; if fully alert and conscious, provide small sips of cool water.',
+  },
+  hypothermia: {
+    stage1: '/firstaid/hypothermia.svg',
+    stage2: '/firstaid/hypothermia_shelter.svg',
+    stage1Title: 'Stage 1: Remove Wet Clothes & Cocoon in Blankets',
+    stage2Title: 'Stage 2: Insulate Off Cold Ground & Warm Liquids',
+    stage1Subtitle: 'Strip away damp garments; wrap core and head in multiple dry blankets and foil sheets.',
+    stage2Subtitle: 'Place insulating sleeping pad beneath body; offer warm sweetened drink if alert.',
+  },
+  shock: {
+    stage1: '/firstaid/shock.svg',
+    stage2: '/firstaid/shock_warmth.svg',
+    stage1Title: 'Stage 1: Supine Position with Legs Elevated 20–30 cm',
+    stage2Title: 'Stage 2: Maintain Body Warmth & Monitor Vitals',
+    stage1Subtitle: 'Lay flat on back and prop legs 20–30 cm on pillows to redirect blood to core vital organs.',
+    stage2Subtitle: 'Cover with thermal blanket to stop heat loss; loosen tight collar; do NOT give food or drink.',
+  },
+  'spinal-injury': {
+    stage1: '/firstaid/spinal_injury.svg',
+    stage2: '/firstaid/spinal_log_roll.svg',
+    stage1Title: 'Stage 1: Manual In-Line Cervical Stabilization',
+    stage2Title: 'Stage 2: Synchronized Single-Unit Log Roll',
+    stage1Subtitle: 'Kneel at head, place hands firmly on both sides of head/neck; keep spine completely motionless.',
+    stage2Subtitle: 'If vomiting occurs, roll entire body as one rigid unit with head kept aligned with spine.',
+  },
+  drowning: {
+    stage1: '/firstaid/drowning.svg',
+    stage2: '/firstaid/drowning_cpr.svg',
+    stage1Title: 'Stage 1: 5 Immediate Initial Rescue Breaths',
+    stage2Title: 'Stage 2: 30:2 CPR Compression-Ventilation Cycle',
+    stage1Subtitle: 'Open airway with head-tilt chin-lift and deliver 5 rescue breaths first to reverse hypoxia.',
+    stage2Subtitle: 'Perform 30 chest compressions at 100–120 BPM followed by 2 breaths on firm dry ground.',
+  },
+  'chest-wound': {
+    stage1: '/firstaid/chest_wound.svg',
+    stage2: '/firstaid/chest_wound_flutter.svg',
+    stage1Title: 'Stage 1: Immediate Occlusive Plastic Barrier',
+    stage2Title: 'Stage 2: 3-Sided Taped Flutter Valve Dressing',
+    stage1Subtitle: 'Cover sucking thoracic wound immediately with sterile non-porous plastic or clean foil.',
+    stage2Subtitle: 'Tape top and two sides, leaving bottom edge untaped so trapped air escapes during exhalation.',
+  },
+  evisceration: {
+    stage1: '/firstaid/evisceration.svg',
+    stage2: '/firstaid/evisceration_dressing.svg',
+    stage1Title: 'Stage 1: Supine Posture with Flexed Knees',
+    stage2Title: 'Stage 2: Moist Sterile Saline Dressing (Do Not Push In)',
+    stage1Subtitle: 'Lay patient flat on back and bend knees upward to relieve abdominal muscle wall tension.',
+    stage2Subtitle: 'Drape sterile saline-soaked gauze loosely over protruding organs; NEVER force organs back.',
+  },
+  'diabetic-emergency': {
+    stage1: '/firstaid/diabetic_emergency.svg',
+    stage2: '/firstaid/diabetic_recovery.svg',
+    stage1Title: 'Stage 1: Administer 15g Fast-Acting Sugar (15-15 Rule)',
+    stage2Title: 'Stage 2: 15-Minute Re-Evaluation & Rest',
+    stage1Subtitle: 'If patient is conscious and can swallow, give half glass of fruit juice or 3–4 glucose tablets.',
+    stage2Subtitle: 'Wait 15 minutes; re-evaluate symptoms; if still confused or hypoglycemic, repeat 15g or call 907.',
+  },
+  'eye-splash': {
+    stage1: '/firstaid/eye_splash.svg',
+    stage2: '/firstaid/eye_splash_patch.svg',
+    stage1Title: 'Stage 1: Continuous 15-Minute Water Irrigation',
+    stage2Title: 'Stage 2: Loose Sterile Eye Pad (Do NOT Rub)',
+    stage1Subtitle: 'Tilt head toward injured side; hold lids open and flush gently with clean water inner to outer.',
+    stage2Subtitle: 'Place clean sterile gauze loosely over eye without pressure; transport for immediate eye exam.',
+  },
+  'tooth-avulsion': {
+    stage1: '/firstaid/tooth_avulsion.svg',
+    stage2: '/firstaid/tooth_avulsion_milk.svg',
+    stage1Title: 'Stage 1: Handle Knocked-Out Tooth by Crown Only',
+    stage2Title: 'Stage 2: Submerge Tooth in Cold Fresh Milk',
+    stage1Subtitle: 'Touch only the white chewing crown; NEVER touch, scrape, or scrub the delicate root cells.',
+    stage2Subtitle: 'Place tooth immediately into cup of cold milk or saliva; see dentist within 60 minutes.',
+  },
+  'electrical-shock': {
+    stage1: '/firstaid/electrical_shock.svg',
+    stage2: '/firstaid/electrical_assessment.svg',
+    stage1Title: 'Stage 1: Isolate Live Current with Dry Wooden Pole',
+    stage2Title: 'Stage 2: Assess Breathing & Prepare Immediate CPR',
+    stage1Subtitle: 'Do not touch victim directly; push wire away with dry wood or shut off main circuit breaker.',
+    stage2Subtitle: 'Once scene is fully de-energized, check airway, breathing, and pulse; start CPR if unresponsive.',
+  },
+};
+
 /* ══════════════════════════════════════════════════════════════════════
-   26 DETAILED TOPIC VISUAL DIAGRAMS (For Tab 4 & Side Panel)
+   DETAILED TOPIC VISUAL DIAGRAM (With Multi-Stage Interactive Switcher)
    ══════════════════════════════════════════════════════════════════════ */
-export function TopicVisualDiagram({ id, caption }: { id: string; caption?: string }) {
-  let diagramContent: React.ReactNode;
-  let subtitle = caption || 'Visual Medical Protocol Reference';
+export function TopicVisualDiagram({
+  id,
+  caption,
+  initialStage = 1,
+}: {
+  id: string;
+  caption?: string;
+  initialStage?: 1 | 2;
+  forceView?: 'image' | 'schematic';
+}) {
+  const stageInfo = TOPIC_STAGE_IMAGES[id];
+  const [activeStage, setActiveStage] = React.useState<1 | 2>(initialStage);
 
-  switch (id) {
-    case 'cpr':
-      diagramContent = (
-        <svg viewBox="0 0 140 160" className="w-40 h-44" fill="none">
-          <rect x="10" y="148" width="120" height="4" rx="2" fill="#e5e7eb" />
-          <rect x="48" y="110" width="16" height="38" rx="6" fill="#fca5a5" />
-          <rect x="74" y="110" width="16" height="38" rx="6" fill="#fca5a5" />
-          <rect x="36" y="62" width="68" height="48" rx="8" fill="#fecaca" stroke="#dc2626" strokeWidth="1.5" className="animate-compress" style={{ transformOrigin: '70px 86px' }} />
-          <circle cx="70" cy="50" r="13" fill="#fca5a5" stroke="#dc2626" strokeWidth="1.5" />
-          <g className="animate-compress-arm" style={{ transformOrigin: '70px 70px' }}>
-            <rect x="59" y="62" width="22" height="18" rx="4" fill="#dc2626" opacity="0.9" />
-            <path d="M59 72 Q36 65 24 55" stroke="#dc2626" strokeWidth="6" strokeLinecap="round" />
-            <path d="M81 72 Q104 65 116 55" stroke="#dc2626" strokeWidth="6" strokeLinecap="round" />
-          </g>
-          {/* AED Indicator */}
-          <rect x="98" y="18" width="34" height="26" rx="4" fill="#fef08a" stroke="#ca8a04" strokeWidth="1.5" />
-          <text x="115" y="34" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#854d0e">AED</text>
-        </svg>
-      );
-      subtitle = '30 Compressions (5–6cm) : 2 Breaths @ 100–120 BPM';
-      break;
+  React.useEffect(() => {
+    setActiveStage(1);
+  }, [id]);
 
-    case 'bleeding':
-      diagramContent = (
-        <svg viewBox="0 0 140 160" className="w-40 h-44" fill="none">
-          <rect x="52" y="24" width="36" height="106" rx="16" fill="#fca5a5" />
-          <ellipse cx="70" cy="78" rx="14" ry="7" fill="#dc2626" opacity="0.8" className="animate-breath" />
-          <rect x="40" y="65" width="60" height="14" rx="4" fill="white" stroke="#d1d5db" strokeWidth="1.5" />
-          <rect x="40" y="81" width="60" height="14" rx="4" fill="white" stroke="#d1d5db" strokeWidth="1.5" />
-          <path d="M70 30 L70 56" stroke="#dc2626" strokeWidth="3.5" strokeLinecap="round" />
-          <path d="M60 48 L70 59 L80 48" stroke="#dc2626" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          {/* Tourniquet label */}
-          <rect x="36" y="32" width="68" height="10" rx="2" fill="#ef4444" opacity="0.8" />
-          <text x="70" y="40" textAnchor="middle" fontSize="7" fontWeight="bold" fill="white">TOURNIQUET 5-7CM ABOVE</text>
-        </svg>
-      );
-      subtitle = 'Direct Uninterrupted Pressure ≥15 min · Elevate & Pack';
-      break;
+  if (stageInfo) {
+    const isStage1 = activeStage === 1;
+    const currentImg = isStage1 ? stageInfo.stage1 : stageInfo.stage2;
+    const currentTitle = isStage1 ? stageInfo.stage1Title : stageInfo.stage2Title;
+    const currentSubtitle = isStage1 ? stageInfo.stage1Subtitle : stageInfo.stage2Subtitle;
 
-    case 'choking':
-      diagramContent = (
-        <svg viewBox="0 0 140 160" className="w-40 h-44" fill="none">
-          <circle cx="82" cy="28" r="11" fill="#fca5a5" />
-          <rect x="66" y="42" width="32" height="48" rx="8" fill="#fecaca" />
-          <rect x="68" y="90" width="12" height="42" rx="4" fill="#fca5a5" />
-          <rect x="84" y="90" width="12" height="42" rx="4" fill="#fca5a5" />
-          <g className="animate-compress-arm" style={{ transformOrigin: '82px 76px' }}>
-            <path d="M24 96 Q52 82 68 76" stroke="#dc2626" strokeWidth="8" strokeLinecap="round" />
-            <circle cx="68" cy="76" r="9" fill="#dc2626" />
-          </g>
-          <path d="M82 96 L82 66" stroke="#dc2626" strokeWidth="3" strokeDasharray="4 3" strokeLinecap="round" />
-          <path d="M74 72 L82 63 L90 72" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      );
-      subtitle = '5 Back Blows ↔ 5 Inward & Upward Abdominal Thrusts';
-      break;
+    return (
+      <div className="flex flex-col items-center w-full">
+        {/* Stage Toggle Bar (Solving: "In step-by-step it shows two image avatars, and on full visualization space, it shows one") */}
+        <div className="w-full flex items-center gap-1.5 p-1 bg-gray-100/90 rounded-xl mb-3 border border-gray-200/60">
+          <button
+            type="button"
+            onClick={() => setActiveStage(1)}
+            className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all cursor-pointer text-center ${
+              activeStage === 1
+                ? 'bg-white text-[#119197] shadow-xs border border-teal-100'
+                : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            Stage 1
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveStage(2)}
+            className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all cursor-pointer text-center ${
+              activeStage === 2
+                ? 'bg-white text-[#119197] shadow-xs border border-teal-100'
+                : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            Stage 2
+          </button>
+        </div>
 
-    case 'fracture':
-      diagramContent = (
-        <svg viewBox="0 0 140 160" className="w-40 h-44" fill="none">
-          <path d="M48 20 Q64 36 64 76 Q64 116 48 136" stroke="#d1d5db" strokeWidth="15" strokeLinecap="round" />
-          <path d="M54 70 L66 59 L56 53 L68 42" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" />
-          <rect x="34" y="18" width="9" height="120" rx="3" fill="#92400e" opacity="0.8" />
-          <rect x="67" y="18" width="9" height="120" rx="3" fill="#92400e" opacity="0.8" />
-          {[32, 54, 76, 98, 120].map((y) => (
-            <rect key={y} x="30" y={y} width="50" height="9" rx="2" fill="white" stroke="#9ca3af" strokeWidth="1" />
-          ))}
-          <text x="105" y="78" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#047857">SPLINT JOINTS</text>
-          <text x="105" y="88" textAnchor="middle" fontSize="7" fill="#6b7280">ABOVE & BELOW</text>
-        </svg>
-      );
-      subtitle = 'Rigid Splint Above & Below · Check CSM Before & After';
-      break;
+        {/* Clean, High-Impact Avatar Clinical Illustration */}
+        <div className="relative group w-full flex justify-center py-2.5 px-2 bg-white rounded-2xl border border-gray-100 shadow-2xs">
+          <img
+            src={currentImg}
+            alt={currentTitle}
+            className="w-full max-w-[270px] max-h-[220px] object-contain rounded-xl"
+            loading="lazy"
+          />
+        </div>
 
-    case 'burns':
-      diagramContent = (
-        <svg viewBox="0 0 140 160" className="w-40 h-44" fill="none">
-          <rect x="52" y="16" width="36" height="104" rx="16" fill="#fca5a5" />
-          <ellipse cx="70" cy="62" rx="16" ry="20" fill="#fb923c" opacity="0.8" className="animate-breath" />
-          <rect x="96" y="14" width="22" height="9" rx="2" fill="#60a5fa" />
-          <path d="M107 23 v8" stroke="#3b82f6" strokeWidth="2.5" />
-          <path d="M96 32 Q108 55 98 84" stroke="#93c5fd" strokeWidth="5" strokeLinecap="round" opacity="0.7" strokeDasharray="6 4" />
-          <text x="70" y="140" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#2563eb">COOL WATER 20 MIN</text>
-        </svg>
-      );
-      subtitle = 'Cool Running Water 10–20 min · Cling Film · No Ice';
-      break;
-
-    case 'sprains':
-      diagramContent = (
-        <svg viewBox="0 0 140 160" className="w-40 h-44" fill="none">
-          <rect x="52" y="14" width="36" height="82" rx="12" fill="#fca5a5" />
-          <ellipse cx="70" cy="106" rx="26" ry="18" fill="#fecaca" stroke="#dc2626" strokeWidth="1.5" />
-          <rect x="42" y="90" width="56" height="26" rx="6" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.5" />
-          <text x="70" y="108" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#1d4ed8">ICE PACK</text>
-          <path d="M116 116 L116 70" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
-          <path d="M109 77 L116 68 L123 77" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          <text x="116" y="132" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#059669">ELEVATE</text>
-        </svg>
-      );
-      subtitle = 'R.I.C.E: Rest · Ice (20m) · Compression · Elevation';
-      break;
-
-    case 'recovery-position':
-      diagramContent = (
-        <svg viewBox="0 0 160 140" className="w-44 h-36" fill="none">
-          <ellipse cx="28" cy="50" rx="12" ry="10" fill="#fca5a5" stroke="#dc2626" strokeWidth="1.5" />
-          <path d="M40 54 Q75 60 110 52" stroke="#dc2626" strokeWidth="18" strokeLinecap="round" />
-          {/* Top hand under cheek */}
-          <path d="M42 58 L32 60" stroke="#fbbf24" strokeWidth="7" strokeLinecap="round" />
-          {/* Bent top knee 90 degrees */}
-          <path d="M96 56 L108 90 L130 94" stroke="#dc2626" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
-          {/* Straight bottom leg */}
-          <path d="M110 52 L144 48" stroke="#fca5a5" strokeWidth="10" strokeLinecap="round" />
-          {/* Head tilt arrow for airway */}
-          <path d="M24 38 Q28 28 36 32" stroke="#0284c7" strokeWidth="2.5" strokeLinecap="round" markerEnd="url(#arrow)" />
-          <text x="80" y="126" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#0369a1">HEAD TILTED · KNEE PROP AT 90°</text>
-        </svg>
-      );
-      subtitle = 'Lateral Recumbent: Chin Tilted Up · Top Knee Bent 90°';
-      break;
-
-    case 'heart-attack':
-      diagramContent = (
-        <svg viewBox="0 0 150 150" className="w-40 h-40" fill="none">
-          {/* Wall / Backrest */}
-          <rect x="20" y="18" width="6" height="110" rx="2" fill="#9ca3af" />
-          <rect x="20" y="122" width="110" height="6" rx="2" fill="#9ca3af" />
-          {/* Person in W position */}
-          <circle cx="50" cy="40" r="11" fill="#fca5a5" />
-          {/* Torso reclined 45 deg */}
-          <path d="M48 51 L40 92" stroke="#dc2626" strokeWidth="16" strokeLinecap="round" />
-          {/* Thighs up */}
-          <path d="M40 92 L68 90" stroke="#fca5a5" strokeWidth="14" strokeLinecap="round" />
-          {/* Knees bent up */}
-          <path d="M68 90 L85 70 L98 116" stroke="#fca5a5" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
-          {/* Aspirin badge */}
-          <circle cx="112" cy="40" r="14" fill="#fef3c7" stroke="#d97706" strokeWidth="1.5" />
-          <text x="112" y="43" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#b45309">300mg ASP</text>
-          <text x="75" y="142" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#b91c1c">"W" SEMI-RECUMBENT POSITION</text>
-        </svg>
-      );
-      subtitle = 'Semi-Recumbent "W" Position · Chew 300mg Aspirin';
-      break;
-
-    case 'stroke':
-      diagramContent = (
-        <svg viewBox="0 0 160 150" className="w-44 h-40" fill="none">
-          {/* 4 Quadrants for FAST */}
-          <rect x="10" y="10" width="66" height="58" rx="8" fill="#fef2f2" stroke="#fca5a5" />
-          <rect x="84" y="10" width="66" height="58" rx="8" fill="#fef2f2" stroke="#fca5a5" />
-          <rect x="10" y="74" width="66" height="58" rx="8" fill="#fef2f2" stroke="#fca5a5" />
-          <rect x="84" y="74" width="66" height="58" rx="8" fill="#fef2f2" stroke="#fca5a5" />
-          {/* F */}
-          <text x="43" y="30" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#dc2626">F - Face</text>
-          <text x="43" y="44" textAnchor="middle" fontSize="7" fill="#4b5563">Drooping Smile</text>
-          {/* A */}
-          <text x="117" y="30" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#dc2626">A - Arms</text>
-          <text x="117" y="44" textAnchor="middle" fontSize="7" fill="#4b5563">One Arm Drifts</text>
-          {/* S */}
-          <text x="43" y="94" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#dc2626">S - Speech</text>
-          <text x="43" y="108" textAnchor="middle" fontSize="7" fill="#4b5563">Slurred / Muddled</text>
-          {/* T */}
-          <text x="117" y="94" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#dc2626">T - Time</text>
-          <text x="117" y="108" textAnchor="middle" fontSize="7" fill="#4b5563">Call 907 Instantly</text>
-          <text x="80" y="145" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#b91c1c">F.A.S.T. ASSESSMENT CRITERIA</text>
-        </svg>
-      );
-      subtitle = 'F.A.S.T: Face Droop · Arm Drift · Slurred Speech · Time (907)';
-      break;
-
-    case 'seizures':
-      diagramContent = (
-        <svg viewBox="0 0 150 140" className="w-40 h-36" fill="none">
-          <ellipse cx="36" cy="74" rx="18" ry="10" fill="#fed7aa" stroke="#f97316" strokeWidth="1.5" />
-          <path d="M48 64 Q90 62 126 70" stroke="#fca5a5" strokeWidth="14" strokeLinecap="round" />
-          <circle cx="36" cy="54" r="10" fill="#fca5a5" />
-          {/* Soft cushion under head */}
-          <rect x="22" y="68" width="28" height="12" rx="4" fill="#93c5fd" />
-          <text x="36" y="77" textAnchor="middle" fontSize="6" fontWeight="bold" fill="#1e40af">PILLOW</text>
-          {/* Clear hazard zone circle */}
-          <circle cx="75" cy="70" r="54" stroke="#f87171" strokeWidth="1.5" strokeDasharray="4 3" />
-          <text x="75" y="132" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#dc2626">CLEAR 2m AREA · DO NOT RESTRAIN</text>
-        </svg>
-      );
-      subtitle = 'Cushion Head · Clear Hard Objects · Time Duration · No Restraint';
-      break;
-
-    case 'poisoning':
-      diagramContent = (
-        <svg viewBox="0 0 140 140" className="w-36 h-36" fill="none">
-          <rect x="42" y="24" width="56" height="74" rx="8" fill="#fef2f2" stroke="#dc2626" strokeWidth="2" />
-          <path d="M56 16h28v8H56z" fill="#dc2626" />
-          {/* Skull icon */}
-          <circle cx="70" cy="50" r="12" fill="#ef4444" />
-          <circle cx="66" cy="48" r="2.5" fill="white" />
-          <circle cx="74" cy="48" r="2.5" fill="white" />
-          <path d="M66 57h8" stroke="white" strokeWidth="2" />
-          {/* 907 call badge */}
-          <rect x="25" y="104" width="90" height="20" rx="6" fill="#dc2626" />
-          <text x="70" y="118" textAnchor="middle" fontSize="9" fontWeight="bold" fill="white">CALL 907 IMMEDIATELY</text>
-        </svg>
-      );
-      subtitle = 'Save Substance Container · Call 907 · Do NOT Induce Vomiting';
-      break;
-
-    case 'heat-stroke':
-      diagramContent = (
-        <svg viewBox="0 0 150 140" className="w-40 h-36" fill="none">
-          {/* Ice tub / Cold immersion */}
-          <rect x="20" y="60" width="110" height="48" rx="14" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" />
-          <path d="M24 72c10-2 20 2 30 0s20-2 30 0 20 2 30 0" stroke="#60a5fa" strokeWidth="2" />
-          <circle cx="45" cy="50" r="11" fill="#fca5a5" />
-          <path d="M54 58 Q85 64 115 62" stroke="#fca5a5" strokeWidth="12" strokeLinecap="round" />
-          {/* Ice packs at neck & armpits */}
-          <circle cx="58" cy="62" r="5" fill="#38bdf8" />
-          <circle cx="78" cy="66" r="5" fill="#38bdf8" />
-          <text x="75" y="130" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#1d4ed8">COLD WATER IMMERSION / ICE WRAP</text>
-        </svg>
-      );
-      subtitle = 'Rapid Active Cooling to <39°C · Cold Water / Ice to Armpits & Groin';
-      break;
-
-    case 'hypothermia':
-      diagramContent = (
-        <svg viewBox="0 0 150 140" className="w-40 h-36" fill="none">
-          {/* Blanket cocoon */}
-          <ellipse cx="75" cy="70" rx="55" ry="30" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
-          <ellipse cx="75" cy="70" rx="46" ry="24" fill="#fed7aa" />
-          <circle cx="45" cy="66" r="11" fill="#fca5a5" />
-          {/* Heat pack at chest */}
-          <rect x="68" y="58" width="24" height="16" rx="4" fill="#ef4444" />
-          <text x="80" y="69" textAnchor="middle" fontSize="7" fontWeight="bold" fill="white">HEAT</text>
-          <text x="75" y="128" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#b45309">DRY CLOTHING · TRIPLE LAYER WRAP</text>
-        </svg>
-      );
-      subtitle = 'Warm Torso First · Remove Wet Clothes · Gentle Handling';
-      break;
-
-    case 'snakebite':
-      diagramContent = (
-        <svg viewBox="0 0 150 140" className="w-40 h-36" fill="none">
-          {/* Lower leg */}
-          <rect x="25" y="55" width="100" height="24" rx="8" fill="#fca5a5" />
-          {/* Fang puncture marks */}
-          <circle cx="45" cy="63" r="2.5" fill="#dc2626" />
-          <circle cx="45" cy="71" r="2.5" fill="#dc2626" />
-          {/* Broad elastic bandage overlap */}
-          {[55, 70, 85, 100].map((x) => (
-            <rect key={x} x={x} y="51" width="12" height="32" rx="2" fill="white" stroke="#9ca3af" strokeWidth="1.5" />
-          ))}
-          {/* Heart level marker */}
-          <path d="M25 96h100" stroke="#dc2626" strokeDasharray="3 3" />
-          <text x="75" y="112" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#b91c1c">IMMOBILIZE BELOW HEART LEVEL</text>
-        </svg>
-      );
-      subtitle = 'Broad Pressure Bandage · Immobilize Limb · Keep Still Below Heart';
-      break;
-
-    case 'asthma':
-      diagramContent = (
-        <svg viewBox="0 0 140 150" className="w-36 h-40" fill="none">
-          {/* Upright sitting person leaning forward */}
-          <circle cx="60" cy="35" r="12" fill="#fca5a5" />
-          <path d="M58 48 L68 95 L95 125" stroke="#fca5a5" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" />
-          {/* Inhaler & Spacer */}
-          <rect x="85" y="40" width="30" height="12" rx="3" fill="#60a5fa" />
-          <rect x="110" y="32" width="10" height="24" rx="2" fill="#2563eb" />
-          <text x="70" y="142" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#1e40af">4 PUFFS ↔ 4 MIN (4×4 RULE)</text>
-        </svg>
-      );
-      subtitle = 'Upright Tripod Stance · Spacer with 4 Puffs · Repeat in 4 Min';
-      break;
-
-    case 'nosebleed':
-      diagramContent = (
-        <svg viewBox="0 0 140 140" className="w-36 h-36" fill="none">
-          <circle cx="65" cy="45" r="22" fill="#fca5a5" />
-          {/* Forward tilt angle line */}
-          <path d="M40 75 Q65 60 90 75" stroke="#d1d5db" strokeWidth="3" />
-          {/* Nose pinch clip */}
-          <ellipse cx="84" cy="48" rx="8" ry="6" fill="#dc2626" />
-          <path d="M84 42v12" stroke="white" strokeWidth="2" />
-          <path d="M84 54 Q86 64 84 72" stroke="#dc2626" strokeWidth="2.5" />
-          <text x="70" y="125" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#b91c1c">TILT FORWARD · PINCH 10-15 MIN</text>
-        </svg>
-      );
-      subtitle = 'Lean Head FORWARD · Firmly Pinch Soft Nostrils 10–15 Min';
-      break;
-
-    case 'eye-splash':
-      diagramContent = (
-        <svg viewBox="0 0 150 140" className="w-40 h-36" fill="none">
-          {/* Head tilted sideways */}
-          <circle cx="75" cy="50" r="26" fill="#fca5a5" />
-          <ellipse cx="88" cy="50" rx="9" ry="6" fill="white" stroke="#0284c7" strokeWidth="1.5" />
-          <circle cx="88" cy="50" r="3.5" fill="#0284c7" />
-          {/* Irrigation stream pouring inner to outer */}
-          <path d="M65 14 Q78 30 84 46" stroke="#38bdf8" strokeWidth="5" strokeLinecap="round" />
-          <path d="M88 56 Q94 72 104 90" stroke="#38bdf8" strokeWidth="5" strokeLinecap="round" opacity="0.7" />
-          <text x="75" y="128" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#0369a1">FLUSH INNER TO OUTER CANTHUS 20m</text>
-        </svg>
-      );
-      subtitle = 'Tilt Affected Eye Downward · Flush Inner to Outer for 15–20 Min';
-      break;
-
-    case 'shock':
-      diagramContent = (
-        <svg viewBox="0 0 150 140" className="w-40 h-36" fill="none">
-          {/* Person supine */}
-          <circle cx="35" cy="75" r="10" fill="#fca5a5" />
-          <path d="M42 80 L75 80" stroke="#fca5a5" strokeWidth="12" strokeLinecap="round" />
-          {/* Legs elevated on wedge 30cm */}
-          <polygon points="75,85 125,85 125,55" fill="#cbd5e1" />
-          <path d="M75 80 L120 58" stroke="#dc2626" strokeWidth="12" strokeLinecap="round" />
-          <text x="75" y="124" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#dc2626">ELEVATE FEET 30CM (12 INCHES)</text>
-        </svg>
-      );
-      subtitle = 'Supine with Legs Raised 30cm · Insulate with Blanket · No Fluids';
-      break;
-
-    case 'spinal-injury':
-      diagramContent = (
-        <svg viewBox="0 0 150 140" className="w-40 h-36" fill="none">
-          {/* Neutral alignment */}
-          <circle cx="40" cy="70" r="12" fill="#fca5a5" />
-          <path d="M52 70 L125 70" stroke="#dc2626" strokeWidth="14" strokeLinecap="round" />
-          {/* Two rescuer hands stabilizing head */}
-          <path d="M30 52 Q40 46 50 52" stroke="#059669" strokeWidth="6" strokeLinecap="round" />
-          <path d="M30 88 Q40 94 50 88" stroke="#059669" strokeWidth="6" strokeLinecap="round" />
-          <text x="75" y="125" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#047857">MANUAL IN-LINE STABILIZATION</text>
-        </svg>
-      );
-      subtitle = 'Hold Head & Neck Rigid In-Line · Zero Movement · Jaw-Thrust Only';
-      break;
-
-    case 'drowning':
-      diagramContent = (
-        <svg viewBox="0 0 150 140" className="w-40 h-36" fill="none">
-          <circle cx="45" cy="50" r="12" fill="#fca5a5" />
-          <path d="M55 60 L110 65" stroke="#fca5a5" strokeWidth="14" strokeLinecap="round" />
-          {/* 5 Rescue breaths indicator */}
-          <rect x="25" y="85" width="100" height="24" rx="6" fill="#0284c7" />
-          <text x="75" y="100" textAnchor="middle" fontSize="9" fontWeight="bold" fill="white">5 INITIAL RESCUE BREATHS</text>
-          <text x="75" y="130" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#0369a1">FOLLOWED BY 30:2 CPR CYCLES</text>
-        </svg>
-      );
-      subtitle = 'Begin with 5 Initial Rescue Breaths · Then Standard 30:2 CPR';
-      break;
-
-    case 'anaphylaxis':
-      diagramContent = (
-        <svg viewBox="0 0 140 150" className="w-36 h-40" fill="none">
-          {/* Outer Thigh */}
-          <rect x="35" y="25" width="35" height="95" rx="14" fill="#fca5a5" />
-          {/* Auto-Injector at 90 degrees */}
-          <rect x="75" y="55" width="46" height="14" rx="4" fill="#f59e0b" stroke="#d97706" strokeWidth="1.5" />
-          <polygon points="75,57 65,62 75,67" fill="#dc2626" />
-          <path d="M121 58v8" stroke="#b45309" strokeWidth="3" />
-          <text x="70" y="135" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#b45309">90° OUTER THIGH · HOLD 3–10 SEC</text>
-        </svg>
-      );
-      subtitle = 'EpiPen 90° into Anterolateral Thigh · Hold Firmly 3–10 Seconds';
-      break;
-
-    case 'chest-wound':
-      diagramContent = (
-        <svg viewBox="0 0 140 140" className="w-36 h-36" fill="none">
-          <rect x="25" y="25" width="90" height="90" rx="10" fill="#fef2f2" stroke="#fca5a5" />
-          <circle cx="70" cy="70" r="10" fill="#dc2626" />
-          {/* 3 Taped Sides */}
-          <rect x="35" y="32" width="70" height="8" rx="2" fill="#0284c7" />
-          <rect x="32" y="35" width="8" height="70" rx="2" fill="#0284c7" />
-          <rect x="100" y="35" width="8" height="70" rx="2" fill="#0284c7" />
-          {/* Bottom Open Flutter Valve */}
-          <path d="M40 108h60" stroke="#10b981" strokeWidth="3" strokeDasharray="4 3" />
-          <text x="70" y="128" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#047857">BOTTOM EDGE UNTAPED (FLUTTER VALVE)</text>
-        </svg>
-      );
-      subtitle = '3-Sided Occlusive Dressing: Bottom Open for Air to Escape';
-      break;
-
-    case 'evisceration':
-      diagramContent = (
-        <svg viewBox="0 0 150 140" className="w-40 h-36" fill="none">
-          <circle cx="40" cy="50" r="11" fill="#fca5a5" />
-          {/* Knees drawn up (flexed) */}
-          <path d="M48 60 L78 68 L92 48 L114 85" stroke="#fca5a5" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
-          {/* Moist saline dressing over abdomen */}
-          <ellipse cx="74" cy="68" rx="14" ry="8" fill="#93c5fd" opacity="0.8" stroke="#2563eb" strokeWidth="1.5" />
-          <text x="75" y="125" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#1e40af">MOIST SALINE DRESSING · KNEES FLEXED</text>
-        </svg>
-      );
-      subtitle = 'Do NOT Push Organs Back · Sterile Moist Dressing · Flex Knees';
-      break;
-
-    case 'diabetic-emergency':
-      diagramContent = (
-        <svg viewBox="0 0 140 140" className="w-36 h-36" fill="none">
-          <rect x="30" y="25" width="80" height="90" rx="12" fill="#fef9c3" stroke="#eab308" strokeWidth="2" />
-          <text x="70" y="55" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#a16207">15g</text>
-          <text x="70" y="72" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#854d0e">FAST SUGAR</text>
-          <path d="M45 88h50" stroke="#ca8a04" strokeWidth="2" />
-          <text x="70" y="102" textAnchor="middle" fontSize="8" fill="#713f12">WAIT 15 MINUTES</text>
-        </svg>
-      );
-      subtitle = 'Rule of 15: Give 15–20g Fast Sugar · Recheck in 15 Minutes';
-      break;
-
-    case 'tooth-avulsion':
-      diagramContent = (
-        <svg viewBox="0 0 140 140" className="w-36 h-36" fill="none">
-          {/* Glass of milk */}
-          <path d="M45 45 L50 110 L90 110 L95 45 Z" fill="#eff6ff" stroke="#60a5fa" strokeWidth="2" />
-          <text x="70" y="70" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#2563eb">COLD MILK</text>
-          {/* Tooth floating inside, held by crown */}
-          <path d="M64 82c0-3 12-3 12 0 0 4 2 8 2 12-2 4-5 8-8 8s-6-4-8-8c0-4 2-8 2-12z" fill="white" stroke="#3b82f6" strokeWidth="1" />
-          <text x="70" y="130" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#1e40af">HANDLE CROWN ONLY · SUBMERGE</text>
-        </svg>
-      );
-      subtitle = 'Hold Crown Only (Never Root) · Submerge in Milk · Replant ≤60m';
-      break;
-
-    case 'electrical-shock':
-      diagramContent = (
-        <svg viewBox="0 0 140 140" className="w-36 h-36" fill="none">
-          {/* Breaker switch OFF */}
-          <rect x="30" y="25" width="80" height="45" rx="6" fill="#f1f5f9" stroke="#64748b" strokeWidth="2" />
-          <rect x="52" y="35" width="36" height="25" rx="3" fill="#dc2626" />
-          <text x="70" y="51" textAnchor="middle" fontSize="10" fontWeight="bold" fill="white">POWER OFF</text>
-          {/* Wooden broom isolation stick */}
-          <path d="M25 110 L115 85" stroke="#92400e" strokeWidth="8" strokeLinecap="round" />
-          <text x="70" y="128" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#b45309">NON-CONDUCTIVE WOODEN STICK</text>
-        </svg>
-      );
-      subtitle = 'Cut Power at Breaker First · Push with Dry Wood · Never Touch Victim';
-      break;
-
-    default:
-      diagramContent = (
-        <svg viewBox="0 0 140 140" className="w-36 h-36" fill="none">
-          <circle cx="70" cy="70" r="50" stroke="#119197" strokeWidth="2" strokeDasharray="4 4" />
-          <path d="M70 45v30M70 90h.01" stroke="#119197" strokeWidth="4" strokeLinecap="round" />
-        </svg>
-      );
-      break;
+        {/* Title & Subtitle */}
+        <div className="text-center px-1 mt-2.5">
+          <p className="text-xs font-bold text-gray-900 leading-snug">
+            {currentTitle}
+          </p>
+          <p className="text-[11px] text-[#0f766e] font-medium leading-relaxed mt-1">
+            {caption || currentSubtitle}
+          </p>
+          <span className="inline-block mt-1 text-[10px] font-semibold text-gray-400">
+            Tenaye Clinical Action Guide · Stage {activeStage} of 2
+          </span>
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div className="flex flex-col items-center gap-3">
-      {diagramContent}
-      <div className="text-center px-2">
-        <p className="text-[11px] font-bold text-[#119197] tracking-wide leading-tight">{subtitle}</p>
-        <p className="text-[10px] text-gray-400 mt-1">Standard Emergency Guideline Protocol</p>
+  // Single image fallback if in TOPIC_IMAGES
+  const singleImg = TOPIC_IMAGES[id];
+  if (singleImg) {
+    return (
+      <div className="flex flex-col items-center w-full">
+        <div className="w-full flex justify-center py-2 bg-white rounded-2xl border border-gray-100 shadow-2xs">
+          <img
+            src={singleImg}
+            alt={caption || id}
+            className="w-full max-w-[270px] max-h-[220px] object-contain rounded-xl"
+            loading="lazy"
+          />
+        </div>
+        <p className="text-xs font-bold text-[#119197] text-center mt-2.5">
+          {caption || 'Certified Clinical Protocol'}
+        </p>
       </div>
+    );
+  }
+
+  // Clear, high-impact clinical card for other conditions
+  return (
+    <div className="flex flex-col items-center justify-center p-6 bg-teal-50/40 rounded-2xl border border-teal-100/80 text-center max-w-[270px] w-full">
+      <div className="w-12 h-12 rounded-2xl bg-teal-100/70 text-[#119197] flex items-center justify-center mb-3">
+        <TopicIcon id={id} className="w-6 h-6" />
+      </div>
+      <p className="text-xs font-bold text-gray-800 mb-1">Standard Protocol Reference</p>
+      <p className="text-[11px] text-gray-500 leading-relaxed mb-2">
+        {caption || 'Follow the step-by-step checklist above for this emergency condition.'}
+      </p>
+      <span className="text-[10px] font-semibold text-[#119197] bg-white px-2.5 py-1 rounded-full border border-teal-100 shadow-2xs">
+        Certified Clinical Protocol
+      </span>
     </div>
   );
 }

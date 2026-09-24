@@ -352,6 +352,32 @@ export function cleanBilingualOutput(raw: string, isUserAmharic = false): string
     text = text.replace(/[\u0D80-\u0DFF\u3040-\u30FF\u4E00-\u9FFF]/g, '').trim();
   }
 
+  // Strip any accidental prompt injection artifacts or token markers like "CTR 46 > CTR 46"
+  text = text.replace(/^CTR\s*\d+\s*>\s*CTR\s*\d+[:.]?\s*/gi, '').trim();
+  text = text.replace(/CTR\s*\d+\s*>\s*CTR\s*\d+/gi, '').trim();
+  text = text.replace(/\[(?:CRITICAL\s+)?MANDATORY\s+INSTRUCTION:[^\]]*\]\s*/gi, '').trim();
+
+  // Handle explicit [ENGLISH] / [AMHARIC] tags
+  const hasEnglishTag = /\[ENGLISH\]/i.test(text);
+  const hasAmharicTag = /\[(?:AMHARIC|አማርኛ)\]/i.test(text);
+
+  if (hasEnglishTag || hasAmharicTag) {
+    if (!isUserAmharic) {
+      // English mode: discard everything from [AMHARIC] onwards
+      if (hasAmharicTag) {
+        text = text.split(/\[(?:AMHARIC|አማርኛ)\]/i)[0].trim();
+      }
+      text = text.replace(/^\[ENGLISH\]\s*(?:[A-Za-z\s]+[:፡])?\s*/i, '').trim();
+    } else {
+      // Amharic mode: keep only the Amharic portion
+      if (hasAmharicTag) {
+        const parts = text.split(/\[(?:AMHARIC|አማርኛ)\]/i);
+        text = parts[parts.length - 1].trim();
+      }
+      text = text.replace(/^\[(?:AMHARIC|አማርኛ)\]\s*(?:[\u1200-\u137F\s]+[:፡])?\s*/i, '').trim();
+    }
+  }
+
   // Check if text has both significant Latin and Ethiopic characters
   const hasLatin = /[a-zA-Z]{3,}/.test(text);
   const hasEthiopic = /[\u1200-\u137F]{3,}/.test(text);
@@ -371,31 +397,46 @@ export function cleanBilingualOutput(raw: string, isUserAmharic = false): string
       }
     }
 
-    // Handle distinct bilingual blocks separated by double newlines without slashes
-    if (!isUserAmharic) {
-      const enFirstMatch = text.match(/^([\s\S]*?[a-zA-Z]{4,}[\s\S]*?)\n{2,}(?:\*{0,2}[\u1200-\u137F]{2,}[\s\S]*)$/);
-      if (enFirstMatch && enFirstMatch[1].length > 40) {
-        return enFirstMatch[1].trim();
-      }
-      const amFirstMatch = text.match(/^[\s\S]*?[\u1200-\u137F]{3,}[\s\S]*?\n{2,}([\s\S]*?[a-zA-Z]{4,}[\s\S]*)$/);
-      if (amFirstMatch && amFirstMatch[1].length > 40) {
-        return amFirstMatch[1].trim();
-      }
-    } else {
-      const enFirstMatch = text.match(/^[\s\S]*?[a-zA-Z]{4,}[\s\S]*?\n{2,}((?:\*{0,2}[\u1200-\u137F]{2,}[\s\S]*))$/);
-      if (enFirstMatch && enFirstMatch[1].length > 40) {
-        return enFirstMatch[1].trim();
-      }
-      const amFirstMatch = text.match(/^([\s\S]*?[\u1200-\u137F]{3,}[\s\S]*?)\n{2,}(?:[a-zA-Z]{4,}[\s\S]*)$/);
-      if (amFirstMatch && amFirstMatch[1].length > 40) {
-        return amFirstMatch[1].trim();
+    // Split paragraphs by \n\n to isolate language blocks cleanly without truncating within sections
+    const paras = text.split(/\n{2,}/);
+    if (paras.length > 1) {
+      if (!isUserAmharic) {
+        // Collect English paragraphs until an explicitly Amharic-dominant block starts
+        const enParas: string[] = [];
+        for (const p of paras) {
+          const latinCount = (p.match(/[a-zA-Z]/g) || []).length;
+          const ethCount = (p.match(/[\u1200-\u137F]/g) || []).length;
+          if (ethCount > 8 && ethCount > latinCount) {
+            break;
+          }
+          enParas.push(p);
+        }
+        if (enParas.length > 0) {
+          text = enParas.join('\n\n').trim();
+        }
+      } else {
+        // Collect Amharic paragraphs
+        const amParas: string[] = [];
+        let amharicStarted = false;
+        for (const p of paras) {
+          const latinCount = (p.match(/[a-zA-Z]/g) || []).length;
+          const ethCount = (p.match(/[\u1200-\u137F]/g) || []).length;
+          if (ethCount > 5 && ethCount >= latinCount) {
+            amharicStarted = true;
+          }
+          if (amharicStarted) {
+            amParas.push(p);
+          }
+        }
+        if (amParas.length > 0) {
+          text = amParas.join('\n\n').trim();
+        }
       }
     }
   }
 
   // Hearing check language alignment fallback
   if (!isUserAmharic) {
-    // User spoke English but model responded with Amharic hearing check
     if (
       /(?:አዎ[፣,]?\s*)?(?:በደንብ\s+)?እሰማ(?:ዎታለሁ|ሃለሁ|ሻለሁ|ሃለው|ሻለው|ዋለሁ|ታለሁ)/.test(text) ||
       /(?:በምን\s+(?:የጤና\s+ጉዳይ\s+)?ልርዳ(?:ዎ|ህ|ሽ))/i.test(text)
@@ -403,13 +444,347 @@ export function cleanBilingualOutput(raw: string, isUserAmharic = false): string
       return "I can hear you clearly. How can I help you with your health today?";
     }
   } else {
-    // User spoke Amharic but model responded with English hearing check
     if (/I\s+(?:can\s+)?hear\s+you\s+(?:clearly|loud|well|fine)/i.test(text) || /how\s+can\s+I\s+help\s+you/i.test(text)) {
       return "አዎ፣ በደንብ እሰማዎታለሁ! ዛሬ በምን የጤና ጉዳይ ልርዳዎ?";
     }
   }
 
+  // 100% Language Isolation Guarantee:
+  // If user communicated in Amharic but model returned pure English without any Ethiopic Fidel
+  if (isUserAmharic && !/[\u1200-\u137F]/.test(text)) {
+    for (const item of AMHARIC_CLINICAL_MAP) {
+      if (item.regex.test(text)) {
+        return item.response;
+      }
+    }
+    return (
+      "የጤና መረጃ እና ምክር፡\n" +
+      "ለተጠቀሰው የጤና ሁኔታ ተገቢውን የህክምና መመሪያ ለማግኘት እባክዎ ጥያቄዎን በዝርዝር ያብራሩ። " +
+      "ድንገተኛ አደጋ ወይም ከባድ ህመም ካጋጠመዎት ወዲያውኑ ወደ 907 ነፃ የአምቡላንስ የስልክ መስመር ይደውሉ ወይም በአቅራቢያዎ ወደሚገኝ የጤና ተቋም በአስቸኳይ ይሂዱ።"
+    );
+  }
+
+  // If user communicated in English but model returned pure Amharic without any Latin letters
+  if (!isUserAmharic && !/[a-zA-Z]/.test(text) && /[\u1200-\u137F]/.test(text)) {
+    for (const item of ENGLISH_CLINICAL_MAP) {
+      if (item.regex.test(text)) {
+        return item.response;
+      }
+    }
+    return (
+      "Health Information & Clinical Guidance:\n" +
+      "Please describe your symptoms in detail so I can provide accurate guidance. " +
+      "For severe emergencies, please call the Ethiopian Ambulance Dispatch at 907 immediately or visit your nearest hospital."
+    );
+  }
+
+  // Completion Guarantee: Ensure clinical responses never stop at symptoms
+  if (isUserAmharic) {
+    if (text.includes('ወባ') || /malaria/i.test(text)) {
+      if (!text.includes('መንስኤዎች') && !text.includes('ህክምና')) {
+        text += '\n\n**መንስኤዎች፡**\n• በፕላስሞዲየም ጥገኛ ተውሳክ የተያዘች አኖፊለስ የወባ ትንኝ ንክሻ\n• ጥገኛ ተውሳኩ ወደ ጉበት በመሄድ በደም ውስጥ ሲባዛ\n• ለትንኝ መራቢያ የሚሆኑ አቆራጭ ውሃዎች መኖር\n\n**ህክምና እና እንክብካቤ፡**\n• ትኩሳት ሲሰማ ወዲያውኑ የደም ምርመራ (RDT) ማድረግ\n• የታዘዘውን የወባ መድኃኒት (ACT) ሳያቋርጡ በሙሉ መውሰድ\n• በየቀኑ በአልጋ አጎበር ውስጥ መተኛት\n• በቤት ዙሪያ ያሉ አቆራጭ ውሃዎችን ማድረቅ እና ማጽዳት';
+      }
+    } else if (text.includes('ተቅማጥ') || /diarrh/i.test(text)) {
+      if (!text.includes('መንስኤዎች') && !text.includes('ህክምና')) {
+        text += '\n\n**መንስኤዎች፡**\n• በተበከለ ምግብ ወይም ውሃ የሚተላለፉ ባክቴሪያዎች እና ቫይረሶች\n• ያልተጠበቀ የግልና የአካባቢ ንጽህና\n• የምግብ አለመስማማት ወይም የመድኃኒት የጎንዮሽ ጉዳት\n\n**ህክምና እና እንክብካቤ፡**\n• የኦ.አር.ኤስ (ORS) ፈሳሽ በብዛት በመጠጣት የውሃ እጥረትን መከላከል\n• ዚንክ ታብሌቶችን እንደ መመሪያው መውሰድ\n• ንጹህ የተቀቀለ ውሃ መጠጣት እና እጅን በሳሙና መታጠብ\n• የደም መቀላቀል ወይም ከፍተኛ ድካም ከታየ በአስቸኳይ ወደ ጤና ተቋም መሄድ';
+      }
+    } else if (text.includes('ስኳር') || /diabet/i.test(text)) {
+      if (!text.includes('መንስኤዎች') && !text.includes('ህክምና')) {
+        text += '\n\n**መንስኤዎች፡**\n• ዓይነት 1፡ የሰውነት መከላከያ ሥርዓት ኢንሱሊን አምራች ሴሎችን ሲያጠቃ\n• ዓይነት 2፡ የዘር ውርስ፣ የክብደት መጨመር እና የአካል ብቃት እንቅስቃሴ ማነስ\n• ጤናማ ያልሆነ አመጋገብ እና ጣፋጭ ምግቦች መብዛት\n\n**ህክምና እና እንክብካቤ፡**\n• የደም ስኳር መጠንን በየጊዜው መለካት እና መከታተል\n• የተመጣጠነ ምግብ መመገብ እና ጣፋጭ ምግቦችን መቀነስ\n• መደበኛ የአካል ብቃት እንቅስቃሴ (በቀን 30 ደቂቃ) ማድረግ\n• የታዘዙ መድኃኒቶችን ወይም ኢንሱሊን በሰዓቱ መውሰድ';
+      }
+    }
+  } else {
+    if (/diarrh/i.test(text) && !text.includes('Causes:') && !text.includes('Home Care')) {
+      text += '\n\n**Causes:**\n• Viral infections (such as Norovirus or Rotavirus) or bacterial contamination\n• Contaminated water or improper food hygiene\n• Food intolerances or medication side effects\n\n**Home Care & Treatment:**\n• Drink Oral Rehydration Salts (ORS) solution regularly to prevent dehydration\n• Eat gentle bland foods (rice, bananas, broth, toast)\n• Avoid dairy, caffeine, and high-fat greasy foods\n• Seek urgent clinic care if stools contain blood or high fever occurs';
+    } else if (/malaria/i.test(text) && !text.includes('Causes:') && !text.includes('Home Care')) {
+      text += '\n\n**Causes:**\n• Bites of infected female Anopheles mosquitoes carrying Plasmodium parasites\n• Parasites multiplying in liver and red blood cells\n• Stagnant water bodies near homes where mosquitoes breed\n\n**Home Care & Treatment:**\n• Seek rapid diagnostic clinic blood testing (RDT) immediately upon fever\n• Complete the entire prescribed course of Artemisinin-based Combination Therapy (ACT)\n• Sleep under insecticide-treated bed nets every night\n• Drain standing water around living quarters';
+    } else if (/diabet/i.test(text) && !text.includes('Causes:') && !text.includes('Home Care')) {
+      text += '\n\n**Causes:**\n• Type 1 autoimmune response destroying insulin-producing pancreatic cells\n• Type 2 insulin resistance linked to genetics, overweight, and physical inactivity\n• Diet high in refined sugars and processed foods\n\n**Home Care & Treatment:**\n• Regular daily blood glucose monitoring\n• Balanced diet rich in vegetables, lean protein, and fiber with low sugar\n• Regular physical exercise (at least 30 minutes daily)\n• Consistent adherence to prescribed medications or insulin therapy';
+    }
+  }
+
   return text;
+}
+
+const AMHARIC_CLINICAL_MAP: { regex: RegExp; response: string }[] = [
+  {
+    regex: /\b(malaria|mosquito|plasmodium|chills|bed\s*net)\b/i,
+    response:
+      "ወባ፡\nወባ በወባ ትንኝ ንክሻ ወደ ሰው ደም በሚተላለፉ ጥገኛ ተውሳኮች የሚመጣ አደገኛ ግን በህክምና የሚድን በሽታ ነው።\n\n" +
+      "**ምልክቶች፡**\n" +
+      "• በየተወሰነ ሰዓት የሚመጣ ከፍተኛ ትኩሳት\n" +
+      "• ብርድ ብርድ ማለት እና ከባድ መንቀጥቀጥ\n" +
+      "• ትኩሳቱ ሲለቅ ከፍተኛ ላብ ማላብ\n" +
+      "• ኃይለኛ ራስ ምታት እና የጡንቻዎች ድካም\n" +
+      "• ማቅለሽለሽ እና የምግብ ፍላጎት መቀነስ\n\n" +
+      "**መንስኤዎች፡**\n" +
+      "• በፕላስሞዲየም ጥገኛ ተውሳክ የተያዘች አኖፊለስ የወባ ትንኝ ንክሻ\n" +
+      "• ጥገኛ ተውሳኩ ወደ ጉበት በመሄድ በደም ውስጥ ሲባዛ\n" +
+      "• ለትንኝ መራቢያ የሚሆኑ አቆራጭ ውሃዎች መኖር\n\n" +
+      "**ህክምና እና እንክብካቤ፡**\n" +
+      "• ትኩሳት ሲሰማ ወዲያውኑ የደም ምርመራ (RDT) ማድረግ\n" +
+      "• የታዘዘውን የወባ መድኃኒት (ACT) ሳያቋርጡ በሙሉ መውሰድ\n" +
+      "• በየቀኑ በአልጋ አጎበር ውስጥ መተኛት\n" +
+      "• በቤት ዙሪያ ያሉ አቆራጭ ውሃዎችን ማድረቅ እና ማጽዳት",
+  },
+  {
+    regex: /\b(diabet|insulin|blood\s*sugar|glucose|pancreas)\b/i,
+    response:
+      "ስኳር በሽታ፡\nስኳር በሽታ ሰውነታችን ኢንሱሊንን በአግባቡ ባለመጠቀሙ በደም ውስጥ ያለው የስኳር መጠን ከፍ እንዲል የሚያደርግ ሥር የሰደደ የጤና እክል ነው።\n\n" +
+      "**ምልክቶች፡**\n" +
+      "• በተደጋጋሚ በተለይም በሌሊት መሽናት\n" +
+      "• ከፍተኛ የውሃ ጥም እና የአፍ መድረቅ\n" +
+      "• ያልታወቀ የክብደት መቀነስ እና ድካም\n" +
+      "• የእይታ መደብዘዝ ወይም ብዥታ\n" +
+      "• ቁስሎች ቶሎ ያለመዳን\n\n" +
+      "**መንስኤዎች፡**\n" +
+      "• ዓይነት 1፡ የሰውነት መከላከያ ሥርዓት ኢንሱሊን አምራች ሴሎችን ሲያጠቃ\n" +
+      "• ዓይነት 2፡ የዘር ውርስ፣ የክብደት መጨመር እና የአካል ብቃት እንቅስቃሴ ማነስ\n" +
+      "• ጤናማ ያልሆነ አመጋገብ እና ጣፋጭ ምግቦች መብዛት\n\n" +
+      "**ህክምና እና እንክብካቤ፡**\n" +
+      "• የደም ስኳር መጠንን በየጊዜው መለካት እና መከታተል\n" +
+      "• የተመጣጠነ ምግብ መመገብ እና ጣፋጭ ምግቦችን መቀነስ\n" +
+      "• መደበኛ የአካል ብቃት እንቅስቃሴ (በቀን 30 ደቂቃ) ማድረግ\n" +
+      "• የታዘዙ መድኃኒቶችን ወይም ኢንሱሊን በሰዓቱ መውሰድ",
+  },
+  {
+    regex: /\b(diarrh|loose\s*stool|dehydration|ors|watery\s*stool)\b/i,
+    response:
+      "ተቅማጥ፡\nተቅማጥ በቀን ውስጥ ከሶስት ጊዜ በላይ የላላ ወይም ፈሳሽ ሰገራ መውጣት ሲሆን ሰውነትን ለከፍተኛ የውሃና ጨው እጥረት ያጋልጣል።\n\n" +
+      "**ምልክቶች፡**\n" +
+      "• በተደጋጋሚ የሚወጣ ፈሳሽ ሰገራ\n" +
+      "• የሆድ መኮማተር እና ቁርጠት\n" +
+      "• ማቅለሽለሽ፣ ማስመለስ እና መጠነኛ ትኩሳት\n" +
+      "• የሰውነት ድርቀት (የአፍ መድረቅ፣ ጥም፣ ሽንት መቀነስ)\n\n" +
+      "**መንስኤዎች፡**\n" +
+      "• በባክቴሪያ ወይም ቫይረስ የተበከለ ምግብ ወይም ውሃ መውሰድ\n" +
+      "• ያልተጠበቀ የግልና የአካባቢ ንጽህና\n" +
+      "• የምግብ አለመስማማት ወይም የመድኃኒት የጎንዮሽ ጉዳት\n\n" +
+      "**ህክምና እና እንክብካቤ፡**\n" +
+      "• የኦ.አር.ኤስ (ORS) ፈሳሽ በብዛት በመጠጣት የውሃ እጥረትን መከላከል\n" +
+      "• ዚንክ ታብሌቶችን እንደ መመሪያው መውሰድ\n" +
+      "• ንጹህ የተቀቀለ ውሃ መጠጣት እና እጅን በሳሙና መታጠብ\n" +
+      "• የደም መቀላቀል ወይም ከፍተኛ ድካም ከታየ በአስቸኳይ ወደ ጤና ተቋም መሄድ",
+  },
+  {
+    regex: /\b(stroke|fast|facial\s*droop|arm\s*weakness|slurred\s*speech)\b/i,
+    response:
+      "ስትሮክ (FAST የአደጋ ጊዜ ምልክቶች)፡\nስትሮክ ወደ አንጎል የሚሄደው የደም ዝውውር ሲቋረጥ ወይም የደም ቧንቧ ሲፈነዳ የሚከሰት አደገኛ ድንገተኛ የጤና እክል ነው።\n\n" +
+      "**የስትሮክ ምልክቶች (FAST)፡**\n" +
+      "• ፊት (Face)፡ የፊት መጣመም ወይም በአንድ በኩል መንሸዋረር\n" +
+      "• እጅ (Arms)፡ አንዱን እጅ ወደ ላይ ማንሳት አለመቻል ወይም መደንዘዝ\n" +
+      "• ንግግር (Speech)፡ ንግግር መኮላተፍ ወይም ለመናገር መቸገር\n" +
+      "• ጊዜ (Time)፡ እነዚህ ምልክቶች ከታዩ ወዲያውኑ ወደ 907 ይደውሉ!\n\n" +
+      "**ህክምና እና የመጀመሪያ እርዳታ፡**\n" +
+      "• ወዲያውኑ ወደ 907 የአምቡላንስ የስልክ መስመር መደወል\n" +
+      "• በሽተኛውን ምቹ በሆነ ጎን አስኝቶ ማቆየት\n" +
+      "• ምንም አይነት ምግብ፣ ውሃ ወይም መድኃኒት በአፍ አለመስጠት\n" +
+      "• ጊዜ ወሳኝ በመሆኑ በደቂቃዎች ውስጥ ወደ ሆስፒታል ማድረስ",
+  },
+  {
+    regex: /\b(cold|cough|runny\s*nose|sneez|sore\s*throat|rhinovirus)\b/i,
+    response:
+      "ጉንፋን፡\nጉንፋን በአፍንጫ እና በጉሮሮ ላይ የሚከሰት ቀላል ግን በቀላሉ የሚተላለፍ የመተንፈሻ አካላት የቫይረስ ኢንፌክሽን ነው።\n\n" +
+      "**ምልክቶች፡**\n" +
+      "• የአፍንጫ መዘጋት ወይም ንፍጥ መፍሰስ\n" +
+      "• የጉሮሮ ህመም እና ሳል\n" +
+      "• ማስነጠስ እና የዓይን ማልቀስ\n" +
+      "• መጠነኛ ትኩሳት እና የሰውነት ድካም\n\n" +
+      "**መንስኤዎች፡**\n" +
+      "• በሪኖቫይረስ እና ሌሎች የመተንፈሻ አካላት ቫይረሶች\n" +
+      "• በበሽታው ከተያዘ ሰው በሚወጡ የአየር ጠብታዎች\n" +
+      "• የተበከሉ እቃዎችን ነክቶ አፍ ወይም አፍንጫን መንካት\n\n" +
+      "**ህክምና እና የቤት ውስጥ እንክብካቤ፡**\n" +
+      "• በቂ እረፍት ማድረግ እና እንቅልፍ መተኛት\n" +
+      "• ሞቅ ያሉ ፈሳሾችን (ሻይ ከዝንጅብልና ማር ጋር፣ ሾርባ) መጠጣት\n" +
+      "• በጨው ውሃ ጉሮሮን መጉመጥመጥ\n" +
+      "• እጅን በሳሙና እና ውሃ አዘውትሮ መታጠብ",
+  },
+  {
+    regex: /\b(hypertens|blood\s*pressure|high\s*bp)\b/i,
+    response:
+      "የደም ግፊት፡\nየደም ግፊት ደም በደም ቧንቧዎች ግድግዳ ላይ የሚያሳድረው ጫና ከተገቢው በላይ ከፍ ሲል የሚከሰት 'ድምጸ-ከል ገዳይ' ተብሎ የሚጠራ በሽታ ነው።\n\n" +
+      "**ምልክቶች፡**\n" +
+      "• ብዙ ጊዜ ግልጽ ምልክት አያሳይም\n" +
+      "• ከፍተኛ ሲሆን የጭንቅላት ጀርባ ህመም\n" +
+      "• የልብ ምት መፍጠን እና የትንፋሽ ማጠር\n" +
+      "• ማዞር እና የእይታ መደብዘዝ\n\n" +
+      "**መንስኤዎች፡**\n" +
+      "• የጨው አጠቃቀም መብዛት እና ቅባት የበዛባቸው ምግቦች\n" +
+      "• የአካል ብቃት እንቅስቃሴ ማነስ እና የሰውነት ክብደት መጨመር\n" +
+      "• ጭንቀት፣ ሲጋራ ማጨስ እና አልኮል መጠጣት\n" +
+      "• የዘር ውርስ እና የዕድሜ መግፋት\n\n" +
+      "**ህክምና እና እንክብካቤ፡**\n" +
+      "• የምግብ ጨውን በከፍተኛ ሁኔታ መቀነስ\n" +
+      "• አትክልትና ፍራፍሬዎችን አዘውትሮ መመገብ\n" +
+      "• በየቀኑ 30 ደቂቃ የእግር ጉዞ ማድረግ\n" +
+      "• የደም ግፊትን በየጊዜው መለካት እና የታዘዙ መድኃኒቶችን መውሰድ",
+  },
+  {
+    regex: /\b(founder|founders|creator|yonatan|nahom|dagmawi|ayub)\b/i,
+    response:
+      "የጤናዬ (Tenaye) መስራቾች፡\nየጤናዬ መድረክ መስራቾች እና ዋና የቡድን አባላት ዮናታን ሙሉከን (Yonatan Muluken)፣ ናሆም ጥበቡ (Nahom Tibebu)፣ ዳግማዊ ሽጉጤ (Dagmawi Shigute) እና አዩብ ኢብራሂም (Ayub Ebrahim) ናቸው።",
+  },
+  {
+    regex: /\b(emergency|ambulance|hotline|907)\b/i,
+    response:
+      "የኢትዮጵያ ድንገተኛ አደጋ አምቡላንስ ጥሪ፡\nለማንኛውም አስቸኳይ ድንገተኛ የጤና እክል ወይም አደጋ ወዲያውኑ ወደ 907 ነፃ የአምቡላንስ መስመር ይደውሉ!",
+  },
+];
+
+const ENGLISH_CLINICAL_MAP: { regex: RegExp; response: string }[] = [
+  {
+    regex: /ወባ|ትንኝ|ፕላስሞዲየም/,
+    response:
+      "Malaria:\nMalaria is a life-threatening disease caused by Plasmodium parasites transmitted through the bites of infected female Anopheles mosquitoes.\n\n" +
+      "**Symptoms:**\n" +
+      "• High recurring fever and severe shaking chills\n" +
+      "• Profuse sweating as the fever subsides\n" +
+      "• Severe headache and muscle fatigue\n" +
+      "• Nausea, vomiting, and loss of appetite\n\n" +
+      "**Causes:**\n" +
+      "• Bite of an infected female Anopheles mosquito\n" +
+      "• Parasites traveling to the liver and multiplying in red blood cells\n" +
+      "• Presence of stagnant water near residential areas\n\n" +
+      "**Home Care & Treatment:**\n" +
+      "• Seek prompt blood testing (RDT/microscopy) at any clinic\n" +
+      "• Complete the full course of prescribed antimalarial medications (ACT)\n" +
+      "• Sleep under insecticide-treated bed nets every night\n" +
+      "• Drain stagnant water bodies around the house",
+  },
+  {
+    regex: /ስኳር|ኢንሱሊን|ግሉኮስ/,
+    response:
+      "Diabetes:\nDiabetes is a chronic metabolic condition where the body cannot properly produce or use insulin, leading to elevated blood glucose levels.\n\n" +
+      "**Symptoms:**\n" +
+      "• Frequent urination, especially at night\n" +
+      "• Extreme thirst and dry mouth\n" +
+      "• Unexplained weight loss and fatigue\n" +
+      "• Blurred vision\n" +
+      "• Slow-healing sores or cuts\n\n" +
+      "**Causes:**\n" +
+      "• Type 1: Autoimmune destruction of insulin-producing cells\n" +
+      "• Type 2: Genetics, overweight, and physical inactivity\n" +
+      "• Diet high in refined sugars and processed foods\n\n" +
+      "**Home Care & Treatment:**\n" +
+      "• Monitor blood glucose regularly\n" +
+      "• Follow a balanced, high-fiber, low-sugar diet\n" +
+      "• Engage in regular physical activity (30 minutes daily)\n" +
+      "• Take prescribed oral medications or insulin consistently",
+  },
+  {
+    regex: /ተቅማጥ|ኦ\.?አር\.?ኤስ|ፈሳሽ\s*ሰገራ/,
+    response:
+      "Diarrhea:\nDiarrhea is characterized by passing loose or watery stools three or more times a day, which can cause severe dehydration and electrolyte loss.\n\n" +
+      "**Symptoms:**\n" +
+      "• Frequent loose or watery bowel movements\n" +
+      "• Abdominal cramps and pain\n" +
+      "• Nausea, vomiting, and low-grade fever\n" +
+      "• Signs of dehydration (dry mouth, extreme thirst, reduced urination)\n\n" +
+      "**Causes:**\n" +
+      "• Viral or bacterial infections from contaminated food or water\n" +
+      "• Poor personal and environmental sanitation\n" +
+      "• Food intolerances or medication side effects\n\n" +
+      "**Home Care & Treatment:**\n" +
+      "• Drink Oral Rehydration Salts (ORS) frequently in small sips\n" +
+      "• Take Zinc supplements as advised by healthcare guidelines\n" +
+      "• Drink clean, boiled water and practice frequent handwashing\n" +
+      "• Seek immediate medical attention if stools contain blood or high fever occurs",
+  },
+  {
+    regex: /ስትሮክ|FAST|የፊት\s*መጣመም/,
+    response:
+      "Stroke (FAST Emergency Signs):\nA stroke occurs when blood supply to part of the brain is interrupted or reduced, preventing brain tissue from getting oxygen.\n\n" +
+      "**Emergency Warning Signs (FAST):**\n" +
+      "• Face Drooping (F): One side of the face droops or is numb\n" +
+      "• Arm Weakness (A): One arm drifts downward or is weak\n" +
+      "• Speech Difficulty (S): Slurred speech or inability to speak\n" +
+      "• Time to Call 907 (T): Call 907 emergency ambulance immediately!\n\n" +
+      "**Immediate Actions:**\n" +
+      "• Call 907 Ethiopian ambulance dispatch immediately\n" +
+      "• Keep the person lying comfortably on their side with airway clear\n" +
+      "• Do NOT give any food, water, or aspirin\n" +
+      "• Note the exact time symptoms started",
+  },
+  {
+    regex: /ጉንፋን|ሳል|ንፍጥ/,
+    response:
+      "Common Cold:\nThe common cold is a viral infection of the upper respiratory tract primarily affecting the nose and throat.\n\n" +
+      "**Symptoms:**\n" +
+      "• Runny or stuffy nose\n" +
+      "• Sore throat and cough\n" +
+      "• Sneezing and watery eyes\n" +
+      "• Mild body aches and low fever\n\n" +
+      "**Causes:**\n" +
+      "• Rhinoviruses and other respiratory viruses\n" +
+      "• Airborne droplets from coughs or sneezes\n" +
+      "• Touching contaminated surfaces and then touching face\n\n" +
+      "**Home Care & Treatment:**\n" +
+      "• Get plenty of rest and sleep\n" +
+      "• Stay well-hydrated with warm fluids (herbal teas with ginger and honey)\n" +
+      "• Salt water gargle for sore throat relief\n" +
+      "• Practice frequent handwashing with soap",
+  },
+  {
+    regex: /መስራች|ዮናታን|ናሆም|ዳግማዊ|አዩብ/,
+    response:
+      "The founders and core team behind Tenaye are Yonatan Muluken, Nahom Tibebu, Dagmawi Shigute, and Ayub Ebrahim.",
+  },
+  {
+    regex: /907|አምቡላንስ|ድንገተኛ/,
+    response:
+      "Emergency Ambulance Hotline:\nFor any medical emergencies, call the Ethiopian National Ambulance Dispatch at 907 immediately.",
+  },
+];
+
+/**
+ * Speaks text aloud using Web Speech API (Synthesis) with natural pacing.
+ * Supports both English and Amharic, returning a cleanup cancel function.
+ */
+export function speakText(text: string, isAmharic = false, onEnd?: () => void): () => void {
+  if (typeof window === 'undefined' || !window.speechSynthesis) {
+    if (onEnd) onEnd();
+    return () => {};
+  }
+  try {
+    window.speechSynthesis.cancel();
+    const cleanToSpeak = cleanVoiceSubtitle(text)
+      .replace(/[•\-\*#]/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+
+    if (!cleanToSpeak) {
+      if (onEnd) onEnd();
+      return () => {};
+    }
+
+    const utterance = new SpeechSynthesisUtterance(cleanToSpeak);
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+    utterance.lang = isAmharic ? 'am-ET' : 'en-US';
+
+    const voices = window.speechSynthesis.getVoices();
+    if (isAmharic) {
+      const amVoice = voices.find(v => v.lang.startsWith('am') || v.lang.includes('ETH'));
+      if (amVoice) utterance.voice = amVoice;
+    } else {
+      const enVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.default));
+      if (enVoice) utterance.voice = enVoice;
+    }
+
+    utterance.onend = () => { if (onEnd) onEnd(); };
+    utterance.onerror = () => { if (onEnd) onEnd(); };
+
+    window.speechSynthesis.speak(utterance);
+    return () => {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {}
+    };
+  } catch {
+    if (onEnd) onEnd();
+    return () => {};
+  }
 }
 
 

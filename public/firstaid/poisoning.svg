@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400" style="background:#ffffff;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14a2a8"/>
+      <stop offset="100%" stop-color="#0e7c82"/>
+    </linearGradient>
+    <linearGradient id="scrubPants" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d6368"/>
+      <stop offset="100%" stop-color="#08474b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Clean Ground Baseline -->
+  <line x1="40" y1="340" x2="460" y2="340" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Main Illustration Group -->
+  <g transform="translate(0, 10)">
+    
+  <!-- Patient seated on floor leaning back -->
+  <path d="M140,240 L180,260 L210,335" fill="none" stroke="#64748b" stroke-width="14" stroke-linecap="round"/>
+  <path d="M150,250 L120,190" fill="none" stroke="#3b82f6" stroke-width="24" stroke-linecap="round"/>
+  <circle cx="110" cy="155" r="24" fill="#ffedd5" stroke="#1e293b" stroke-width="2.5"/>
+  <!-- Rescuer in Tenaye teal kneeling -->
+  <circle cx="280" cy="130" r="26" fill="#ffedd5" stroke="#1e293b" stroke-width="2.5"/>
+  <path d="M280,160 L280,250" fill="none" stroke="url(#tealGrad)" stroke-width="30" stroke-linecap="round"/>
+  <path d="M280,250 L260,335 M295,250 L340,335" fill="none" stroke="url(#scrubPants)" stroke-width="14" stroke-linecap="round"/>
+  <!-- Rescuer inspecting poison bottle in hand -->
+  <path d="M270,180 L220,190 L190,195" fill="none" stroke="url(#tealGrad)" stroke-width="11" stroke-linecap="round"/>
+  <!-- Chemical Bottle -->
+  <rect x="180" y="180" width="18" height="30" rx="3" fill="#fef08a" stroke="#ca8a04" stroke-width="2"/>
+  <path d="M185,175 L193,175 L193,180 L185,180 Z" fill="#ca8a04"/>
+  <circle cx="189" cy="195" r="4" fill="#dc2626"/>
+  <!-- Rescuer other hand holding phone calling 907 -->
+  <path d="M290,180 L330,170 L345,140" fill="none" stroke="url(#tealGrad)" stroke-width="11" stroke-linecap="round"/>
+  <rect x="340" y="125" width="16" height="26" rx="3" fill="#1e293b"/>
+  <circle cx="348" cy="138" r="3" fill="#22c55e"/>
+  <rect x="365" y="115" width="60" height="26" rx="6" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="372" y="132" font-size="11" font-weight="800" fill="#dc2626">Call 907</text>
+
+  </g>
+
+  <!-- Professional Clinical Status Tag -->
+  <rect x="25" y="20" width="14" height="14" rx="4" fill="#119197"/>
+  <text x="46" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#0f766e" letter-spacing="0.3">STAGE 1: SECURE CONTAINER &amp; CALL 907</text>
+  <text x="46" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="500" fill="#64748b">Identify toxin, retain container label, call 907 Poison Control immediately</text>
+</svg>

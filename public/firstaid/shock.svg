@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400" style="background:#ffffff;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14a2a8"/>
+      <stop offset="100%" stop-color="#0e7c82"/>
+    </linearGradient>
+    <linearGradient id="scrubPants" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d6368"/>
+      <stop offset="100%" stop-color="#08474b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Clean Ground Baseline -->
+  <line x1="40" y1="340" x2="460" y2="340" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Main Illustration Group -->
+  <g transform="translate(0, 10)">
+    
+  <!-- Supine victim -->
+  <circle cx="100" cy="290" r="22" fill="#ffedd5" stroke="#1e293b" stroke-width="2.5"/>
+  <path d="M120,300 L240,300" fill="none" stroke="#64748b" stroke-width="24" stroke-linecap="round"/>
+  <!-- Elevated legs on pillows (20-30 cm) -->
+  <path d="M240,300 L290,260 L350,250" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round"/>
+  <!-- Folded Pillows / Elevation box -->
+  <rect x="280" y="275" width="80" height="40" rx="8" fill="#bae6fd" stroke="#0284c7" stroke-width="2.5"/>
+  <path d="M280,295 L360,295" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <!-- Elevation Indicator Arrow -->
+  <path d="M380,315 L380,255" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+  <polygon points="375,260 380,250 385,260" fill="#ef4444"/>
+  <text x="390" y="285" font-size="12" font-weight="800" fill="#dc2626">20–30 cm</text>
+  <!-- Rescuer checking pulse/breathing -->
+  <circle cx="180" cy="160" r="24" fill="#ffedd5" stroke="#1e293b" stroke-width="2.5"/>
+  <path d="M180,185 L180,260" fill="none" stroke="url(#tealGrad)" stroke-width="28" stroke-linecap="round"/>
+  <path d="M180,260 L160,335 M200,260 L230,335" fill="none" stroke="url(#scrubPants)" stroke-width="12" stroke-linecap="round"/>
+  <path d="M170,200 L130,230 L110,270" fill="none" stroke="url(#tealGrad)" stroke-width="10" stroke-linecap="round"/>
+
+  </g>
+
+  <!-- Professional Clinical Status Tag -->
+  <rect x="25" y="20" width="14" height="14" rx="4" fill="#119197"/>
+  <text x="46" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#0f766e" letter-spacing="0.3">STAGE 1: ELEVATE LOWER EXTREMITIES 30CM</text>
+  <text x="46" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="500" fill="#64748b">Lay victim flat on back and raise legs 20–30 cm to restore blood flow to vital organs</text>
+</svg>

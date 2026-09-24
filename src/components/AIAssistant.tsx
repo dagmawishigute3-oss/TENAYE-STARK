@@ -12,11 +12,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   IconBot, IconX, IconSend, IconTrash, IconMaximize, IconMinimize,
-  IconMic, IconMicOff, IconArrowLeft,
+  IconMic, IconMicOff, IconArrowLeft, IconVolume2, IconVolumeX,
 } from './Icons';
 import { VoiceStage } from './VoiceStage';
-import { ai, resolveSpokenPage, reconnectVoxide, setCurrentLanguage, getCurrentLanguage } from './Assistant';
-import { devanagariToEnglish, normalizeMarkdownText, cleanSpokenTranscript, cleanBilingualOutput } from './textSanitizer';
+import { ai, resolveSpokenPage, setCurrentLanguage, getCurrentLanguage, getSharedAudioContext, resetVoxideSession } from './Assistant';
+import { devanagariToEnglish, normalizeMarkdownText, cleanSpokenTranscript, cleanBilingualOutput, cleanVoiceSubtitle, speakText } from './textSanitizer';
 
 /* ── Types ── */
 interface Msg {
@@ -40,16 +40,25 @@ const now12 = () => {
 let idCounter = 0;
 const ts = () => Date.now() * 1000 + (++idCounter % 1000);
 
-/* ── Initial Welcome Message ── */
-const WELCOME: Msg = {
+/* ── Initial Welcome Messages ── */
+const WELCOME_EN: Msg = {
   id: 0,
   role: 'ai',
   time: now12(),
   text: "Hello! I'm Tenaye Assistance (ጤናዬ). I can help with:\n\n• Evidence-based disease information & research\n• Clinical symptom analysis & differential diagnosis\n• Step-by-step first aid procedures & emergency triage (907)\n• Prevention, healthy living & wellness tips\n\nType your question below, or tap the microphone to speak naturally in English or አማርኛ!",
 };
 
-// Clean shortcut questions with NO emojis
-const QUICK_QUESTIONS = [
+const WELCOME_AM: Msg = {
+  id: 0,
+  role: 'ai',
+  time: now12(),
+  text: "ሰላም! የጤናዬ ረዳት (Tenaye Assistance) ነኝ። በሚከተሉት የጤና ጉዳዮች ልረዳዎ እችላለሁ፡\n\n• በማስረጃ የተደገፈ የበሽታዎች መረጃና ህክምና\n• የበሽታ ምልክቶች ትንተና እና ምክር\n• የድንገተኛ አደጋ 907 እና ደረጃ በደረጃ የመጀመሪያ እርዳታ\n• ጤናማ የአኗኗር ዘይቤ እና የመከላከያ መንገዶች\n\nጥያቄዎን ከታች ይጻፉ ወይም ማይክሮፎኑን ተጭነው በአማርኛ ወይም በእንግሊዝኛ ያናግሩኝ!",
+};
+
+const WELCOME = WELCOME_EN;
+
+// Clean shortcut questions with NO emojis (English & Amharic)
+const QUICK_QUESTIONS_EN = [
   { label: 'Diabetes symptoms',       q: 'Tell me about diabetes symptoms, causes and treatments' },
   { label: 'Diarrhea symptoms',       q: 'What are the symptoms, causes and home care for diarrhea?' },
   { label: 'Warning signs of stroke', q: 'What are the emergency warning signs of a stroke?' },
@@ -58,6 +67,17 @@ const QUICK_QUESTIONS = [
   { label: 'Malaria prevention',      q: 'How can I prevent malaria in Ethiopia?' },
   { label: 'Who made this website?',  q: 'Who is the founder and team behind Tenaye?' },
 ];
+
+const QUICK_QUESTIONS_AM = [
+  { label: 'የስኳር በሽታ ምልክቶች',       q: 'ስለ ስኳር በሽታ ምልክቶች፣ መንስኤዎች እና ህክምና ንገረኝ' },
+  { label: 'የተቅማጥ ህክምና',             q: 'የተቅማጥ ምልክቶች፣ መንስኤዎች እና የቤት ውስጥ ህክምና ምንድን ናቸው?' },
+  { label: 'የስትሮክ ምልክቶች',           q: 'አስቸኳይ የስትሮክ ምልክቶች እና የመጀመሪያ እርዳታ ምንድን ናቸው?' },
+  { label: 'ራስ ምታት እና ትኩሳት',        q: 'ራስ ምታት እና ትኩሳት ይሰማኛል፤ ምን ሊሆን ይችላል?' },
+  { label: 'የወባ መከላከያ',              q: 'በኢትዮጵያ ወባን እንዴት መከላከል ይቻላል?' },
+  { label: 'የጤናዬ መስራቾች ማን ናቸው?',   q: 'የጤናዬ (Tenaye) መስራቾች እና ቡድን ማን ናቸው?' },
+];
+
+const QUICK_QUESTIONS = QUICK_QUESTIONS_EN;
 
 /* ── Confirm-clear dialog ── */
 function ClearConfirmDialog({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
@@ -108,8 +128,9 @@ function TypingIndicator() {
 }
 
 /**
- * Merges streaming AI text fragments safely without discarding continuation chunks
- * or re-duplicating cumulative prefixes.
+ * Merges streaming AI text fragments safely with strict deduplication.
+ * Eliminates infinite repetition by checking line-by-line containment and
+ * removing blind continuation concatenation.
  */
 function mergeAiStreamingText(existing: string, incoming: string): string {
   if (!existing) return incoming;
@@ -117,28 +138,41 @@ function mergeAiStreamingText(existing: string, incoming: string): string {
   const ex = existing.trim();
   const inc = incoming.trim();
   if (ex === inc) return ex;
+
+  // 1. Prefix checks (cumulative streaming)
   if (inc.startsWith(ex)) return inc;
   if (ex.startsWith(inc)) return ex;
 
-  // Check for suffix-prefix overlap (from 60 down to 6 characters)
-  const minOverlap = Math.min(ex.length, inc.length, 60);
-  for (let len = minOverlap; len >= 6; len--) {
+  // 2. Substring inclusion checks
+  if (inc.includes(ex)) return inc;
+  if (ex.includes(inc)) return ex;
+
+  // 3. Suffix-prefix overlap (stitch streaming chunks together)
+  const maxOverlap = Math.min(ex.length, inc.length, 120);
+  for (let len = maxOverlap; len >= 6; len--) {
     const exSuffix = ex.slice(-len);
     if (inc.startsWith(exSuffix)) {
       return ex + inc.slice(len);
     }
   }
 
-  // Check if one contains the other
-  if (inc.includes(ex)) return inc;
-  if (ex.includes(inc)) return ex;
-
-  // If incoming appears to be an appended continuation chunk (e.g. causes or home care section)
-  if (inc.length < ex.length) {
-    const joiner = ex.endsWith('\n') || inc.startsWith('\n') ? '' : '\n';
-    return ex + joiner + inc;
+  // 4. Line-by-line deduplication:
+  // If all non-empty lines in incoming already exist in existing, do NOT append!
+  const incLines = inc.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+  const exLines = ex.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+  const existingContainsAll = incLines.length > 0 && incLines.every(l => ex.includes(l));
+  if (existingContainsAll) {
+    return ex;
   }
 
+  // 5. If incoming has new non-duplicate lines, append only the genuinely new lines
+  const genuinelyNewLines = incLines.filter(l => !ex.includes(l));
+  if (genuinelyNewLines.length > 0 && incLines.length > 0 && genuinelyNewLines.length === incLines.length) {
+    const joiner = ex.endsWith('\n') ? '' : '\n';
+    return ex + joiner + genuinelyNewLines.join('\n');
+  }
+
+  // 6. Default to the longer/more complete text
   return inc.length >= ex.length ? inc : ex;
 }
 
@@ -279,8 +313,22 @@ export function AIAssistant() {
   const [open, setOpen]                 = useState(false);
   const [fullscreen, setFullscreen]     = useState(false);
   const [input, setInput]               = useState('');
-  const [msgs, setMsgs]                 = useState<Msg[]>([WELCOME]);
+  const [currentLang, setCurrentLang]   = useState<'en' | 'am'>(() => getCurrentLanguage());
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [msgs, setMsgs]                 = useState<Msg[]>([WELCOME_EN]);
   const [confirmClear, setConfirmClear] = useState(false);
+
+  // Sync refs for event listeners
+  const currentLangRef = useRef(currentLang);
+  currentLangRef.current = currentLang;
+  const soundEnabledRef = useRef(soundEnabled);
+  soundEnabledRef.current = soundEnabled;
+
+  // Language enforcement & message tracking refs
+  const userTurnLanguageRef = useRef<'en' | 'am'>(currentLang);
+  userTurnLanguageRef.current = currentLang;
+  const activeAiMessageIdRef = useRef<number | null>(null);
+  const activeUserMessageIdRef = useRef<number | null>(null);
 
   // Voice Interaction UI state
   const [showVoiceUI, setShowVoiceUI]   = useState(false);
@@ -289,6 +337,7 @@ export function AIAssistant() {
   const [aiSpeech, setAiSpeech]         = useState('');
   const [audioLevel, setAudioLevel]     = useState(0);
   const [isTyping, setIsTyping]         = useState(false);
+  const clearedTurnEpochRef = useRef<number>(0);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
@@ -305,6 +354,10 @@ export function AIAssistant() {
   const expectedAiMessageIndexRef = useRef<number>(-1);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const turnStartTimeRef = useRef<number>(0);
+
+  // TTS "listen" button state
+  const [speakingMsgId, setSpeakingMsgId] = useState<number | null>(null);
+  const cancelSpeechRef = useRef<(() => void) | null>(null);
 
   // Auto scroll
   useEffect(() => {
@@ -324,6 +377,16 @@ export function AIAssistant() {
       setTimeout(() => inputRef.current?.focus(), 150);
     }
   }, [open, fullscreen, showVoiceUI]);
+
+  // Sync soundEnabled with native Voxide audio playback
+  useEffect(() => {
+    (window as any).__tenayeSoundMuted = !soundEnabled;
+    if (!soundEnabled) {
+      try {
+        (ai as any)?._voiceStopPlayback?.();
+      } catch {}
+    }
+  }, [soundEnabled]);
 
   // Audio level polling for ripple animation & realistic speech state hold
   useEffect(() => {
@@ -378,6 +441,12 @@ export function AIAssistant() {
   // Unified helper to stream and record AI responses cleanly across snapshot, message, and transcript events
   const handleIncomingAiText = useCallback((cleanText: string) => {
     if (!cleanText || !cleanText.trim()) return;
+
+    // Strict guard: if turn was initiated before the last clear, or clear was requested, or no active turn, completely DROP incoming text!
+    if ((window as any).__tenayeIsCleared || activeTurnIdRef.current === 0 || turnStartTimeRef.current < clearedTurnEpochRef.current) {
+      return;
+    }
+
     const clean = cleanText.trim();
 
     // Always dismiss typing indicator watchdog and state as text is actively received
@@ -388,47 +457,51 @@ export function AIAssistant() {
     setIsTyping(false);
     isTypingRef.current = false;
 
+    // Determine strict language: English to English, Amharic to Amharic
+    let isAmharic = userTurnLanguageRef.current === 'am' || currentLangRef.current === 'am';
+    if ((window as any).__tenayeVoiceActive) {
+      const spoken = (userSpeech || '').trim();
+      if (spoken) {
+        if (/[\u1200-\u137F]/.test(spoken) || /(ወባ|ስኳር|ተቅማጥ|ስትሮክ|ራስ\s*ምታት|ህመም|ሆስፒታል|ዶክተር|መድኃኒት|ምልክቶች|ምን|እንዴት|ሰላም|ጤና|weba|malaria|selam|tenaye)/i.test(spoken)) {
+          isAmharic = true;
+          userTurnLanguageRef.current = 'am';
+        } else if (/[a-zA-Z]/.test(spoken)) {
+          isAmharic = false;
+          userTurnLanguageRef.current = 'en';
+        }
+      }
+    }
+
+    const singleLang = cleanBilingualOutput(clean, isAmharic).trim();
+    if (!singleLang) return;
+
+    // In Voice Mode, update live AI transcript subtitle card with clean subtitle
+    if ((window as any).__tenayeVoiceActive) {
+      setAiSpeech(cleanVoiceSubtitle(singleLang));
+    }
+
+    const formatted = normalizeMarkdownText(singleLang);
+    lastProcessedAiTextRef.current = formatted;
+
     setMsgs(prev => {
-      // Prioritize active spoken utterance or current language for 100% accurate language matching
-      let isAmharic = false;
-      if ((window as any).__tenayeVoiceActive) {
-        const spoken = (userSpeech || '').trim();
-        if (spoken) {
-          isAmharic = /[\u1200-\u137F]/.test(spoken) && !/[a-zA-Z]/.test(spoken);
-        } else {
-          isAmharic = getCurrentLanguage() === 'am';
-        }
-      } else {
-        const lastUserMsg = [...prev].reverse().find(m => m.role === 'user');
-        isAmharic = lastUserMsg ? /[\u1200-\u137F]/.test(lastUserMsg.text) : (getCurrentLanguage() === 'am');
-      }
-      const singleLang = cleanBilingualOutput(clean, isAmharic);
-
-      // In Voice Mode, update live AI transcript subtitle card
-      if ((window as any).__tenayeVoiceActive) {
-        setAiSpeech(prevSpeech => mergeAiStreamingText(prevSpeech, singleLang));
+      // Re-verify guard inside functional state update
+      if ((window as any).__tenayeIsCleared || activeTurnIdRef.current === 0 || turnStartTimeRef.current < clearedTurnEpochRef.current) {
+        return prev;
       }
 
-      const last = prev[prev.length - 1];
-
-      // If the last message is already an AI message: update it with streaming text!
-      if (last && last.role === 'ai') {
-        if (last.id === 0) {
-          // Never overwrite the initial welcome card if user hasn't asked anything
-          return prev;
-        }
-        const mergedText = mergeAiStreamingText(last.text, singleLang);
-        lastProcessedAiTextRef.current = mergedText;
-        return prev.map((m, idx) => idx === prev.length - 1 ? { ...m, text: mergedText } : m);
+      // Authoritative single-bubble update: find existing AI bubble for this turn by ID
+      const targetAiId = activeAiMessageIdRef.current;
+      if (targetAiId !== null && prev.some(m => m.id === targetAiId)) {
+        return prev.map(m => m.id === targetAiId ? { ...m, text: formatted } : m);
       }
 
-      // If the last message was a user message: append a new AI bubble!
-      const aiId = ts();
-      pendingAiBubbleIdRef.current = aiId;
-      lastProcessedAiTextRef.current = singleLang;
-      return [...prev, { id: aiId, role: 'ai', text: singleLang, time: now12() }];
+      // First chunk of AI response for this turn: append one authoritative bubble
+      const newAiId = ts();
+      activeAiMessageIdRef.current = newAiId;
+      pendingAiBubbleIdRef.current = newAiId;
+      return [...prev, { id: newAiId, role: 'ai', text: formatted, time: now12() }];
     });
-  }, []);
+  }, [userSpeech]);
 
   // Sync with Voxide engine status & authoritative messages
   useEffect(() => {
@@ -487,6 +560,7 @@ export function AIAssistant() {
 
     // 2. Real-time transcript updates
     const unsubTranscript = ai.on('transcript', (payload: { role?: string; text?: string } | string) => {
+      if ((window as any).__tenayeIsCleared || activeTurnIdRef.current === 0) return;
       const text = typeof payload === 'string' ? payload : payload?.text;
       const role = typeof payload === 'object' ? payload?.role : undefined;
       if (!text || !text.trim()) return;
@@ -502,12 +576,18 @@ export function AIAssistant() {
           // Real-time language detection from spoken transcript
           const hasEthiopic = /[\u1200-\u137F]/.test(cleanUser);
           const hasLatin = /[a-zA-Z]/.test(cleanUser);
-          if (hasEthiopic && !hasLatin) {
-            if (getCurrentLanguage() !== 'am') {
+          const isAmharicSpoken = hasEthiopic || /(ወባ|ስኳር|ተቅማጥ|ስትሮክ|ራስ\s*ምታት|ህመም|ሆስፒታል|ዶክተር|መድኃኒት|ምልክቶች|ምን|እንዴት|ሰላም|ጤና|weba|malaria|selam|tenaye)/i.test(cleanUser);
+
+          if (isAmharicSpoken) {
+            userTurnLanguageRef.current = 'am';
+            if (currentLangRef.current !== 'am') {
+              setCurrentLang('am');
               setCurrentLanguage('am');
             }
           } else if (hasLatin && !hasEthiopic) {
-            if (getCurrentLanguage() !== 'en') {
+            userTurnLanguageRef.current = 'en';
+            if (currentLangRef.current !== 'en') {
+              setCurrentLang('en');
               setCurrentLanguage('en');
             }
           }
@@ -519,16 +599,12 @@ export function AIAssistant() {
 
     // 3. Authoritative message completion listener
     const unsubMessage = ai.on('message', ({ role, text }: { role: string; text: string }) => {
+      if ((window as any).__tenayeIsCleared || activeTurnIdRef.current === 0) return;
       if (!text || !text.trim()) return;
       const clean = text.trim();
 
       if (role === 'ai') {
         handleIncomingAiText(clean);
-        // Only finalize the turn if in text mode. In voice mode, keep pendingAiBubbleIdRef tied to current bubble so subsequent flushes update the same bubble!
-        if (!(window as any).__tenayeVoiceActive) {
-          activeTurnIdRef.current = 0;
-          pendingAiBubbleIdRef.current = null;
-        }
       } else if (role === 'user') {
         // In text mode, user message was already added by handleSend. Ignore to prevent duplicate bubbles!
         if (!(window as any).__tenayeVoiceActive || !voiceSessionActiveRef.current) {
@@ -543,12 +619,20 @@ export function AIAssistant() {
           return;
         }
 
-        const isUserAm = /[\u1200-\u137F]/.test(cleanUser);
+        const isUserAm = /[\u1200-\u137F]/.test(cleanUser) || /(ወባ|ስኳር|ተቅማጥ|ስትሮክ|ራስ\s*ምታት|ህመም|ሆስፒታል|ዶክተር|መድኃኒት|ምልክቶች|ምን|እንዴት|ሰላም|ጤና|weba|malaria|selam|tenaye)/i.test(cleanUser);
         const hasLatin = /[a-zA-Z]/.test(cleanUser);
-        if (isUserAm && !hasLatin) {
-          setCurrentLanguage('am');
+        if (isUserAm) {
+          userTurnLanguageRef.current = 'am';
+          if (currentLangRef.current !== 'am') {
+            setCurrentLang('am');
+            setCurrentLanguage('am');
+          }
         } else if (hasLatin && !isUserAm) {
-          setCurrentLanguage('en');
+          userTurnLanguageRef.current = 'en';
+          if (currentLangRef.current !== 'en') {
+            setCurrentLang('en');
+            setCurrentLanguage('en');
+          }
         }
 
         setUserSpeech(cleanUser);
@@ -558,6 +642,7 @@ export function AIAssistant() {
 
         const userTurnId = ts();
         activeTurnIdRef.current = userTurnId;
+        activeAiMessageIdRef.current = null; // Reset for this incoming AI response
         pendingAiBubbleIdRef.current = null;
         lastProcessedAiTextRef.current = '';
         turnStartTimeRef.current = Date.now();
@@ -634,21 +719,33 @@ export function AIAssistant() {
       if (ws && ws.readyState === WebSocket.OPEN) {
         return true;
       }
-      if (ws && ws.readyState !== WebSocket.OPEN) {
+      if (ws && ws.readyState === WebSocket.CONNECTING) {
+        const waitStart = Date.now();
+        while (Date.now() - waitStart < 3000) {
+          const cur = (ai as any)._voiceWs;
+          if (cur && cur.readyState === WebSocket.OPEN) return true;
+          if (!cur || cur.readyState === WebSocket.CLOSED) break;
+          await new Promise(r => setTimeout(r, 40));
+        }
+      }
+      if ((ai as any)._voiceWs?.readyState === WebSocket.OPEN) {
+        return true;
+      }
+      if ((ai as any)._voiceWs && (ai as any)._voiceWs.readyState !== WebSocket.OPEN) {
         try {
-          ws.close();
+          (ai as any)._voiceWs.close();
         } catch {}
         (ai as any)._voiceWs = null;
       }
       await ai.connect();
       // Fast polling to ensure WebSocket is OPEN
       const start = Date.now();
-      while (Date.now() - start < 1500) {
+      while (Date.now() - start < 3500) {
         const cur = (ai as any)._voiceWs;
         if (cur && cur.readyState === WebSocket.OPEN) {
           return true;
         }
-        await new Promise(r => setTimeout(r, 30));
+        await new Promise(r => setTimeout(r, 35));
       }
       return (ai as any)._voiceWs?.readyState === WebSocket.OPEN;
     } catch (err) {
@@ -728,6 +825,11 @@ export function AIAssistant() {
     setUserSpeech('');
     setAiSpeech('');
 
+    // Pre-warm AudioContext on user interaction
+    try {
+      getSharedAudioContext();
+    } catch {}
+
     // Interrupt previous playback or pending buffers
     try {
       (ai as any)._voiceStopPlayback?.(true);
@@ -735,9 +837,6 @@ export function AIAssistant() {
       (ai as any)._voicePendingAiText = '';
       (ai as any)._voicePendingUserText = '';
     } catch {}
-
-    // Default active language to English when starting voice session
-    setCurrentLanguage('en');
 
     try {
       await ensureConnected();
@@ -768,9 +867,31 @@ export function AIAssistant() {
     const t = cleanSpokenTranscript(textToSend).trim();
     if (!t) return;
 
-    // Detect language and explicitly set on Voxide client & dynamic state
-    const isAm = /[\u1200-\u137F]/.test(t);
-    setCurrentLanguage(isAm ? 'am' : 'en');
+    // Un-flag cleared status on new user request
+    (window as any).__tenayeIsCleared = false;
+
+    // Detect language:
+    // If text has Ethiopic script, enforce Amharic
+    // If text has Latin and NO Ethiopic, enforce English
+    // Otherwise respect currentLang
+    let isAm = currentLangRef.current === 'am';
+    if (/[\u1200-\u137F]/.test(t) || /(ወባ|ስኳር|ተቅማጥ|ስትሮክ|ራስ\s*ምታት|ህመም|ሆስፒታል|ዶክተር|መድኃኒት|ምልክቶች|ምን|እንዴት|ሰላም|ጤና)/.test(t)) {
+      isAm = true;
+      userTurnLanguageRef.current = 'am';
+      if (currentLangRef.current !== 'am') {
+        setCurrentLang('am');
+        setCurrentLanguage('am');
+      }
+    } else if (/[a-zA-Z]/.test(t) && !/[\u1200-\u137F]/.test(t)) {
+      isAm = false;
+      userTurnLanguageRef.current = 'en';
+      if (currentLangRef.current !== 'en') {
+        setCurrentLang('en');
+        setCurrentLanguage('en');
+      }
+    } else {
+      userTurnLanguageRef.current = isAm ? 'am' : 'en';
+    }
 
     // In text mode, ensure voice mode is strictly false
     (window as any).__tenayeVoiceActive = false;
@@ -778,14 +899,11 @@ export function AIAssistant() {
       stopVoiceUI();
     }
 
-    // Resume AudioContext if suspended so browser allows Voxide's voice playback on text chat
+    // Pre-warm and resume shared AudioContext on user action so browser enables voice reading
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioCtx && !(ai as any)._voiceAudioOut) {
-        (ai as any)._voiceAudioOut = new AudioCtx({ sampleRate: 24000 });
-      }
-      if ((ai as any)._voiceAudioOut && (ai as any)._voiceAudioOut.state === 'suspended') {
-        (ai as any)._voiceAudioOut.resume().catch(() => {});
+      const outCtx = getSharedAudioContext();
+      if (outCtx && outCtx.state === 'suspended') {
+        outCtx.resume().catch(() => {});
       }
     } catch {}
 
@@ -796,6 +914,8 @@ export function AIAssistant() {
     }
 
     // 1. Interrupt previous playback and server turn immediately
+    (window as any).__tenayeTurnGeneration = ((window as any).__tenayeTurnGeneration || 0) + 1;
+    (window as any).__tenayeSuppressAudioUntil = 0;
     try {
       (ai as any)._voiceStopPlayback?.(true);
       (ai as any)._voiceInterrupt?.();
@@ -810,6 +930,7 @@ export function AIAssistant() {
 
     const turnId = ts();
     activeTurnIdRef.current = turnId;
+    activeAiMessageIdRef.current = null; // Reset for this new turn!
     pendingAiBubbleIdRef.current = null;
     lastProcessedAiTextRef.current = '';
     turnStartTimeRef.current = Date.now();
@@ -831,6 +952,7 @@ export function AIAssistant() {
 
     try {
       await ensureConnected();
+      setCurrentLanguage(isAm ? 'am' : 'en');
       const ws = (ai as any)._voiceWs;
       if (ws && ws.readyState === WebSocket.OPEN) {
         const currentState = (ai as any)._getCurrentStateSnapshot?.();
@@ -854,11 +976,38 @@ export function AIAssistant() {
   // Clear history
   const requestClear   = () => setConfirmClear(true);
   const confirmClearFn = () => {
-    setMsgs([WELCOME]);
+    const clearedEpoch = Date.now();
+    clearedTurnEpochRef.current = clearedEpoch;
+    (window as any).__tenayeClearedGeneration = clearedEpoch;
+    (window as any).__tenayeIsCleared = true;
+
+    // 1. Reset root Voxide session (terminates WS, clears buffers, rotates anonymous visitor ID)
+    resetVoxideSession();
+
+    // 2. Cancel Web Speech API immediately and repeatedly
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.cancel();
+        setTimeout(() => { try { window.speechSynthesis.cancel(); } catch {} }, 50);
+        setTimeout(() => { try { window.speechSynthesis.cancel(); } catch {} }, 200);
+      } catch {}
+    }
+    if (cancelSpeechRef.current) {
+      try {
+        cancelSpeechRef.current();
+      } catch {}
+      cancelSpeechRef.current = null;
+    }
+    setSpeakingMsgId(null);
+
+    // 3. Clear messages and state
+    setMsgs([currentLangRef.current === 'am' ? WELCOME_AM : WELCOME_EN]);
     setConfirmClear(false);
     setUserSpeech('');
     setAiSpeech('');
     activeTurnIdRef.current = 0;
+    activeAiMessageIdRef.current = null;
+    activeUserMessageIdRef.current = null;
     pendingAiBubbleIdRef.current = null;
     lastProcessedAiTextRef.current = '';
     expectedAiMessageIndexRef.current = -1;
@@ -872,16 +1021,8 @@ export function AIAssistant() {
       typingTimeoutRef.current = null;
     }
     (window as any).__tenayeIsAiTurnActive = false;
-    try {
-      (ai as any)._voiceStopPlayback?.(true);
-      (ai as any)._voicePendingAiText = '';
-      (ai as any)._voicePendingUserText = '';
-      if ((ai as any)._voiceSnapshot) {
-        (ai as any)._voiceSnapshot = { ...(ai as any)._voiceSnapshot, messages: [] };
-      }
-    } catch {
-      // ignore
-    }
+    (window as any).__tenayeTurnGeneration = ((window as any).__tenayeTurnGeneration || 0) + 1;
+    (window as any).__tenayeSuppressAudioUntil = 0;
   };
   const cancelClear    = () => setConfirmClear(false);
   const closeAll       = () => {
@@ -892,6 +1033,30 @@ export function AIAssistant() {
       stopVoiceUI();
     }
   };
+
+  // Toggle TTS read-aloud for a specific AI message bubble
+  const toggleSpeakBubble = useCallback((text: string, msgId: number) => {
+    // If already speaking this bubble → stop
+    if (speakingMsgId === msgId) {
+      if (cancelSpeechRef.current) {
+        cancelSpeechRef.current();
+        cancelSpeechRef.current = null;
+      }
+      setSpeakingMsgId(null);
+      return;
+    }
+    // Cancel any previous speech first
+    if (cancelSpeechRef.current) {
+      cancelSpeechRef.current();
+      cancelSpeechRef.current = null;
+    }
+    setSpeakingMsgId(msgId);
+    const isAm = currentLangRef.current === 'am';
+    const cancel = speakText(text, isAm, () => {
+      setSpeakingMsgId(prev => (prev === msgId ? null : prev));
+    });
+    cancelSpeechRef.current = cancel;
+  }, [speakingMsgId]);
 
   /* ══════════════════════════════════════════
      FLOATING ACTION BUTTON (FAB)
@@ -968,6 +1133,26 @@ export function AIAssistant() {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Sound Toggle */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSoundEnabled(prev => !prev);
+                  if (soundEnabled && cancelSpeechRef.current) {
+                    cancelSpeechRef.current();
+                    setSpeakingMsgId(null);
+                  }
+                }}
+                title={soundEnabled ? "Voice reading is ON (click to mute)" : "Voice reading is OFF (click to enable auto-reading)"}
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                  soundEnabled
+                    ? 'text-[#119197] bg-teal-50 border border-teal-200 font-semibold'
+                    : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {soundEnabled ? <IconVolume2 size={16} /> : <IconVolumeX size={16} />}
+              </button>
+
               <button
                 onClick={requestClear}
                 title="Clear chat history"
@@ -1032,6 +1217,21 @@ export function AIAssistant() {
                       <span className="text-[10px] text-gray-400">
                         {msg.time}
                       </span>
+                      {msg.role === 'ai' && msg.id !== 0 && (
+                        <button
+                          type="button"
+                          onClick={() => toggleSpeakBubble(msg.text, msg.id)}
+                          title={speakingMsgId === msg.id ? "Stop voice reading" : "Read response aloud"}
+                          className={`p-1 rounded-md transition-colors cursor-pointer flex items-center gap-1 text-[10px] ${
+                            speakingMsgId === msg.id
+                              ? 'text-[#119197] bg-teal-50 font-semibold'
+                              : 'text-gray-400 hover:text-[#119197] hover:bg-teal-50'
+                          }`}
+                        >
+                          {speakingMsgId === msg.id ? <IconVolumeX size={13} /> : <IconVolume2 size={13} />}
+                          <span>{speakingMsgId === msg.id ? 'Stop' : 'Listen'}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1048,7 +1248,7 @@ export function AIAssistant() {
           <div className="max-w-3xl mx-auto">
             {/* Quick Questions Without Emojis */}
             <div className="flex items-center gap-2 overflow-x-auto pb-3 scrollbar-none">
-              {QUICK_QUESTIONS.map(item => (
+              {(currentLang === 'am' ? QUICK_QUESTIONS_AM : QUICK_QUESTIONS_EN).map(item => (
                 <button
                   key={item.label}
                   onClick={() => handleSend(item.q)}
@@ -1073,7 +1273,7 @@ export function AIAssistant() {
                     handleSend(input);
                   }
                 }}
-                placeholder="Speak in English or አማርኛ, or ask questions…"
+                placeholder={currentLang === 'am' ? "ጥያቄዎን በአማርኛ ይጠይቁ ወይም ማይክሮፎኑን ይጫኑ..." : "Speak in English or አማርኛ, or ask questions…"}
                 className="flex-1 text-[15px] text-gray-800 placeholder-gray-400 outline-none bg-transparent"
               />
               <button
@@ -1176,7 +1376,27 @@ export function AIAssistant() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            {/* Sound Toggle */}
+            <button
+              type="button"
+              onClick={() => {
+                setSoundEnabled(prev => !prev);
+                if (soundEnabled && cancelSpeechRef.current) {
+                  cancelSpeechRef.current();
+                  setSpeakingMsgId(null);
+                }
+              }}
+              title={soundEnabled ? "Voice reading ON" : "Voice reading OFF"}
+              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                soundEnabled
+                  ? 'bg-white/30 text-white font-bold'
+                  : 'bg-white/15 hover:bg-white/25 text-white/80 hover:text-white'
+              }`}
+            >
+              {soundEnabled ? <IconVolume2 size={13} /> : <IconVolumeX size={13} />}
+            </button>
+
             <button
               onClick={() => setFullscreen(true)}
               title="Expand to Fullscreen"
@@ -1246,6 +1466,21 @@ export function AIAssistant() {
                     <span className="text-[9px] text-gray-400">
                       {msg.time}
                     </span>
+                    {msg.role === 'ai' && msg.id !== 0 && (
+                      <button
+                        type="button"
+                        onClick={() => toggleSpeakBubble(msg.text, msg.id)}
+                        title={speakingMsgId === msg.id ? "Stop voice reading" : "Read response aloud"}
+                        className={`p-0.5 rounded transition-colors cursor-pointer flex items-center gap-0.5 text-[9px] ${
+                          speakingMsgId === msg.id
+                            ? 'text-[#119197] bg-teal-50 font-semibold'
+                            : 'text-gray-400 hover:text-[#119197] hover:bg-teal-50'
+                        }`}
+                      >
+                        {speakingMsgId === msg.id ? <IconVolumeX size={12} /> : <IconVolume2 size={12} />}
+                        <span>{speakingMsgId === msg.id ? 'Stop' : 'Listen'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1258,7 +1493,7 @@ export function AIAssistant() {
           {/* Quick Questions Pills Without Emojis */}
           <div className="px-4 pt-2 pb-1.5 bg-white border-t border-gray-100 shrink-0">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              {QUICK_QUESTIONS.map(item => (
+              {(currentLang === 'am' ? QUICK_QUESTIONS_AM : QUICK_QUESTIONS_EN).map(item => (
                 <button
                   key={item.label}
                   onClick={() => handleSend(item.q)}
@@ -1285,7 +1520,7 @@ export function AIAssistant() {
                     handleSend(input);
                   }
                 }}
-                placeholder="Speak in English or አማርኛ, or ask questions…"
+                placeholder={currentLang === 'am' ? "ጥያቄዎን በአማርኛ ይጠይቁ ወይም ማይክሮፎኑን ይጫኑ..." : "Speak in English or አማርኛ, or ask questions…"}
                 className="flex-1 text-xs text-gray-800 placeholder-gray-400 outline-none bg-transparent"
               />
               <button
