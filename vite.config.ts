@@ -33,6 +33,17 @@ export default defineConfig(({ mode }) => {
       host: process.env.FIGMA_DEV_SERVER_HOST || '0.0.0.0',
       port: parseInt(process.env.PORT || '8443'),
       strictPort: true,
+      proxy: {
+        '/api/scholarxiv': {
+          target: 'https://www.scholarxiv.com/api/v1/papers',
+          changeOrigin: true,
+          rewrite: (path: string) => path.replace(/^\/api\/scholarxiv/, ''),
+          headers: {
+            'Authorization': 'Bearer sxv_gZilZwIZrVmrVHAUASgIiCRqYxWbWpRjZWJQqbgSxXDaFcgIQtHWGrxqVIVJCILV',
+            'x-api-key': 'sxv_gZilZwIZrVmrVHAUASgIiCRqYxWbWpRjZWJQqbgSxXDaFcgIQtHWGrxqVIVJCILV',
+          },
+        },
+      },
       watch: {
         ignored: [
           '**/.figma/**',

@@ -1,0 +1,2806 @@
+// Part 5 database file for Tenaye Disease Library (50 entries: 251 to 300)
+import { DiseaseItem } from './diseasesData1';
+
+export const DISEASES_DATA_5: DiseaseItem[] = [
+  {
+    "id": "hypertensive-heart-disease-251",
+    "name": "Hypertensive Heart Disease",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Chronic high blood pressure increases the workload on the heart, causing structural changes like left ventricular hypertrophy, diastolic dysfunction, and eventually heart failure. Prolonged hypertension also accelerates atherosclerosis and increases the risk of arrhythmias and ischemic heart disease.",
+    "desc": "Chronic high blood pressure increases the workload on the heart, causing structural changes like left ventricular hypertrophy, diastolic dysfunction, and eventually heart failure. Prolonged hypertension also accelerates atherosclerosis and increases the risk of arrhythmias and ischemic heart disease.",
+    "symptoms": [
+      "Shortness of breath on exertion",
+      "chest pain",
+      "palpitations",
+      "fatigue",
+      "swelling in legs or ankles",
+      "dizziness",
+      "Advanced stages may present with syncope",
+      "angina"
+    ],
+    "causes": [
+      "Persistent hypertension from genetics",
+      "obesity",
+      "high salt intake",
+      "sedentary lifestyle",
+      "chronic kidney disease",
+      "or endocrine disorders",
+      "Age",
+      "smoking"
+    ],
+    "treatment": [
+      "Antihypertensive medications (ACE inhibitors",
+      "ARBs",
+      "beta-blockers",
+      "calcium channel blockers)",
+      "diuretics for fluid retention",
+      "and heart failure-specific medications like aldosterone antagonists or digoxin",
+      "Regular echocardiography to monitor cardiac structure and function"
+    ],
+    "selfCare": [
+      "Low-sodium diet",
+      "regular exercise",
+      "weight management",
+      "stress reduction",
+      "smoking cessation",
+      "and routine home blood pressure monitoring"
+    ],
+    "prevention": [
+      "Early detection and management of hypertension",
+      "heart-healthy lifestyle",
+      "routine cardiovascular assessments to prevent remodeling and complications"
+    ],
+    "riskFactors": [
+      "Persistent hypertension from genetics",
+      "obesity",
+      "sedentary lifestyle",
+      "Age",
+      "smoking"
+    ],
+    "warningSigns": [
+      "Shortness of breath on exertion",
+      "chest pain",
+      "Advanced stages may present with syncope"
+    ]
+  },
+  {
+    "id": "stable-angina-252",
+    "name": "Stable Angina",
+    "category": "Cardiovascular",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Stable angina is chest discomfort due to temporary myocardial ischemia during exertion or stress. It is most commonly caused by atherosclerosis of the coronary arteries. Episodes are predictable and usually resolve with rest or nitrates.",
+    "desc": "Stable angina is chest discomfort due to temporary myocardial ischemia during exertion or stress. It is most commonly caused by atherosclerosis of the coronary arteries. Episodes are predictable and usually resolve with rest or nitrates.",
+    "symptoms": [
+      "Chest pressure",
+      "tightness",
+      "or squeezing",
+      "often radiating to the left arm",
+      "jaw",
+      "shoulder",
+      "or back",
+      "Associated with shortness of breath"
+    ],
+    "causes": [
+      "Coronary artery atherosclerosis",
+      "high cholesterol",
+      "diabetes",
+      "smoking",
+      "hypertension",
+      "sedentary lifestyle",
+      "obesity",
+      "and family history"
+    ],
+    "treatment": [
+      "Nitrates (sublingual or long-acting)",
+      "beta-blockers",
+      "calcium channel blockers",
+      "and antiplatelet therapy (aspirin)",
+      "Severe or refractory cases may require percutaneous coronary intervention (stent) or coronary artery bypass grafting"
+    ],
+    "selfCare": [
+      "Avoid heavy exertion or stress triggers",
+      "maintain a heart-healthy diet",
+      "stop smoking",
+      "manage weight",
+      "and exercise under medical supervision"
+    ],
+    "prevention": [
+      "Control hypertension",
+      "diabetes",
+      "and cholesterol",
+      "adopt regular physical activity and healthy diet",
+      "early screening in high-risk patients"
+    ],
+    "riskFactors": [
+      "diabetes",
+      "smoking",
+      "hypertension",
+      "sedentary lifestyle",
+      "obesity",
+      "and family history"
+    ],
+    "warningSigns": [
+      "Associated with shortness of breath"
+    ]
+  },
+  {
+    "id": "right-sided-heart-failure-253",
+    "name": "Right-Sided Heart Failure",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Right-sided heart failure occurs when the right ventricle fails to pump blood efficiently into the pulmonary circulation, leading to systemic congestion. It is often secondary to left-sided heart failure, pulmonary hypertension, chronic lung disease, or congenital heart defects.",
+    "desc": "Right-sided heart failure occurs when the right ventricle fails to pump blood efficiently into the pulmonary circulation, leading to systemic congestion. It is often secondary to left-sided heart failure, pulmonary hypertension, chronic lung disease, or congenital heart defects.",
+    "symptoms": [
+      "Peripheral edema (legs",
+      "ankles",
+      "abdomen)",
+      "fatigue",
+      "reduced exercise tolerance",
+      "jugular vein distension",
+      "hepatomegaly",
+      "ascites"
+    ],
+    "causes": [
+      "Chronic left-sided heart failure",
+      "pulmonary hypertension",
+      "chronic obstructive pulmonary disease",
+      "pulmonary embolism",
+      "right ventricular infarction",
+      "congenital heart disease",
+      "or valvular disorders (tricuspid regurgitation)"
+    ],
+    "treatment": [
+      "Diuretics to reduce fluid overload",
+      "oxygen therapy for hypoxemia",
+      "medications for underlying causes (ACE inhibitors",
+      "ARBs)",
+      "and in select cases surgical repair or valve replacement"
+    ],
+    "selfCare": [
+      "Limit sodium intake",
+      "monitor daily weight",
+      "engage in low-impact exercise",
+      "avoid alcohol",
+      "and adhere to prescribed medications"
+    ],
+    "prevention": [
+      "Manage left-sided heart failure and lung diseases promptly",
+      "maintain a heart-healthy lifestyle",
+      "treat hypertension and coronary artery disease early",
+      "and follow up regularly with a cardiologist"
+    ],
+    "riskFactors": [
+      "pulmonary hypertension"
+    ],
+    "warningSigns": [
+      "Peripheral edema (legs"
+    ]
+  },
+  {
+    "id": "atrial-flutter-254",
+    "name": "Atrial Flutter",
+    "category": "Cardiovascular",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Atrial flutter is a type of supraventricular tachyarrhythmia where the atria contract rapidly (250–350 bpm) but the ventricles respond at a slower rate. It may coexist with atrial fibrillation and can lead to decreased cardiac output or thromboembolic events.",
+    "desc": "Atrial flutter is a type of supraventricular tachyarrhythmia where the atria contract rapidly (250–350 bpm) but the ventricles respond at a slower rate. It may coexist with atrial fibrillation and can lead to decreased cardiac output or thromboembolic events.",
+    "symptoms": [
+      "Palpitations",
+      "dizziness",
+      "shortness of breath",
+      "chest discomfort",
+      "fatigue",
+      "or syncope",
+      "Some patients may remain asymptomatic until complications occur"
+    ],
+    "causes": [
+      "Structural heart disease (valvular disorders",
+      "cardiomyopathy",
+      "ischemic heart disease)",
+      "hypertension",
+      "hyperthyroidism",
+      "alcohol consumption",
+      "post-cardiac surgery",
+      "or idiopathic causes"
+    ],
+    "treatment": [
+      "Rate control with beta-blockers or calcium channel blockers",
+      "rhythm control with antiarrhythmics (e.g",
+      "amiodarone)",
+      "anticoagulation to prevent stroke",
+      "and catheter ablation for recurrent or symptomatic cases"
+    ],
+    "selfCare": [
+      "Avoid caffeine and alcohol",
+      "maintain a heart-healthy diet",
+      "follow up regularly",
+      "monitor symptoms",
+      "and adhere to anticoagulation therapy if prescribed"
+    ],
+    "prevention": [
+      "Control underlying heart disease and hypertension",
+      "avoid triggers",
+      "and early treatment of arrhythmias"
+    ],
+    "riskFactors": [
+      "hypertension"
+    ],
+    "warningSigns": [
+      "shortness of breath",
+      "or syncope"
+    ]
+  },
+  {
+    "id": "non-st-elevation-myocardial-infarction-nstemi-255",
+    "name": "Non-ST Elevation Myocardial Infarction (NSTEMI)",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "NSTEMI is a partial blockage of a coronary artery causing myocardial ischemia and damage without classic ST elevation on ECG. It is a medical emergency and can progress to full infarction if untreated.",
+    "desc": "NSTEMI is a partial blockage of a coronary artery causing myocardial ischemia and damage without classic ST elevation on ECG. It is a medical emergency and can progress to full infarction if untreated.",
+    "symptoms": [
+      "Chest pressure or pain",
+      "shortness of breath",
+      "sweating",
+      "nausea",
+      "fatigue",
+      "palpitations",
+      "Often less severe than STEMI",
+      "which may delay presentation"
+    ],
+    "causes": [
+      "Atherosclerotic plaque rupture",
+      "thrombosis",
+      "coronary artery spasm",
+      "diabetes",
+      "hypertension",
+      "smoking",
+      "hyperlipidemia",
+      "and emotional stress"
+    ],
+    "treatment": [
+      "Antiplatelet therapy (aspirin",
+      "P2Y12 inhibitors)",
+      "anticoagulants",
+      "beta-blockers",
+      "nitrates",
+      "statins",
+      "oxygen if hypoxic",
+      "and early coronary angiography with PCI if indicated"
+    ],
+    "selfCare": [
+      "Heart-healthy diet",
+      "smoking cessation",
+      "regular activity as tolerated",
+      "stress management",
+      "medication adherence",
+      "and monitoring for recurrent symptoms"
+    ],
+    "prevention": [
+      "Control risk factors (hypertension",
+      "cholesterol",
+      "diabetes)",
+      "adopt healthy lifestyle habits",
+      "avoid smoking",
+      "and early evaluation for coronary artery disease in high-risk patients"
+    ],
+    "riskFactors": [
+      "diabetes",
+      "hypertension",
+      "smoking"
+    ],
+    "warningSigns": [
+      "Chest pressure or pain",
+      "shortness of breath",
+      "Often less severe than STEMI"
+    ]
+  },
+  {
+    "id": "critical-limb-ischemia-256",
+    "name": "Critical Limb Ischemia",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Critical limb ischemia (CLI) is the most severe form of peripheral artery disease (PAD), characterized by chronic, severe reduction in blood flow to the extremities. If untreated, it can result in tissue necrosis, ulcers, gangrene, or even limb amputation.",
+    "desc": "Critical limb ischemia (CLI) is the most severe form of peripheral artery disease (PAD), characterized by chronic, severe reduction in blood flow to the extremities. If untreated, it can result in tissue necrosis, ulcers, gangrene, or even limb amputation.",
+    "symptoms": [
+      "Persistent leg pain at rest",
+      "especially at night",
+      "non-healing ulcers or wounds",
+      "cold",
+      "pale",
+      "or bluish skin",
+      "weak or absent pulses in affected limb",
+      "and in advanced cases"
+    ],
+    "causes": [
+      "Advanced atherosclerosis",
+      "diabetes mellitus",
+      "smoking",
+      "hyperlipidemia",
+      "hypertension",
+      "chronic kidney disease",
+      "and older age"
+    ],
+    "treatment": [
+      "Revascularization via angioplasty or bypass surgery",
+      "thrombolytic therapy",
+      "pain management",
+      "wound care",
+      "and sometimes amputation if tissue is non-viable",
+      "Medications include antiplatelets and statins"
+    ],
+    "selfCare": [
+      "Smoking cessation",
+      "strict blood sugar control in diabetics",
+      "regular foot care and inspections",
+      "moderate exercise as tolerated",
+      "and adherence to medications"
+    ],
+    "prevention": [
+      "Early management of PAD risk factors (diabetes",
+      "hypertension",
+      "hyperlipidemia",
+      "smoking)",
+      "routine foot care",
+      "and regular vascular assessments in at-risk populations"
+    ],
+    "riskFactors": [
+      "diabetes mellitus",
+      "smoking",
+      "hypertension",
+      "and older age"
+    ],
+    "warningSigns": [
+      "Persistent leg pain at rest"
+    ]
+  },
+  {
+    "id": "thoracic-aortic-aneurysm-257",
+    "name": "Thoracic Aortic Aneurysm",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "A thoracic aortic aneurysm (TAA) is an abnormal dilation of the thoracic aorta. If it grows too large, it can rupture, leading to life-threatening hemorrhage. Most aneurysms are asymptomatic until complications occur.",
+    "desc": "A thoracic aortic aneurysm (TAA) is an abnormal dilation of the thoracic aorta. If it grows too large, it can rupture, leading to life-threatening hemorrhage. Most aneurysms are asymptomatic until complications occur.",
+    "symptoms": [
+      "Often asymptomatic",
+      "but may include chest or upper back pain",
+      "cough",
+      "hoarseness",
+      "shortness of breath",
+      "and difficulty swallowing if the aneurysm compresses surrounding structures",
+      "Rupture presents as sudden severe chest/back pain",
+      "hypotension"
+    ],
+    "causes": [
+      "Hypertension",
+      "atherosclerosis",
+      "connective tissue disorders (e.g",
+      "Marfan or Ehlers-Danlos syndrome)",
+      "bicuspid aortic valve",
+      "family history",
+      "advanced age",
+      "smoking"
+    ],
+    "treatment": [
+      "Blood pressure control with beta-blockers or ACE inhibitors",
+      "surgical repair (open or endovascular) for large or symptomatic aneurysms",
+      "and close imaging follow-up"
+    ],
+    "selfCare": [
+      "Monitor blood pressure regularly",
+      "avoid heavy lifting or strenuous activity",
+      "quit smoking",
+      "adhere to prescribed medications",
+      "and maintain regular cardiology follow-up"
+    ],
+    "prevention": [
+      "Control hypertension",
+      "avoid tobacco",
+      "monitor high-risk patients with imaging",
+      "and treat underlying connective tissue disorders if present"
+    ],
+    "riskFactors": [
+      "Hypertension",
+      "family history",
+      "advanced age",
+      "smoking"
+    ],
+    "warningSigns": [
+      "but may include chest or upper back pain",
+      "shortness of breath",
+      "Rupture presents as sudden severe chest/back pain"
+    ]
+  },
+  {
+    "id": "dilated-cardiomyopathy-258",
+    "name": "Dilated Cardiomyopathy",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Dilated cardiomyopathy (DCM) is a condition in which the heart’s ventricles enlarge and weaken, reducing the ability to pump blood effectively. It can lead to heart failure, arrhythmias, and thromboembolic events.",
+    "desc": "Dilated cardiomyopathy (DCM) is a condition in which the heart’s ventricles enlarge and weaken, reducing the ability to pump blood effectively. It can lead to heart failure, arrhythmias, and thromboembolic events.",
+    "symptoms": [
+      "Fatigue",
+      "shortness of breath",
+      "peripheral edema",
+      "palpitations",
+      "orthopnea",
+      "paroxysmal nocturnal dyspnea",
+      "and sometimes syncope",
+      "Advanced disease can result in cardiogenic shock"
+    ],
+    "causes": [
+      "Idiopathic (most common)",
+      "genetic mutations",
+      "myocarditis (viral)",
+      "chronic alcohol use",
+      "chemotherapy",
+      "thyroid disorders",
+      "and nutritional deficiencies",
+      "Risk factors include family history"
+    ],
+    "treatment": [
+      "Heart failure therapy (ACE inhibitors",
+      "beta-blockers",
+      "diuretics",
+      "aldosterone antagonists)",
+      "anticoagulation if atrial fibrillation is present",
+      "implantable cardioverter-defibrillator (ICD) for arrhythmias",
+      "and heart transplantation in refractory cases"
+    ],
+    "selfCare": [
+      "Low-sodium diet",
+      "fluid restriction if recommended",
+      "moderate exercise",
+      "avoid alcohol and cardiotoxic drugs",
+      "monitor weight",
+      "and regular follow-up with cardiologist"
+    ],
+    "prevention": [
+      "Manage risk factors (hypertension",
+      "diabetes)",
+      "avoid cardiotoxic exposures",
+      "treat myocarditis promptly",
+      "and family screening if hereditary"
+    ],
+    "riskFactors": [
+      "Risk factors include family history"
+    ],
+    "warningSigns": [
+      "shortness of breath",
+      "peripheral edema",
+      "and sometimes syncope"
+    ]
+  },
+  {
+    "id": "nonbacterial-thrombotic-endocarditis-nbte-259",
+    "name": "Nonbacterial Thrombotic Endocarditis (NBTE)",
+    "category": "Cardiovascular",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "NBTE, also called marantic endocarditis, is the formation of sterile vegetations on heart valves, usually associated with advanced malignancy or chronic inflammatory conditions. It increases the risk of systemic emboli.",
+    "desc": "NBTE, also called marantic endocarditis, is the formation of sterile vegetations on heart valves, usually associated with advanced malignancy or chronic inflammatory conditions. It increases the risk of systemic emboli.",
+    "symptoms": [
+      "Often asymptomatic until embolic events occur",
+      "can cause stroke",
+      "organ infarction",
+      "or transient ischemic attacks",
+      "Fatigue",
+      "fever",
+      "and new heart murmurs may rarely be present"
+    ],
+    "causes": [
+      "Advanced cancers (especially pancreatic and lung)",
+      "chronic inflammatory diseases",
+      "hypercoagulable states",
+      "autoimmune disorders (e.g",
+      "lupus)"
+    ],
+    "treatment": [
+      "Treat underlying disease",
+      "anticoagulation to reduce risk of embolism",
+      "and rarely surgical valve repair if significant valve dysfunction occurs"
+    ],
+    "selfCare": [
+      "Regular follow-up for cancer or chronic disease management",
+      "adherence to anticoagulation therapy",
+      "and monitoring for embolic events"
+    ],
+    "prevention": [
+      "Manage underlying chronic or malignant conditions",
+      "early detection of hypercoagulable states",
+      "and maintain regular cardiovascular evaluations in high-risk patients"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "acute-pericarditis-260",
+    "name": "Acute Pericarditis",
+    "category": "Cardiovascular",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Acute pericarditis is inflammation of the pericardial sac surrounding the heart, often causing chest pain and sometimes pericardial effusion. It may be viral, bacterial, autoimmune, or post-myocardial injury in origin.",
+    "desc": "Acute pericarditis is inflammation of the pericardial sac surrounding the heart, often causing chest pain and sometimes pericardial effusion. It may be viral, bacterial, autoimmune, or post-myocardial injury in origin.",
+    "symptoms": [
+      "Sharp",
+      "pleuritic chest pain that improves when sitting up and leaning forward",
+      "fever",
+      "malaise",
+      "dyspnea",
+      "pericardial friction rub on auscultation",
+      "palpitations"
+    ],
+    "causes": [
+      "Viral infections (most common)",
+      "bacterial infections",
+      "autoimmune diseases (lupus",
+      "rheumatoid arthritis)",
+      "post-MI (Dressler’s syndrome)",
+      "uremia",
+      "or trauma"
+    ],
+    "treatment": [
+      "NSAIDs for inflammation",
+      "colchicine to reduce recurrence",
+      "corticosteroids in refractory cases",
+      "antibiotics if bacterial",
+      "and pericardiocentesis if large effusion or tamponade occurs"
+    ],
+    "selfCare": [
+      "Rest during acute episodes",
+      "avoid strenuous activity until resolved",
+      "adhere to medication regimen",
+      "and monitor for recurrence"
+    ],
+    "prevention": [
+      "Prompt treatment of infections and autoimmune flares",
+      "careful management post-MI",
+      "and vaccination where appropriate (e.g",
+      "influenza)"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "pleuritic chest pain that improves when sitting up and leaning forward"
+    ]
+  },
+  {
+    "id": "mitral-regurgitation-261",
+    "name": "Mitral Regurgitation",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Mitral regurgitation (MR) occurs when the mitral valve fails to close properly, allowing blood to flow backward from the left ventricle into the left atrium. Chronic MR can lead to left atrial enlargement, atrial fibrillation, and heart failure.",
+    "desc": "Mitral regurgitation (MR) occurs when the mitral valve fails to close properly, allowing blood to flow backward from the left ventricle into the left atrium. Chronic MR can lead to left atrial enlargement, atrial fibrillation, and heart failure.",
+    "symptoms": [
+      "Fatigue",
+      "shortness of breath (especially on exertion or lying down)",
+      "palpitations",
+      "swelling in legs/ankles",
+      "and sometimes cough or pulmonary congestion",
+      "Chronic cases may be asymptomatic until advanced"
+    ],
+    "causes": [
+      "Degenerative valve disease (myxomatous degeneration)",
+      "rheumatic heart disease",
+      "ischemic heart disease",
+      "infective endocarditis",
+      "and congenital abnormalities",
+      "Risk factors include age",
+      "hypertension",
+      "and prior myocardial infarction"
+    ],
+    "treatment": [
+      "Medications for heart failure (diuretics",
+      "ACE inhibitors",
+      "beta-blockers)",
+      "anticoagulation if atrial fibrillation develops",
+      "and surgical valve repair or replacement for severe or symptomatic MR"
+    ],
+    "selfCare": [
+      "Limit salt intake",
+      "monitor weight and swelling",
+      "exercise moderately",
+      "avoid alcohol excess",
+      "and follow up regularly with a cardiologist"
+    ],
+    "prevention": [
+      "Treat infections promptly",
+      "manage heart conditions and hypertension early",
+      "and monitor for valve disease in at-risk patients"
+    ],
+    "riskFactors": [
+      "Risk factors include age",
+      "hypertension"
+    ],
+    "warningSigns": [
+      "shortness of breath (especially on exertion or lying down)"
+    ]
+  },
+  {
+    "id": "acute-rheumatic-fever-262",
+    "name": "Acute Rheumatic Fever",
+    "category": "Cardiovascular",
+    "severity": "Low",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Acute rheumatic fever (ARF) is an inflammatory disease that develops after group A streptococcal pharyngitis. It can affect the heart, joints, skin, and central nervous system.",
+    "desc": "Acute rheumatic fever (ARF) is an inflammatory disease that develops after group A streptococcal pharyngitis. It can affect the heart, joints, skin, and central nervous system.",
+    "symptoms": [
+      "Fever",
+      "migratory polyarthritis",
+      "carditis (heart murmurs",
+      "pericarditis)",
+      "erythema marginatum",
+      "subcutaneous nodules",
+      "and chorea (involuntary movements)"
+    ],
+    "causes": [
+      "Autoimmune reaction to group A Streptococcus infection",
+      "more common in children 5–15 years old",
+      "crowded living conditions",
+      "and poor access to medical care"
+    ],
+    "treatment": [
+      "Antibiotics (penicillin) to eradicate streptococcal infection",
+      "anti-inflammatory therapy (NSAIDs",
+      "corticosteroids)",
+      "and management of heart failure if present"
+    ],
+    "selfCare": [
+      "Complete antibiotic course",
+      "rest during acute phase",
+      "monitor for recurrent symptoms",
+      "and regular cardiac follow-up"
+    ],
+    "prevention": [
+      "Prompt treatment of streptococcal pharyngitis",
+      "secondary prophylaxis with monthly penicillin injections for high-risk individuals",
+      "and good hygiene"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "chronic-thromboembolic-pulmonary-hypertension-cteph-263",
+    "name": "Chronic Thromboembolic Pulmonary Hypertension (CTEPH)",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "CTEPH is high blood pressure in the lungs caused by unresolved blood clots obstructing pulmonary arteries, leading to right heart strain and failure.",
+    "desc": "CTEPH is high blood pressure in the lungs caused by unresolved blood clots obstructing pulmonary arteries, leading to right heart strain and failure.",
+    "symptoms": [
+      "Progressive shortness of breath on exertion",
+      "fatigue",
+      "chest discomfort",
+      "swelling in legs",
+      "and sometimes syncope",
+      "Cyanosis may develop in advanced stages"
+    ],
+    "causes": [
+      "Pulmonary embolism history",
+      "blood clotting disorders",
+      "splenectomy",
+      "chronic inflammatory states",
+      "and surgery/trauma"
+    ],
+    "treatment": [
+      "Pulmonary thromboendarterectomy (surgical removal of clots) is definitive",
+      "Medications include anticoagulants",
+      "pulmonary vasodilators",
+      "and oxygen therapy as needed"
+    ],
+    "selfCare": [
+      "Adherence to anticoagulation therapy",
+      "regular exercise as tolerated",
+      "avoid immobility",
+      "monitor for recurrent clots"
+    ],
+    "prevention": [
+      "Prevent initial and recurrent pulmonary emboli through anticoagulation in at-risk individuals",
+      "lifestyle modifications",
+      "and prompt treatment of DVT"
+    ],
+    "riskFactors": [
+      "Pulmonary embolism history"
+    ],
+    "warningSigns": [
+      "Progressive shortness of breath on exertion",
+      "and sometimes syncope",
+      "Cyanosis may develop in advanced stages"
+    ]
+  },
+  {
+    "id": "coronary-artery-atherosclerosis-264",
+    "name": "Coronary Artery Atherosclerosis",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Coronary artery atherosclerosis is the buildup of plaque (cholesterol, fat, calcium) in coronary arteries, reducing blood flow to the heart muscle. It is the main cause of angina, myocardial infarction, and sudden cardiac death.",
+    "desc": "Coronary artery atherosclerosis is the buildup of plaque (cholesterol, fat, calcium) in coronary arteries, reducing blood flow to the heart muscle. It is the main cause of angina, myocardial infarction, and sudden cardiac death.",
+    "symptoms": [
+      "Often asymptomatic initially",
+      "angina (chest pain/pressure)",
+      "shortness of breath",
+      "fatigue",
+      "palpitations",
+      "and in severe cases",
+      "heart attack or arrhythmias"
+    ],
+    "causes": [
+      "High cholesterol",
+      "smoking",
+      "hypertension",
+      "diabetes",
+      "obesity",
+      "sedentary lifestyle",
+      "family history",
+      "and age"
+    ],
+    "treatment": [
+      "Lifestyle modification",
+      "statins to lower cholesterol",
+      "antiplatelet therapy (aspirin)",
+      "control of hypertension and diabetes",
+      "and revascularization (PCI or CABG) in advanced cases"
+    ],
+    "selfCare": [
+      "Heart-healthy diet",
+      "regular exercise",
+      "weight control",
+      "smoking cessation",
+      "stress management",
+      "and routine monitoring of cholesterol and blood pressure"
+    ],
+    "prevention": [
+      "Control risk factors (cholesterol",
+      "blood pressure",
+      "diabetes)",
+      "maintain healthy lifestyle",
+      "avoid smoking",
+      "and early detection through cardiovascular screening"
+    ],
+    "riskFactors": [
+      "smoking",
+      "hypertension",
+      "diabetes",
+      "obesity",
+      "sedentary lifestyle",
+      "family history"
+    ],
+    "warningSigns": [
+      "angina (chest pain/pressure)",
+      "shortness of breath",
+      "and in severe cases"
+    ]
+  },
+  {
+    "id": "prinzmetals-angina-265",
+    "name": "Prinzmetal’s Angina",
+    "category": "Cardiovascular",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Prinzmetal’s (variant) angina is caused by transient coronary artery spasm, leading to temporary myocardial ischemia. It often occurs at rest, unrelated to exertion.",
+    "desc": "Prinzmetal’s (variant) angina is caused by transient coronary artery spasm, leading to temporary myocardial ischemia. It often occurs at rest, unrelated to exertion.",
+    "symptoms": [
+      "Chest pain usually at rest",
+      "often at night or early morning",
+      "may radiate to jaw",
+      "neck",
+      "or arms",
+      "palpitations",
+      "shortness of breath",
+      "and rarely syncope"
+    ],
+    "causes": [
+      "Coronary artery spasm",
+      "endothelial dysfunction",
+      "smoking",
+      "cocaine use",
+      "magnesium deficiency",
+      "and hyperventilation"
+    ],
+    "treatment": [
+      "Calcium channel blockers and nitrates to relieve and prevent spasm",
+      "beta-blockers are avoided",
+      "Treat risk factors like smoking cessation"
+    ],
+    "selfCare": [
+      "Avoid smoking and vasospastic triggers (cold exposure",
+      "stimulants)",
+      "manage stress",
+      "maintain regular follow-up with cardiologist",
+      "and adhere to medications"
+    ],
+    "prevention": [
+      "Control risk factors",
+      "quit smoking",
+      "avoid cocaine and other vasospastic drugs",
+      "and regular cardiovascular checkups"
+    ],
+    "riskFactors": [
+      "smoking"
+    ],
+    "warningSigns": [
+      "Chest pain usually at rest",
+      "shortness of breath",
+      "and rarely syncope"
+    ]
+  },
+  {
+    "id": "first-degree-heart-block-266",
+    "name": "First-Degree Heart Block",
+    "category": "Cardiovascular",
+    "severity": "Low",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "First-degree heart block is a mild form of atrioventricular (AV) conduction delay where the electrical signal from the atria to the ventricles is slowed but still conducted. It is usually asymptomatic and often discovered incidentally on ECG.",
+    "desc": "First-degree heart block is a mild form of atrioventricular (AV) conduction delay where the electrical signal from the atria to the ventricles is slowed but still conducted. It is usually asymptomatic and often discovered incidentally on ECG.",
+    "symptoms": [
+      "Often asymptomatic",
+      "Some patients may experience fatigue",
+      "lightheadedness",
+      "or palpitations rarely"
+    ],
+    "causes": [
+      "Increased vagal tone (athletes)",
+      "medications (beta-blockers",
+      "calcium channel blockers",
+      "digoxin)",
+      "ischemic heart disease",
+      "myocarditis",
+      "and degenerative conduction system disease"
+    ],
+    "treatment": [
+      "Typically",
+      "no treatment is required unless symptomatic",
+      "Adjust medications that may exacerbate AV delay",
+      "In rare cases with associated symptomatic bradycardia",
+      "pacemaker implantation may be considered"
+    ],
+    "selfCare": [
+      "Regular follow-up with a cardiologist",
+      "avoid excessive use of AV-blocking medications",
+      "and monitor for progression to higher-degree blocks"
+    ],
+    "prevention": [
+      "Avoid excessive use of AV-nodal blocking drugs unless necessary",
+      "treat underlying heart disease",
+      "and maintain general cardiovascular health"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "atrial-tachycardia-267",
+    "name": "Atrial Tachycardia",
+    "category": "Cardiovascular",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Atrial tachycardia is a type of supraventricular tachycardia originating from an ectopic focus in the atria. It leads to a rapid heart rate, often reducing cardiac efficiency.",
+    "desc": "Atrial tachycardia is a type of supraventricular tachycardia originating from an ectopic focus in the atria. It leads to a rapid heart rate, often reducing cardiac efficiency.",
+    "symptoms": [
+      "Palpitations",
+      "rapid heartbeat",
+      "dizziness",
+      "shortness of breath",
+      "fatigue",
+      "chest discomfort",
+      "and sometimes syncope"
+    ],
+    "causes": [
+      "Structural heart disease",
+      "ischemic heart disease",
+      "myocarditis",
+      "electrolyte imbalances",
+      "stimulant use (caffeine",
+      "drugs)",
+      "and congenital predisposition"
+    ],
+    "treatment": [
+      "Rate control with beta-blockers or calcium channel blockers",
+      "rhythm control with antiarrhythmics",
+      "catheter ablation for recurrent symptomatic cases",
+      "and anticoagulation if atrial fibrillation coexists"
+    ],
+    "selfCare": [
+      "Avoid stimulants",
+      "maintain electrolyte balance",
+      "moderate physical activity",
+      "stress management",
+      "and follow-up ECG monitoring"
+    ],
+    "prevention": [
+      "Control cardiovascular risk factors",
+      "avoid excessive stimulants",
+      "treat underlying heart disease",
+      "and monitor for arrhythmias in high-risk patients"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "shortness of breath",
+      "and sometimes syncope"
+    ]
+  },
+  {
+    "id": "bradycardia-tachycardia-syndrome-268",
+    "name": "Bradycardia-Tachycardia Syndrome",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Also known as sick sinus syndrome, this condition alternates between slow (bradycardia) and fast (tachycardia) heart rhythms due to dysfunction of the sinus node. It can lead to syncope and heart failure if untreated.",
+    "desc": "Also known as sick sinus syndrome, this condition alternates between slow (bradycardia) and fast (tachycardia) heart rhythms due to dysfunction of the sinus node. It can lead to syncope and heart failure if untreated.",
+    "symptoms": [
+      "Dizziness",
+      "fainting (syncope)",
+      "palpitations",
+      "fatigue",
+      "shortness of breath",
+      "chest discomfort",
+      "and heart failure signs in advanced cases"
+    ],
+    "causes": [
+      "Degenerative changes in the sinus node",
+      "ischemic heart disease",
+      "myocarditis",
+      "medications (beta-blockers",
+      "antiarrhythmics)",
+      "and sometimes genetic predisposition"
+    ],
+    "treatment": [
+      "Pacemaker implantation for symptomatic bradycardia",
+      "antiarrhythmics for tachyarrhythmia control",
+      "and anticoagulation if atrial fibrillation develops"
+    ],
+    "selfCare": [
+      "Monitor heart rate",
+      "avoid medications that worsen sinus node dysfunction unless necessary",
+      "follow-up with a cardiologist",
+      "and manage underlying conditions"
+    ],
+    "prevention": [
+      "Regular cardiac evaluation in patients with conduction system disease",
+      "early treatment of underlying heart disease",
+      "and avoid medications that impair sinus node function"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "fainting (syncope)",
+      "shortness of breath"
+    ]
+  },
+  {
+    "id": "pulseless-electrical-activity-pea-269",
+    "name": "Pulseless Electrical Activity (PEA)",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "PEA is a life-threatening condition where organized electrical activity is present on the ECG but there is no effective cardiac output or palpable pulse. It is a form of cardiac arrest requiring immediate intervention.",
+    "desc": "PEA is a life-threatening condition where organized electrical activity is present on the ECG but there is no effective cardiac output or palpable pulse. It is a form of cardiac arrest requiring immediate intervention.",
+    "symptoms": [
+      "Sudden collapse",
+      "unresponsiveness",
+      "absence of pulse",
+      "apnea",
+      "and loss of consciousness"
+    ],
+    "causes": [
+      "Hypovolemia",
+      "hypoxia",
+      "hydrogen ion (acidosis)",
+      "hypo/hyperkalemia",
+      "hypothermia",
+      "tension pneumothorax",
+      "cardiac tamponade",
+      "massive pulmonary embolism"
+    ],
+    "treatment": [
+      "Immediate CPR",
+      "advanced cardiac life support (ACLS) protocols",
+      "treatment of underlying reversible causes (“H’s and T’s”)",
+      "and epinephrine administration",
+      "Rapid identification of etiology is critical"
+    ],
+    "selfCare": [
+      "Not applicable for prevention after occurrence",
+      "focus is on emergency intervention",
+      "For at-risk patients (heart disease",
+      "severe electrolyte disorders)",
+      "regular medical monitoring and management of underlying conditions are essential"
+    ],
+    "prevention": [
+      "Manage cardiovascular risk factors",
+      "avoid electrolyte imbalances",
+      "treat heart disease promptly",
+      "and provide early intervention in high-risk situations (e.g",
+      "critical illness",
+      "post-MI care)"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "Sudden collapse",
+      "unresponsiveness"
+    ]
+  },
+  {
+    "id": "transient-ischemic-attack-tia-270",
+    "name": "Transient Ischemic Attack (TIA)",
+    "category": "Neurological",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "TIA is a brief episode of neurological dysfunction caused by temporary cerebral ischemia without permanent infarction. It is often a warning sign for future stroke.",
+    "desc": "TIA is a brief episode of neurological dysfunction caused by temporary cerebral ischemia without permanent infarction. It is often a warning sign for future stroke.",
+    "symptoms": [
+      "Sudden weakness or numbness on one side of the body",
+      "difficulty speaking or understanding speech",
+      "vision changes",
+      "dizziness",
+      "loss of balance",
+      "and sometimes brief confusion",
+      "Symptoms resolve within minutes to an hour"
+    ],
+    "causes": [
+      "Embolism from carotid or cardiac sources",
+      "atherosclerosis",
+      "hypertension",
+      "diabetes",
+      "atrial fibrillation",
+      "smoking",
+      "hyperlipidemia",
+      "and advanced age"
+    ],
+    "treatment": [
+      "Immediate evaluation to identify the cause",
+      "antiplatelet therapy (aspirin",
+      "clopidogrel)",
+      "anticoagulation if atrial fibrillation is present",
+      "control of hypertension and diabetes",
+      "and lifestyle modification",
+      "Carotid endarterectomy may be needed for significant stenosis"
+    ],
+    "selfCare": [
+      "Adhere to prescribed medications",
+      "maintain a heart-healthy diet",
+      "exercise regularly",
+      "avoid smoking",
+      "monitor blood pressure",
+      "and manage diabetes and cholesterol"
+    ],
+    "prevention": [
+      "Control cardiovascular risk factors",
+      "antiplatelet therapy in high-risk patients",
+      "routine screening for carotid artery disease",
+      "and prompt management of atrial fibrillation"
+    ],
+    "riskFactors": [
+      "hypertension",
+      "diabetes",
+      "smoking",
+      "and advanced age"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "upper-extremity-deep-vein-thrombosis-dvt-271",
+    "name": "Upper Extremity Deep Vein Thrombosis (DVT)",
+    "category": "Cardiovascular",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Upper extremity DVT is the formation of a blood clot in the deep veins of the arm, shoulder, or chest. It can cause swelling, pain, and, in severe cases, pulmonary embolism if the clot dislodges.",
+    "desc": "Upper extremity DVT is the formation of a blood clot in the deep veins of the arm, shoulder, or chest. It can cause swelling, pain, and, in severe cases, pulmonary embolism if the clot dislodges.",
+    "symptoms": [
+      "Swelling of the arm or hand",
+      "pain or tenderness",
+      "warmth and redness along the vein",
+      "visible surface veins",
+      "and in some cases",
+      "shortness of breath if pulmonary embolism occurs"
+    ],
+    "causes": [
+      "Central venous catheters or pacemaker leads",
+      "repetitive arm activity (effort-induced thrombosis)",
+      "cancer",
+      "coagulation disorders",
+      "trauma",
+      "surgery",
+      "immobility",
+      "and obesity"
+    ],
+    "treatment": [
+      "Anticoagulation therapy (heparin",
+      "warfarin",
+      "DOACs)",
+      "thrombolysis in select cases",
+      "removal or adjustment of catheters",
+      "and compression therapy if indicated"
+    ],
+    "selfCare": [
+      "Avoid prolonged immobility",
+      "perform gentle arm exercises",
+      "adhere to anticoagulant therapy",
+      "monitor for swelling or new symptoms",
+      "and follow up with a healthcare provider"
+    ],
+    "prevention": [
+      "Early mobilization after surgery",
+      "proper catheter care",
+      "management of hypercoagulable states",
+      "and awareness of symptoms for timely intervention"
+    ],
+    "riskFactors": [
+      "and obesity"
+    ],
+    "warningSigns": [
+      "pain or tenderness",
+      "shortness of breath if pulmonary embolism occurs"
+    ]
+  },
+  {
+    "id": "varicose-veins-with-inflammation-272",
+    "name": "Varicose Veins with Inflammation",
+    "category": "Cardiovascular",
+    "severity": "Low",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Varicose veins are dilated, tortuous superficial veins, often complicated by inflammation (phlebitis). They result from valve dysfunction and venous hypertension, causing blood pooling.",
+    "desc": "Varicose veins are dilated, tortuous superficial veins, often complicated by inflammation (phlebitis). They result from valve dysfunction and venous hypertension, causing blood pooling.",
+    "symptoms": [
+      "Visible bulging veins",
+      "aching or heaviness in legs",
+      "swelling",
+      "redness",
+      "tenderness",
+      "warmth over affected veins",
+      "and skin changes (eczema",
+      "pigmentation)"
+    ],
+    "causes": [
+      "Genetic predisposition",
+      "prolonged standing",
+      "obesity",
+      "pregnancy",
+      "hormonal changes",
+      "age",
+      "and history of DVT"
+    ],
+    "treatment": [
+      "Anti-inflammatory medications",
+      "compression stockings",
+      "elevation of legs",
+      "sclerotherapy",
+      "endovenous laser therapy",
+      "or surgical vein stripping for severe cases"
+    ],
+    "selfCare": [
+      "Leg elevation",
+      "regular walking/exercise",
+      "avoid prolonged standing or sitting",
+      "maintain healthy weight",
+      "and use compression therapy"
+    ],
+    "prevention": [
+      "Exercise regularly",
+      "maintain healthy weight",
+      "avoid excessive standing",
+      "use compression stockings if at risk",
+      "and early treatment of venous insufficiency"
+    ],
+    "riskFactors": [
+      "obesity",
+      "age",
+      "and history of DVT"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "amniotic-fluid-embolism-273",
+    "name": "Amniotic Fluid Embolism",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Amniotic fluid embolism (AFE) is a rare, life-threatening obstetric emergency where amniotic fluid enters maternal circulation, triggering anaphylactic-like reaction, cardiovascular collapse, and coagulopathy.",
+    "desc": "Amniotic fluid embolism (AFE) is a rare, life-threatening obstetric emergency where amniotic fluid enters maternal circulation, triggering anaphylactic-like reaction, cardiovascular collapse, and coagulopathy.",
+    "symptoms": [
+      "Sudden shortness of breath",
+      "hypotension",
+      "cyanosis",
+      "pulmonary edema",
+      "seizures",
+      "disseminated intravascular coagulation (DIC)",
+      "and cardiac arrest during labor or delivery"
+    ],
+    "causes": [
+      "Labor induction",
+      "cesarean section",
+      "trauma",
+      "multiparity",
+      "advanced maternal age",
+      "and placental abnormalities"
+    ],
+    "treatment": [
+      "Immediate supportive care in ICU: oxygenation",
+      "mechanical ventilation",
+      "fluids and vasopressors",
+      "correction of coagulopathy",
+      "and rapid resuscitation",
+      "Multidisciplinary approach is critical"
+    ],
+    "selfCare": [
+      "Post-event rehabilitation",
+      "follow-up for cardiovascular and pulmonary recovery",
+      "and counseling for future pregnancies"
+    ],
+    "prevention": [
+      "No proven prevention",
+      "careful monitoring during labor",
+      "prompt recognition",
+      "and rapid intervention improve survival"
+    ],
+    "riskFactors": [
+      "advanced maternal age"
+    ],
+    "warningSigns": [
+      "Sudden shortness of breath",
+      "cyanosis",
+      "pulmonary edema"
+    ]
+  },
+  {
+    "id": "paroxysmal-atrial-fibrillation-274",
+    "name": "Paroxysmal Atrial Fibrillation",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Paroxysmal atrial fibrillation (PAF) is an intermittent form of atrial fibrillation with episodes that spontaneously revert to normal sinus rhythm, usually within 7 days. It can cause stroke, heart failure, or other complications if untreated.",
+    "desc": "Paroxysmal atrial fibrillation (PAF) is an intermittent form of atrial fibrillation with episodes that spontaneously revert to normal sinus rhythm, usually within 7 days. It can cause stroke, heart failure, or other complications if untreated.",
+    "symptoms": [
+      "Palpitations",
+      "irregular heartbeats",
+      "dizziness",
+      "shortness of breath",
+      "chest discomfort",
+      "fatigue",
+      "and sometimes asymptomatic",
+      "Episodes may last minutes to hours"
+    ],
+    "causes": [
+      "Hypertension",
+      "coronary artery disease",
+      "heart failure",
+      "valvular disease",
+      "thyroid disorders",
+      "alcohol",
+      "sleep apnea",
+      "and advanced age"
+    ],
+    "treatment": [
+      "Rate or rhythm control with beta-blockers",
+      "calcium channel blockers",
+      "or antiarrhythmics",
+      "Anticoagulation to prevent stroke",
+      "cardioversion in select cases",
+      "and catheter ablation for recurrent symptomatic episodes"
+    ],
+    "selfCare": [
+      "Avoid alcohol and stimulants",
+      "maintain a heart-healthy lifestyle",
+      "monitor for triggers",
+      "regular ECG follow-up",
+      "and adherence to anticoagulants if prescribed"
+    ],
+    "prevention": [
+      "Control blood pressure",
+      "manage heart disease",
+      "treat sleep apnea",
+      "avoid triggers (alcohol",
+      "stimulants)",
+      "and early detection of arrhythmias"
+    ],
+    "riskFactors": [
+      "Hypertension",
+      "and advanced age"
+    ],
+    "warningSigns": [
+      "shortness of breath"
+    ]
+  },
+  {
+    "id": "giant-cell-arteritis-temporal-arteritis-275",
+    "name": "Giant Cell Arteritis (Temporal Arteritis)",
+    "category": "Cardiovascular",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Giant cell arteritis (GCA) is an inflammatory disease of large and medium-sized arteries, particularly the temporal arteries, which can lead to vision loss, stroke, or aortic aneurysm if untreated.",
+    "desc": "Giant cell arteritis (GCA) is an inflammatory disease of large and medium-sized arteries, particularly the temporal arteries, which can lead to vision loss, stroke, or aortic aneurysm if untreated.",
+    "symptoms": [
+      "New-onset headache (temporal)",
+      "scalp tenderness",
+      "jaw claudication",
+      "visual disturbances (blurred vision",
+      "double vision)",
+      "fever",
+      "fatigue",
+      "and weight loss"
+    ],
+    "causes": [
+      "Autoimmune-mediated inflammation",
+      "typically in adults over 50",
+      "more common in females and individuals of Northern European descent"
+    ],
+    "treatment": [
+      "High-dose corticosteroids (prednisone)",
+      "tapering based on response",
+      "Tocilizumab (IL-6 inhibitor) in refractory cases",
+      "and aspirin to reduce ischemic complications"
+    ],
+    "selfCare": [
+      "Regular follow-up with rheumatologist",
+      "monitor vision and cardiovascular risk factors",
+      "adhere to steroid therapy",
+      "manage side effects (osteoporosis prevention",
+      "glucose monitoring)"
+    ],
+    "prevention": [
+      "No definitive prevention",
+      "early diagnosis and prompt treatment are critical to prevent vision loss and vascular complications"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "exercise-induced-bronchoconstriction-eib-276",
+    "name": "Exercise-Induced Bronchoconstriction (EIB)",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "EIB is a temporary narrowing of the airways during or after exercise, causing breathing difficulty. It is common in people with asthma but can occur in those without chronic asthma.",
+    "desc": "EIB is a temporary narrowing of the airways during or after exercise, causing breathing difficulty. It is common in people with asthma but can occur in those without chronic asthma.",
+    "symptoms": [
+      "Shortness of breath",
+      "wheezing",
+      "chest tightness",
+      "coughing",
+      "and fatigue during or after physical activity",
+      "Symptoms usually appear within 5–20 minutes after starting exercise and resolve within an hour"
+    ],
+    "causes": [
+      "Airway hyperresponsiveness",
+      "cold or dry air exposure",
+      "underlying asthma",
+      "allergies",
+      "respiratory infections",
+      "and high-intensity endurance sports"
+    ],
+    "treatment": [
+      "Pre-exercise inhaled short-acting beta-agonists (albuterol)",
+      "daily inhaled corticosteroids if asthma is present",
+      "leukotriene receptor antagonists in some cases",
+      "and rapid relief inhalers for acute symptoms"
+    ],
+    "selfCare": [
+      "Warm-up before exercise",
+      "avoid exercising in cold/dry environments",
+      "use a mask or scarf over the mouth in cold weather",
+      "monitor peak flow",
+      "and follow prescribed asthma management plan"
+    ],
+    "prevention": [
+      "Control underlying asthma/allergic conditions",
+      "use pre-exercise inhalers as prescribed",
+      "avoid known triggers",
+      "and maintain respiratory fitness"
+    ],
+    "riskFactors": [
+      "cold or dry air exposure"
+    ],
+    "warningSigns": [
+      "Shortness of breath"
+    ]
+  },
+  {
+    "id": "emphysema-277",
+    "name": "Emphysema",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Emphysema is a chronic lung disease characterized by destruction of alveoli, leading to reduced gas exchange, hyperinflated lungs, and impaired oxygenation. It is a subtype of chronic obstructive pulmonary disease (COPD).",
+    "desc": "Emphysema is a chronic lung disease characterized by destruction of alveoli, leading to reduced gas exchange, hyperinflated lungs, and impaired oxygenation. It is a subtype of chronic obstructive pulmonary disease (COPD).",
+    "symptoms": [
+      "Shortness of breath (dyspnea)",
+      "chronic cough",
+      "wheezing",
+      "decreased exercise tolerance",
+      "barrel-shaped chest",
+      "fatigue",
+      "and weight loss in advanced disease"
+    ],
+    "causes": [
+      "Smoking (primary)",
+      "long-term exposure to air pollutants or occupational dust",
+      "alpha-1 antitrypsin deficiency (genetic)",
+      "aging",
+      "and chronic respiratory infections"
+    ],
+    "treatment": [
+      "Smoking cessation (most important)",
+      "bronchodilators (short- and long-acting)",
+      "inhaled corticosteroids",
+      "oxygen therapy in hypoxemia",
+      "pulmonary rehabilitation",
+      "and in severe cases",
+      "surgical interventions like lung volume reduction surgery or transplantation"
+    ],
+    "selfCare": [
+      "Avoid smoking and pollutants",
+      "practice breathing exercises (pursed-lip breathing)",
+      "maintain physical activity within tolerance",
+      "ensure vaccination against influenza and pneumococcus",
+      "and adhere to medication regimen"
+    ],
+    "prevention": [
+      "Avoid tobacco smoke and air pollutants",
+      "occupational safety measures",
+      "vaccination against respiratory infections",
+      "and early treatment of respiratory diseases"
+    ],
+    "riskFactors": [
+      "Smoking (primary)",
+      "long-term exposure to air pollutants or occupational dust"
+    ],
+    "warningSigns": [
+      "Shortness of breath (dyspnea)"
+    ]
+  },
+  {
+    "id": "viral-pneumonia-278",
+    "name": "Viral Pneumonia",
+    "category": "Respiratory",
+    "severity": "Low",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Viral pneumonia is inflammation of the lung parenchyma caused by viruses such as influenza, RSV, adenovirus, or SARS-CoV-2. It can range from mild to severe respiratory compromise.",
+    "desc": "Viral pneumonia is inflammation of the lung parenchyma caused by viruses such as influenza, RSV, adenovirus, or SARS-CoV-2. It can range from mild to severe respiratory compromise.",
+    "symptoms": [
+      "Fever",
+      "cough (productive or dry)",
+      "shortness of breath",
+      "chest discomfort",
+      "fatigue",
+      "myalgia",
+      "chills",
+      "and sometimes hypoxia"
+    ],
+    "causes": [
+      "Viral infections (influenza",
+      "RSV",
+      "SARS-CoV-2)",
+      "weakened immune system",
+      "chronic lung disease",
+      "older age",
+      "and comorbidities like diabetes or heart disease"
+    ],
+    "treatment": [
+      "Supportive care (oxygen therapy",
+      "hydration",
+      "antipyretics)",
+      "antiviral medications if indicated (e.g",
+      "oseltamivir for influenza)",
+      "and monitoring for bacterial superinfection",
+      "Severe cases may require ICU support and mechanical ventilation"
+    ],
+    "selfCare": [
+      "Rest",
+      "adequate hydration",
+      "fever and pain management",
+      "monitor breathing",
+      "and avoid exposure to others to prevent transmission"
+    ],
+    "prevention": [
+      "Vaccination (influenza",
+      "COVID-19)",
+      "hand hygiene",
+      "mask use in high-risk settings",
+      "and prompt treatment of upper respiratory infections"
+    ],
+    "riskFactors": [
+      "older age",
+      "and comorbidities like diabetes or heart disease"
+    ],
+    "warningSigns": [
+      "shortness of breath"
+    ]
+  },
+  {
+    "id": "chronic-obstructive-bronchitis-279",
+    "name": "Chronic Obstructive Bronchitis",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Chronic bronchitis is a subtype of COPD characterized by persistent inflammation of the bronchial tubes, excessive mucus production, and productive cough lasting at least 3 months per year for two consecutive years.",
+    "desc": "Chronic bronchitis is a subtype of COPD characterized by persistent inflammation of the bronchial tubes, excessive mucus production, and productive cough lasting at least 3 months per year for two consecutive years.",
+    "symptoms": [
+      "Chronic productive cough",
+      "wheezing",
+      "shortness of breath",
+      "frequent respiratory infections",
+      "fatigue",
+      "and cyanosis in advanced cases (“blue bloater”)"
+    ],
+    "causes": [
+      "Long-term smoking (primary)",
+      "occupational dust or chemical exposure",
+      "recurrent respiratory infections",
+      "air pollution",
+      "and genetic susceptibility"
+    ],
+    "treatment": [
+      "Smoking cessation",
+      "bronchodilators (short- and long-acting)",
+      "inhaled corticosteroids",
+      "pulmonary rehabilitation",
+      "oxygen therapy in hypoxemia",
+      "and antibiotics for acute exacerbations"
+    ],
+    "selfCare": [
+      "Avoid smoking and pollutants",
+      "stay active within tolerance",
+      "practice breathing exercises",
+      "vaccination against influenza and pneumococcus",
+      "and monitor lung function"
+    ],
+    "prevention": [
+      "Smoking cessation",
+      "minimize exposure to occupational or environmental irritants",
+      "early treatment of respiratory infections",
+      "and vaccination"
+    ],
+    "riskFactors": [
+      "Long-term smoking (primary)",
+      "occupational dust or chemical exposure"
+    ],
+    "warningSigns": [
+      "shortness of breath",
+      "and cyanosis in advanced cases (“blue bloater”)"
+    ]
+  },
+  {
+    "id": "latent-tuberculosis-infection-ltbi-280",
+    "name": "Latent Tuberculosis Infection (LTBI)",
+    "category": "Infectious",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "LTBI occurs when Mycobacterium tuberculosis infects the body without causing active disease. Individuals are asymptomatic but carry a risk of developing active TB later.",
+    "desc": "LTBI occurs when Mycobacterium tuberculosis infects the body without causing active disease. Individuals are asymptomatic but carry a risk of developing active TB later.",
+    "symptoms": [
+      "Typically asymptomatic",
+      "no cough",
+      "fever",
+      "weight loss",
+      "or night sweats",
+      "Infection is detected through a positive tuberculin skin test (TST) or interferon-gamma release assay (IGRA)"
+    ],
+    "causes": [
+      "Exposure to individuals with active TB",
+      "immunocompromised states (HIV",
+      "diabetes",
+      "corticosteroid therapy)",
+      "close living conditions",
+      "and age"
+    ],
+    "treatment": [
+      "Isoniazid for 6–9 months or rifampin for 4 months",
+      "sometimes combination therapy depending on resistance patterns",
+      "Monitoring for hepatotoxicity is essential"
+    ],
+    "selfCare": [
+      "Adherence to the full course of therapy",
+      "monitor for medication side effects",
+      "maintain good nutrition",
+      "and report any symptoms suggesting active TB"
+    ],
+    "prevention": [
+      "Early detection and treatment of latent TB",
+      "avoid exposure to active TB cases",
+      "BCG vaccination in high-risk areas",
+      "and public health measures to reduce transmission"
+    ],
+    "riskFactors": [
+      "Exposure to individuals with active TB",
+      "diabetes",
+      "and age"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "small-cell-lung-cancer-sclc-281",
+    "name": "Small Cell Lung Cancer (SCLC)",
+    "category": "Oncology",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Small cell lung cancer is an aggressive form of lung cancer arising from neuroendocrine cells, usually in the central bronchi. It grows rapidly, often metastasizes early, and is strongly associated with smoking.",
+    "desc": "Small cell lung cancer is an aggressive form of lung cancer arising from neuroendocrine cells, usually in the central bronchi. It grows rapidly, often metastasizes early, and is strongly associated with smoking.",
+    "symptoms": [
+      "Persistent cough",
+      "hemoptysis (coughing blood)",
+      "shortness of breath",
+      "chest pain",
+      "unexplained weight loss",
+      "fatigue",
+      "hoarseness",
+      "and paraneoplastic syndromes (e.g"
+    ],
+    "causes": [
+      "Tobacco smoking (primary cause)",
+      "exposure to secondhand smoke",
+      "occupational exposure to asbestos",
+      "radon",
+      "or industrial chemicals",
+      "and family history of lung cancer"
+    ],
+    "treatment": [
+      "Chemotherapy is the mainstay (etoposide plus platinum)",
+      "radiotherapy for limited-stage disease",
+      "prophylactic cranial irradiation in select cases",
+      "and supportive care for symptoms",
+      "Surgery is rarely used due to early metastasis"
+    ],
+    "selfCare": [
+      "Smoking cessation",
+      "nutritional support",
+      "manage fatigue and respiratory symptoms",
+      "monitor for treatment side effects",
+      "and psychological support"
+    ],
+    "prevention": [
+      "Avoid smoking and secondhand smoke",
+      "reduce exposure to occupational carcinogens",
+      "maintain healthy lifestyle",
+      "and early screening for high-risk individuals"
+    ],
+    "riskFactors": [
+      "Tobacco smoking (primary cause)",
+      "exposure to secondhand smoke",
+      "occupational exposure to asbestos",
+      "and family history of lung cancer"
+    ],
+    "warningSigns": [
+      "shortness of breath",
+      "chest pain"
+    ]
+  },
+  {
+    "id": "centrilobular-emphysema-282",
+    "name": "Centrilobular Emphysema",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Centrilobular emphysema is a subtype of emphysema predominantly affecting the central portions of secondary pulmonary lobules, especially the upper lobes. It leads to airflow limitation and reduced gas exchange.",
+    "desc": "Centrilobular emphysema is a subtype of emphysema predominantly affecting the central portions of secondary pulmonary lobules, especially the upper lobes. It leads to airflow limitation and reduced gas exchange.",
+    "symptoms": [
+      "Chronic shortness of breath",
+      "decreased exercise tolerance",
+      "chronic cough with minimal sputum",
+      "wheezing",
+      "fatigue",
+      "and in advanced cases",
+      "weight loss and barrel-shaped chest"
+    ],
+    "causes": [
+      "Cigarette smoking (primary)",
+      "chronic exposure to air pollutants",
+      "occupational dust inhalation",
+      "aging",
+      "and chronic bronchitis"
+    ],
+    "treatment": [
+      "Smoking cessation",
+      "bronchodilators (short- and long-acting)",
+      "inhaled corticosteroids if indicated",
+      "oxygen therapy for hypoxemia",
+      "pulmonary rehabilitation",
+      "and in severe localized disease",
+      "lung volume reduction surgery"
+    ],
+    "selfCare": [
+      "Avoid smoking and pollutants",
+      "practice breathing exercises",
+      "maintain moderate physical activity",
+      "vaccination against influenza and pneumococcus",
+      "and monitor symptoms for exacerbations"
+    ],
+    "prevention": [
+      "Avoid smoking",
+      "occupational dust and chemical exposure",
+      "early treatment of respiratory infections",
+      "and vaccination to prevent lung infections"
+    ],
+    "riskFactors": [
+      "Cigarette smoking (primary)",
+      "chronic exposure to air pollutants"
+    ],
+    "warningSigns": [
+      "Chronic shortness of breath"
+    ]
+  },
+  {
+    "id": "hypersensitivity-pneumonitis-283",
+    "name": "Hypersensitivity Pneumonitis",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Hypersensitivity pneumonitis (HP) is an immune-mediated inflammatory lung disease caused by repeated inhalation of organic antigens, leading to interstitial lung inflammation and fibrosis in chronic cases.",
+    "desc": "Hypersensitivity pneumonitis (HP) is an immune-mediated inflammatory lung disease caused by repeated inhalation of organic antigens, leading to interstitial lung inflammation and fibrosis in chronic cases.",
+    "symptoms": [
+      "Acute HP – fever",
+      "chills",
+      "cough",
+      "shortness of breath",
+      "malaise",
+      "and chest tightness hours after antigen exposure",
+      "Chronic HP – progressive dyspnea",
+      "fatigue"
+    ],
+    "causes": [
+      "Exposure to molds",
+      "bird droppings",
+      "contaminated humidifiers",
+      "farming (farmer’s lung)",
+      "and hot tubs (hot tub lung)",
+      "Genetic susceptibility and repeated exposure increase risk"
+    ],
+    "treatment": [
+      "Avoidance of offending antigen",
+      "corticosteroids for severe or chronic inflammation",
+      "immunosuppressants in refractory cases",
+      "and supportive care with oxygen therapy if hypoxemia occurs"
+    ],
+    "selfCare": [
+      "Identify and remove environmental triggers",
+      "use protective masks in high-risk settings",
+      "maintain good indoor air quality",
+      "and adhere to prescribed medications"
+    ],
+    "prevention": [
+      "Reduce exposure to known antigens",
+      "occupational safety measures",
+      "proper ventilation",
+      "and early medical evaluation for respiratory symptoms after antigen exposure"
+    ],
+    "riskFactors": [
+      "Exposure to molds",
+      "Genetic susceptibility and repeated exposure increase risk"
+    ],
+    "warningSigns": [
+      "shortness of breath"
+    ]
+  },
+  {
+    "id": "central-sleep-apnea-csa-284",
+    "name": "Central Sleep Apnea (CSA)",
+    "category": "Respiratory",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Central sleep apnea is a disorder where breathing repeatedly stops during sleep due to failure of the brain to send appropriate signals to respiratory muscles. It differs from obstructive sleep apnea, where airway obstruction is the cause.",
+    "desc": "Central sleep apnea is a disorder where breathing repeatedly stops during sleep due to failure of the brain to send appropriate signals to respiratory muscles. It differs from obstructive sleep apnea, where airway obstruction is the cause.",
+    "symptoms": [
+      "Episodes of paused breathing during sleep",
+      "loud snoring (may be less prominent than OSA)",
+      "daytime sleepiness",
+      "morning headaches",
+      "difficulty concentrating",
+      "irritability",
+      "and nocturnal awakenings"
+    ],
+    "causes": [
+      "Heart failure",
+      "stroke",
+      "brainstem disorders",
+      "opioid use",
+      "high-altitude sleep",
+      "and age",
+      "Risk factors include male sex",
+      "advanced age"
+    ],
+    "treatment": [
+      "Treat underlying cause (e.g",
+      "optimize heart failure)",
+      "continuous positive airway pressure (CPAP) or adaptive servo-ventilation (ASV)",
+      "supplemental oxygen if needed",
+      "and medication in select cases (acetazolamide)"
+    ],
+    "selfCare": [
+      "Maintain healthy weight",
+      "sleep hygiene practices",
+      "avoid alcohol and sedatives",
+      "monitor for daytime sleepiness",
+      "and regular follow-up with sleep specialist"
+    ],
+    "prevention": [
+      "Manage cardiovascular and neurological conditions",
+      "avoid sedatives/opioids unless medically necessary",
+      "optimize sleep environment",
+      "and routine evaluation if symptoms develop"
+    ],
+    "riskFactors": [
+      "and age",
+      "advanced age"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "influenza-b-285",
+    "name": "Influenza B",
+    "category": "Infectious",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Influenza B is a viral respiratory infection caused by the influenza B virus. Unlike influenza A, it primarily affects humans and usually causes seasonal epidemics rather than pandemics.",
+    "desc": "Influenza B is a viral respiratory infection caused by the influenza B virus. Unlike influenza A, it primarily affects humans and usually causes seasonal epidemics rather than pandemics.",
+    "symptoms": [
+      "Sudden fever",
+      "chills",
+      "muscle aches",
+      "headache",
+      "fatigue",
+      "sore throat",
+      "cough",
+      "nasal congestion"
+    ],
+    "causes": [
+      "Infection by influenza B virus via respiratory droplets",
+      "close contact with infected individuals",
+      "weakened immunity",
+      "age extremes (young children",
+      "elderly)",
+      "and chronic medical conditions"
+    ],
+    "treatment": [
+      "Supportive care (hydration",
+      "rest",
+      "antipyretics",
+      "analgesics)",
+      "antiviral medications (oseltamivir",
+      "zanamivir) if started within 48 hours of symptom onset",
+      "and oxygen therapy in severe cases"
+    ],
+    "selfCare": [
+      "Rest",
+      "adequate fluids",
+      "avoid contact with others during infectious period",
+      "hygiene practices (handwashing",
+      "mask)",
+      "and monitor for worsening respiratory symptoms"
+    ],
+    "prevention": [
+      "Annual influenza vaccination",
+      "hand hygiene",
+      "avoid crowded places during peak season",
+      "and prompt medical attention for high-risk individuals"
+    ],
+    "riskFactors": [
+      "age extremes (young children"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "post-covid-syndrome-long-covid-286",
+    "name": "Post-COVID Syndrome (Long COVID)",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Post-COVID syndrome refers to a range of symptoms persisting weeks to months after acute SARS-CoV-2 infection. It affects multiple organ systems, including respiratory, cardiovascular, neurological, and musculoskeletal systems.",
+    "desc": "Post-COVID syndrome refers to a range of symptoms persisting weeks to months after acute SARS-CoV-2 infection. It affects multiple organ systems, including respiratory, cardiovascular, neurological, and musculoskeletal systems.",
+    "symptoms": [
+      "Fatigue",
+      "shortness of breath",
+      "chest pain",
+      "palpitations",
+      "cognitive impairment (“brain fog”)",
+      "sleep disturbances",
+      "joint and muscle pain",
+      "anosmia or dysgeusia"
+    ],
+    "causes": [
+      "Residual organ damage",
+      "persistent viral particles",
+      "immune dysregulation",
+      "microvascular injury",
+      "pre-existing conditions",
+      "and severe initial COVID-19 illness"
+    ],
+    "treatment": [
+      "Symptomatic and supportive care",
+      "pulmonary rehabilitation",
+      "physical therapy",
+      "cognitive therapy",
+      "management of cardiovascular complications",
+      "mental health support",
+      "and multidisciplinary care for severe cases"
+    ],
+    "selfCare": [
+      "Gradual return to activity",
+      "balanced diet",
+      "adequate sleep",
+      "monitor symptoms",
+      "pacing physical exertion",
+      "stress management",
+      "and adherence to medical advice"
+    ],
+    "prevention": [
+      "Vaccination against COVID-19",
+      "early treatment of acute infection",
+      "and minimizing risk of severe illness through masks",
+      "distancing",
+      "and hygiene measures"
+    ],
+    "riskFactors": [
+      "Residual organ damage"
+    ],
+    "warningSigns": [
+      "shortness of breath",
+      "chest pain",
+      "joint and muscle pain"
+    ]
+  },
+  {
+    "id": "parapneumonic-effusion-287",
+    "name": "Parapneumonic Effusion",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Parapneumonic effusion is pleural fluid accumulation secondary to bacterial pneumonia or lung infection. Effusions can be uncomplicated (sterile) or complicated (infected, loculated, or empyema).",
+    "desc": "Parapneumonic effusion is pleural fluid accumulation secondary to bacterial pneumonia or lung infection. Effusions can be uncomplicated (sterile) or complicated (infected, loculated, or empyema).",
+    "symptoms": [
+      "Fever",
+      "pleuritic chest pain",
+      "cough",
+      "shortness of breath",
+      "decreased breath sounds",
+      "dullness to percussion",
+      "and in severe cases",
+      "respiratory distress"
+    ],
+    "causes": [
+      "Bacterial pneumonia (Streptococcus pneumoniae",
+      "Staphylococcus aureus)",
+      "lung abscess",
+      "aspiration",
+      "immunocompromised states",
+      "and delayed pneumonia treatment"
+    ],
+    "treatment": [
+      "Antibiotics targeting causative organisms",
+      "thoracentesis for diagnosis or large effusions",
+      "chest tube drainage for complicated effusions or empyema",
+      "and surgical decortication if necessary"
+    ],
+    "selfCare": [
+      "Adhere to antibiotic therapy",
+      "monitor symptoms",
+      "rest",
+      "stay hydrated",
+      "and avoid smoking"
+    ],
+    "prevention": [
+      "Vaccination against pneumococcus and influenza",
+      "early treatment of pneumonia",
+      "prompt management of respiratory infections",
+      "and maintaining immune health"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "pleuritic chest pain",
+      "shortness of breath",
+      "and in severe cases"
+    ]
+  },
+  {
+    "id": "tension-pneumothorax-288",
+    "name": "Tension Pneumothorax",
+    "category": "Respiratory",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Tension pneumothorax is a life-threatening emergency where air enters the pleural space and cannot escape, causing lung collapse and mediastinal shift, leading to severe hypoxia and cardiovascular compromise.",
+    "desc": "Tension pneumothorax is a life-threatening emergency where air enters the pleural space and cannot escape, causing lung collapse and mediastinal shift, leading to severe hypoxia and cardiovascular compromise.",
+    "symptoms": [
+      "Sudden severe chest pain",
+      "severe shortness of breath",
+      "tachycardia",
+      "hypotension",
+      "distended neck veins",
+      "tracheal deviation away from affected side",
+      "cyanosis",
+      "and rapid deterioration"
+    ],
+    "causes": [
+      "Trauma to chest",
+      "mechanical ventilation with high pressures",
+      "underlying lung disease (COPD",
+      "cystic fibrosis)",
+      "spontaneous rupture of blebs",
+      "and iatrogenic procedures (central line",
+      "thoracentesis)"
+    ],
+    "treatment": [
+      "Immediate needle decompression in the 2nd intercostal space (emergency)",
+      "followed by chest tube placement for continuous drainage",
+      "Oxygen therapy and hemodynamic support"
+    ],
+    "selfCare": [
+      "Prevent trauma",
+      "careful use of mechanical ventilation",
+      "monitor for symptoms after procedures",
+      "avoid high-risk activities if predisposed",
+      "and regular follow-up for chronic lung disease"
+    ],
+    "prevention": [
+      "Prompt treatment of lung conditions",
+      "cautious procedural techniques",
+      "awareness of early symptoms in at-risk patients",
+      "and protective measures during trauma-prone activities"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "Sudden severe chest pain",
+      "severe shortness of breath",
+      "cyanosis"
+    ]
+  },
+  {
+    "id": "cystic-fibrosis-with-pancreatic-insufficiency-289",
+    "name": "Cystic Fibrosis with Pancreatic Insufficiency",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Cystic fibrosis (CF) is a genetic disorder caused by mutations in the CFTR gene, leading to thick mucus in lungs and other organs. Pancreatic insufficiency is a common complication, causing malabsorption.",
+    "desc": "Cystic fibrosis (CF) is a genetic disorder caused by mutations in the CFTR gene, leading to thick mucus in lungs and other organs. Pancreatic insufficiency is a common complication, causing malabsorption.",
+    "symptoms": [
+      "Chronic productive cough",
+      "recurrent respiratory infections",
+      "wheezing",
+      "shortness of breath",
+      "steatorrhea (fatty stools)",
+      "poor growth",
+      "weight loss",
+      "vitamin deficiencies (A"
+    ],
+    "causes": [
+      "Inherited CFTR gene mutations",
+      "autosomal recessive inheritance",
+      "Carrier parents increase risk"
+    ],
+    "treatment": [
+      "Airway clearance techniques",
+      "inhaled mucolytics",
+      "antibiotics for infections",
+      "pancreatic enzyme replacement therapy (PERT)",
+      "fat-soluble vitamin supplementation",
+      "CFTR modulators (ivacaftor",
+      "lumacaftor/ivacaftor)",
+      "and lung transplantation in severe cases"
+    ],
+    "selfCare": [
+      "Daily airway clearance",
+      "adherence to enzyme and vitamin therapy",
+      "nutritional monitoring",
+      "avoid respiratory infections",
+      "exercise as tolerated",
+      "and routine follow-up in specialized CF centers"
+    ],
+    "prevention": [
+      "Genetic counseling for carriers",
+      "early diagnosis through newborn screening",
+      "vaccination against respiratory pathogens",
+      "and prompt treatment of infections"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "shortness of breath"
+    ]
+  },
+  {
+    "id": "cystic-fibrosis-bronchiectasis-290",
+    "name": "Cystic Fibrosis Bronchiectasis",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Bronchiectasis in CF results from chronic inflammation and infection, causing permanent dilation of bronchi and impaired mucociliary clearance. This exacerbates respiratory compromise and infection risk.",
+    "desc": "Bronchiectasis in CF results from chronic inflammation and infection, causing permanent dilation of bronchi and impaired mucociliary clearance. This exacerbates respiratory compromise and infection risk.",
+    "symptoms": [
+      "Chronic cough with thick sputum",
+      "recurrent lung infections",
+      "shortness of breath",
+      "wheezing",
+      "fatigue",
+      "hemoptysis (occasionally)",
+      "and decreased exercise tolerance"
+    ],
+    "causes": [
+      "Cystic fibrosis",
+      "repeated pulmonary infections",
+      "impaired mucus clearance",
+      "genetic predisposition",
+      "and delayed treatment of infections"
+    ],
+    "treatment": [
+      "Airway clearance therapy",
+      "inhaled antibiotics for chronic Pseudomonas or Staphylococcus infections",
+      "bronchodilators",
+      "anti-inflammatory therapy (macrolides)",
+      "and in severe cases",
+      "lung transplantation"
+    ],
+    "selfCare": [
+      "Daily airway clearance",
+      "adherence to medications",
+      "vaccinations (influenza",
+      "pneumococcal)",
+      "monitor lung function",
+      "avoid respiratory infections",
+      "and maintain optimal nutrition"
+    ],
+    "prevention": [
+      "Early diagnosis of CF",
+      "prompt treatment of infections",
+      "regular follow-up at specialized CF centers",
+      "genetic counseling",
+      "and vaccination"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "shortness of breath"
+    ]
+  },
+  {
+    "id": "acute-laryngitis-291",
+    "name": "Acute Laryngitis",
+    "category": "Respiratory",
+    "severity": "Low",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Acute laryngitis is inflammation of the larynx, often caused by viral infections, overuse of the voice, or irritants. It typically resolves within 1–3 weeks.",
+    "desc": "Acute laryngitis is inflammation of the larynx, often caused by viral infections, overuse of the voice, or irritants. It typically resolves within 1–3 weeks.",
+    "symptoms": [
+      "Hoarseness or loss of voice",
+      "sore throat",
+      "dry cough",
+      "throat irritation",
+      "mild fever in some cases",
+      "and occasional difficulty swallowing"
+    ],
+    "causes": [
+      "Viral upper respiratory infections (most common)",
+      "vocal strain (yelling",
+      "singing)",
+      "bacterial infection (less common)",
+      "smoking",
+      "environmental irritants",
+      "and gastroesophageal reflux"
+    ],
+    "treatment": [
+      "Voice rest",
+      "hydration",
+      "humidified air",
+      "analgesics (acetaminophen",
+      "NSAIDs)",
+      "throat lozenges",
+      "and in bacterial cases",
+      "antibiotics"
+    ],
+    "selfCare": [
+      "Avoid shouting or whispering",
+      "stay hydrated",
+      "use a humidifier",
+      "avoid smoking and irritants",
+      "and maintain good hand hygiene to prevent infection spread"
+    ],
+    "prevention": [
+      "Proper voice care",
+      "avoid smoking",
+      "treat reflux",
+      "hand hygiene",
+      "and avoid close contact with individuals with respiratory infections"
+    ],
+    "riskFactors": [
+      "smoking",
+      "and gastroesophageal reflux"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "acute-bacterial-sinusitis-292",
+    "name": "Acute Bacterial Sinusitis",
+    "category": "Respiratory",
+    "severity": "Low",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Acute bacterial sinusitis is inflammation and infection of the paranasal sinuses lasting less than four weeks, often following viral upper respiratory infection.",
+    "desc": "Acute bacterial sinusitis is inflammation and infection of the paranasal sinuses lasting less than four weeks, often following viral upper respiratory infection.",
+    "symptoms": [
+      "Nasal congestion",
+      "purulent nasal discharge",
+      "facial pain or pressure",
+      "fever",
+      "headache",
+      "cough",
+      "fatigue",
+      "and decreased sense of smell"
+    ],
+    "causes": [
+      "Bacterial infections (Streptococcus pneumoniae",
+      "Haemophilus influenzae",
+      "Moraxella catarrhalis)",
+      "preceding viral infections",
+      "allergies",
+      "anatomical nasal obstruction",
+      "smoking",
+      "and immune deficiencies"
+    ],
+    "treatment": [
+      "Antibiotics (amoxicillin or amoxicillin-clavulanate)",
+      "analgesics",
+      "nasal saline irrigation",
+      "decongestants (short-term)",
+      "and corticosteroid nasal sprays in selected cases"
+    ],
+    "selfCare": [
+      "Adequate hydration",
+      "rest",
+      "nasal saline rinses",
+      "humidified air",
+      "avoid irritants",
+      "and monitor for worsening symptoms"
+    ],
+    "prevention": [
+      "Treat allergies",
+      "avoid smoking and pollutants",
+      "proper hygiene to reduce viral infections",
+      "and timely treatment of upper respiratory infections"
+    ],
+    "riskFactors": [
+      "smoking"
+    ],
+    "warningSigns": [
+      "facial pain or pressure"
+    ]
+  },
+  {
+    "id": "acute-tonsillitis-293",
+    "name": "Acute Tonsillitis",
+    "category": "Respiratory",
+    "severity": "Low",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Acute tonsillitis is inflammation of the palatine tonsils caused by viral or bacterial infection, commonly affecting children and young adults.",
+    "desc": "Acute tonsillitis is inflammation of the palatine tonsils caused by viral or bacterial infection, commonly affecting children and young adults.",
+    "symptoms": [
+      "Sore throat",
+      "painful swallowing",
+      "fever",
+      "swollen tonsils with exudates",
+      "tender cervical lymph nodes",
+      "bad breath",
+      "headache",
+      "and fatigue"
+    ],
+    "causes": [
+      "Viral infections (adenovirus",
+      "influenza",
+      "EBV)",
+      "bacterial infections (Streptococcus pyogenes – group A strep)",
+      "close contact with infected individuals",
+      "and weakened immunity"
+    ],
+    "treatment": [
+      "Symptomatic care for viral tonsillitis (analgesics",
+      "hydration",
+      "rest)",
+      "antibiotics for bacterial cases (penicillin or amoxicillin)",
+      "corticosteroids in severe inflammation",
+      "and tonsillectomy for recurrent or severe cases"
+    ],
+    "selfCare": [
+      "Adequate rest",
+      "hydration",
+      "warm saltwater gargles",
+      "avoid irritants (smoke)",
+      "maintain oral hygiene",
+      "and isolate during contagious period"
+    ],
+    "prevention": [
+      "Hand hygiene",
+      "avoid sharing utensils",
+      "vaccination for preventable viral infections (influenza",
+      "COVID-19)",
+      "and timely treatment of infections"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "painful swallowing"
+    ]
+  },
+  {
+    "id": "viral-pharyngitis-294",
+    "name": "Viral Pharyngitis",
+    "category": "Respiratory",
+    "severity": "Low",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Viral pharyngitis is inflammation of the pharynx caused by viral infections, resulting in sore throat without bacterial involvement. It is self-limiting and common worldwide.",
+    "desc": "Viral pharyngitis is inflammation of the pharynx caused by viral infections, resulting in sore throat without bacterial involvement. It is self-limiting and common worldwide.",
+    "symptoms": [
+      "Sore throat",
+      "redness of the throat",
+      "mild fever",
+      "runny nose",
+      "cough",
+      "hoarseness",
+      "headache",
+      "and mild fatigue"
+    ],
+    "causes": [
+      "Viral pathogens (adenovirus",
+      "influenza",
+      "rhinovirus",
+      "EBV)",
+      "exposure to infected individuals",
+      "crowded environments",
+      "and seasonal epidemics"
+    ],
+    "treatment": [
+      "Supportive care with analgesics (acetaminophen",
+      "NSAIDs)",
+      "warm saltwater gargles",
+      "hydration",
+      "rest",
+      "throat lozenges",
+      "and monitoring for secondary bacterial infection"
+    ],
+    "selfCare": [
+      "Maintain hydration",
+      "avoid irritants (smoke",
+      "alcohol)",
+      "use humidifiers",
+      "rest voice",
+      "and practice hand hygiene"
+    ],
+    "prevention": [
+      "Avoid close contact with infected individuals",
+      "hand hygiene",
+      "mask use in crowded areas during outbreaks",
+      "and vaccination where applicable"
+    ],
+    "riskFactors": [
+      "exposure to infected individuals"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  },
+  {
+    "id": "neonatal-respiratory-distress-syndrome-rds-295",
+    "name": "Neonatal Respiratory Distress Syndrome (RDS)",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Neonatal RDS is a condition in premature infants caused by surfactant deficiency, leading to alveolar collapse, impaired gas exchange, and hypoxemia. It is a leading cause of neonatal morbidity and mortality.",
+    "desc": "Neonatal RDS is a condition in premature infants caused by surfactant deficiency, leading to alveolar collapse, impaired gas exchange, and hypoxemia. It is a leading cause of neonatal morbidity and mortality.",
+    "symptoms": [
+      "Rapid",
+      "labored breathing (tachypnea",
+      "grunting)",
+      "nasal flaring",
+      "cyanosis",
+      "chest retractions",
+      "low oxygen saturation",
+      "and lethargy"
+    ],
+    "causes": [
+      "Premature birth (<34 weeks)",
+      "maternal diabetes",
+      "perinatal asphyxia",
+      "cesarean section without labor",
+      "male sex",
+      "and familial predisposition"
+    ],
+    "treatment": [
+      "Surfactant replacement therapy via endotracheal tube",
+      "mechanical ventilation or CPAP",
+      "oxygen therapy",
+      "fluid management",
+      "and supportive neonatal intensive care"
+    ],
+    "selfCare": [
+      "Supportive care in NICU",
+      "monitor oxygenation and respiratory status",
+      "minimize infection risk",
+      "and ensure maternal prenatal care in future pregnancies"
+    ],
+    "prevention": [
+      "Antenatal corticosteroids for mothers at risk of preterm delivery",
+      "optimal prenatal care",
+      "timely delivery planning",
+      "and prevention of perinatal infections"
+    ],
+    "riskFactors": [
+      "maternal diabetes"
+    ],
+    "warningSigns": [
+      "cyanosis"
+    ]
+  },
+  {
+    "id": "coal-workers-pneumoconiosis-cwp-296",
+    "name": "Coal Worker's Pneumoconiosis (CWP)",
+    "category": "Respiratory",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Coal worker’s pneumoconiosis, also called “black lung disease,” is a chronic occupational lung disease caused by inhalation of coal dust. It leads to lung inflammation, fibrosis, and impaired respiratory function.",
+    "desc": "Coal worker’s pneumoconiosis, also called “black lung disease,” is a chronic occupational lung disease caused by inhalation of coal dust. It leads to lung inflammation, fibrosis, and impaired respiratory function.",
+    "symptoms": [
+      "Chronic cough",
+      "shortness of breath (especially on exertion)",
+      "wheezing",
+      "fatigue",
+      "chest tightness",
+      "and in severe cases",
+      "progressive respiratory failure and pulmonary hypertension"
+    ],
+    "causes": [
+      "Prolonged inhalation of coal dust",
+      "inadequate protective equipment",
+      "mining in poorly ventilated areas",
+      "smoking",
+      "and co-exposure to silica dust"
+    ],
+    "treatment": [
+      "No cure",
+      "management is supportive: bronchodilators for airflow obstruction",
+      "oxygen therapy for hypoxemia",
+      "pulmonary rehabilitation",
+      "vaccinations (influenza",
+      "pneumococcus)",
+      "and management of complications (respiratory infections",
+      "cor pulmonale)"
+    ],
+    "selfCare": [
+      "Avoid further dust exposure",
+      "smoking cessation",
+      "regular respiratory function monitoring",
+      "maintain physical activity within tolerance",
+      "and healthy nutrition"
+    ],
+    "prevention": [
+      "Proper workplace ventilation",
+      "use of respirators",
+      "occupational safety regulations",
+      "regular health surveillance",
+      "and minimizing exposure to coal dust"
+    ],
+    "riskFactors": [
+      "smoking",
+      "and co-exposure to silica dust"
+    ],
+    "warningSigns": [
+      "shortness of breath (especially on exertion)",
+      "and in severe cases"
+    ]
+  },
+  {
+    "id": "mesothelioma-297",
+    "name": "Mesothelioma",
+    "category": "Oncology",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Mesothelioma is a rare, aggressive cancer of the mesothelial lining, most commonly affecting the pleura. It is strongly associated with asbestos exposure and has a poor prognosis.",
+    "desc": "Mesothelioma is a rare, aggressive cancer of the mesothelial lining, most commonly affecting the pleura. It is strongly associated with asbestos exposure and has a poor prognosis.",
+    "symptoms": [
+      "Shortness of breath",
+      "persistent chest pain",
+      "dry cough",
+      "fatigue",
+      "weight loss",
+      "pleural effusion",
+      "and night sweats",
+      "Advanced disease may cause hoarseness or superior vena cava syndrome"
+    ],
+    "causes": [
+      "Asbestos exposure (primary)",
+      "occupational exposure (shipbuilding",
+      "construction)",
+      "radiation",
+      "age >50",
+      "male sex",
+      "and chronic inflammatory states of the pleura"
+    ],
+    "treatment": [
+      "Multimodal therapy: surgery (pleurectomy/decortication)",
+      "chemotherapy (cisplatin + pemetrexed)",
+      "radiation therapy",
+      "and palliative care for symptom relief",
+      "Emerging immunotherapy shows promise"
+    ],
+    "selfCare": [
+      "Symptom management (pain control",
+      "oxygen therapy)",
+      "nutrition support",
+      "avoid further asbestos exposure",
+      "psychological support",
+      "and regular follow-ups"
+    ],
+    "prevention": [
+      "Limit occupational asbestos exposure",
+      "use protective equipment",
+      "workplace safety regulations",
+      "and early screening for high-risk individuals"
+    ],
+    "riskFactors": [
+      "Asbestos exposure (primary)",
+      "occupational exposure (shipbuilding",
+      "age >50"
+    ],
+    "warningSigns": [
+      "Shortness of breath",
+      "persistent chest pain"
+    ]
+  },
+  {
+    "id": "non-cardiogenic-pulmonary-edema-ards-298",
+    "name": "Non-Cardiogenic Pulmonary Edema (ARDS)",
+    "category": "Respiratory",
+    "severity": "High",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Acute respiratory distress syndrome (ARDS) is severe, non-cardiogenic pulmonary edema resulting from widespread inflammation and increased capillary permeability, leading to hypoxemia and respiratory failure.",
+    "desc": "Acute respiratory distress syndrome (ARDS) is severe, non-cardiogenic pulmonary edema resulting from widespread inflammation and increased capillary permeability, leading to hypoxemia and respiratory failure.",
+    "symptoms": [
+      "Rapid onset of severe shortness of breath",
+      "labored breathing",
+      "hypoxia",
+      "cyanosis",
+      "diffuse crackles on auscultation",
+      "fatigue",
+      "and confusion in severe cases"
+    ],
+    "causes": [
+      "Sepsis",
+      "severe pneumonia",
+      "trauma",
+      "aspiration",
+      "pancreatitis",
+      "transfusion-related lung injury",
+      "inhalation injury",
+      "and COVID-19"
+    ],
+    "treatment": [
+      "Intensive care support: mechanical ventilation with low tidal volume",
+      "oxygen therapy",
+      "fluid management",
+      "treatment of underlying cause",
+      "prone positioning",
+      "and sometimes ECMO (extracorporeal membrane oxygenation)"
+    ],
+    "selfCare": [
+      "Not applicable for acute care",
+      "long-term survivors benefit from pulmonary rehabilitation",
+      "nutrition support",
+      "gradual physical activity",
+      "and follow-up for chronic lung function deficits"
+    ],
+    "prevention": [
+      "Prevent underlying causes (vaccination",
+      "infection control",
+      "trauma prevention)",
+      "early sepsis management",
+      "and minimizing aspiration risk in vulnerable patients"
+    ],
+    "riskFactors": [
+      "Family clinical history",
+      "Advanced age",
+      "Environmental factors"
+    ],
+    "warningSigns": [
+      "Rapid onset of severe shortness of breath",
+      "cyanosis",
+      "and confusion in severe cases"
+    ]
+  },
+  {
+    "id": "adenovirus-infection-299",
+    "name": "Adenovirus Infection",
+    "category": "Infectious",
+    "severity": "Medium",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Adenoviruses are a group of viruses causing respiratory, ocular, gastrointestinal, and urinary tract infections, common in children and immunocompromised adults.",
+    "desc": "Adenoviruses are a group of viruses causing respiratory, ocular, gastrointestinal, and urinary tract infections, common in children and immunocompromised adults.",
+    "symptoms": [
+      "Fever",
+      "sore throat",
+      "cough",
+      "conjunctivitis",
+      "rhinitis",
+      "diarrhea",
+      "abdominal pain",
+      "vomiting"
+    ],
+    "causes": [
+      "Viral infection transmitted via respiratory droplets",
+      "fecal-oral route",
+      "or contact with contaminated surfaces",
+      "Risk factors include young age",
+      "immunocompromised state",
+      "crowded living conditions",
+      "and poor hygiene"
+    ],
+    "treatment": [
+      "Supportive care: hydration",
+      "antipyretics",
+      "analgesics",
+      "oxygen therapy if pneumonia develops",
+      "and in immunocompromised patients",
+      "antiviral therapy (cidofovir) in severe cases"
+    ],
+    "selfCare": [
+      "Rest",
+      "hydration",
+      "maintain hygiene",
+      "avoid close contact with vulnerable individuals",
+      "monitor symptoms",
+      "and treat secondary infections if they occur"
+    ],
+    "prevention": [
+      "Hand hygiene",
+      "respiratory etiquette",
+      "avoid crowded places during outbreaks",
+      "disinfection of surfaces",
+      "and adenovirus vaccination in high-risk military populations"
+    ],
+    "riskFactors": [
+      "Risk factors include young age"
+    ],
+    "warningSigns": [
+      "abdominal pain"
+    ]
+  },
+  {
+    "id": "parapertussis-300",
+    "name": "Parapertussis",
+    "category": "Infectious",
+    "severity": "Low",
+    "prevalence": "Clinical condition documented in hospital and ambulatory health records.",
+    "description": "Parapertussis is a respiratory infection caused by Bordetella parapertussis, presenting similarly to pertussis (whooping cough) but generally milder. It affects children more commonly.",
+    "desc": "Parapertussis is a respiratory infection caused by Bordetella parapertussis, presenting similarly to pertussis (whooping cough) but generally milder. It affects children more commonly.",
+    "symptoms": [
+      "Persistent cough (may be paroxysmal)",
+      "mild fever",
+      "nasal congestion",
+      "runny nose",
+      "occasional vomiting after coughing",
+      "and less pronounced whooping compared to classic pertussis"
+    ],
+    "causes": [
+      "Infection by Bordetella parapertussis via respiratory droplets",
+      "exposure in schools or daycare centers",
+      "incomplete vaccination",
+      "and young age (<5 years)"
+    ],
+    "treatment": [
+      "Macrolide antibiotics (azithromycin",
+      "erythromycin) to reduce bacterial shedding",
+      "supportive care (hydration",
+      "antipyretics)",
+      "and close monitoring for complications (secondary pneumonia)"
+    ],
+    "selfCare": [
+      "Isolate during contagious period",
+      "maintain hydration",
+      "soft diet to prevent cough irritation",
+      "and ensure proper rest"
+    ],
+    "prevention": [
+      "Routine DTaP/Tdap vaccination",
+      "good hand hygiene",
+      "avoid close contact with infected individuals",
+      "and early treatment of cases to reduce spread"
+    ],
+    "riskFactors": [
+      "exposure in schools or daycare centers",
+      "and young age (<5 years)"
+    ],
+    "warningSigns": [
+      "Sudden worsening of symptoms",
+      "Chest distress or severe shortness of breath",
+      "Loss of consciousness or severe weakness"
+    ]
+  }
+];

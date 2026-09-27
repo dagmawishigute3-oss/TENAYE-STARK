@@ -5,6 +5,7 @@ import {
   IconShield, IconAward, IconUsers, IconCheck,
   IconActivity, IconHeart, IconBrain, IconSearch, IconPhone,
 } from '../components/Icons';
+import { ScholarXivSearchBar } from '../components/ScholarXivSearchBar';
 
 const STATS = [
   { icon: IconShield, value: '2,500+', label: 'Health Articles' },
@@ -45,10 +46,10 @@ export function Home() {
   return (
     <main className="pt-16">
       {/* ── HERO ── */}
-      <section className="bg-gradient-to-br from-[#0c6e73] via-[#119197] to-[#0e9fa6] text-white">
+      <section className="relative z-30 bg-gradient-to-br from-[#0c6e73] via-[#119197] to-[#0e9fa6] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
           {/* Left */}
-          <div className="animate-fade-up">
+          <div className="relative z-30 animate-fade-up">
             <h1 className="font-display font-extrabold text-4xl sm:text-5xl xl:text-6xl text-white mb-4 leading-[1.1]">
               Your Trusted Health Companion
             </h1>
@@ -56,20 +57,23 @@ export function Home() {
               Access reliable medical information, connect with healthcare professionals, and take control of your health journey with confidence and care.
             </p>
 
-            {/* Search bar */}
-            <form onSubmit={handleSearch} className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 mb-3 shadow-md max-w-lg">
-              <IconSearch size={18} className="text-gray-400 shrink-0" />
-              <input
-                type="text"
+            {/* Search bar with ScholarXiv Academic Literature Dropdown */}
+            <div className="mb-3 max-w-lg">
+              <ScholarXivSearchBar
                 value={query}
-                onChange={e => setQuery(e.target.value)}
+                onChange={setQuery}
+                onSubmit={(submittedVal) => {
+                  const targetQuery = submittedVal?.trim() || query.trim();
+                  if (targetQuery) {
+                    navigate(`/diseases?search=${encodeURIComponent(targetQuery)}`);
+                  } else {
+                    navigate('/diseases');
+                  }
+                }}
+                variant="hero"
                 placeholder="Search diseases, symptoms, or conditions…"
-                className="flex-1 text-gray-800 text-sm placeholder-gray-400 outline-none bg-transparent"
               />
-              <button type="submit" className="text-xs font-bold text-[#119197] hover:text-[#0c6e73] px-2 py-1">
-                Search
-              </button>
-            </form>
+            </div>
             <p className="text-teal-100/80 text-xs mb-8">
               Popular searches:{' '}
               <Link to="/diseases?search=Diabetes" className="underline hover:text-white">Diabetes symptoms</Link>{' '}
