@@ -41,6 +41,23 @@ function NavigationListener() {
   return null;
 }
 
+function RouteTranslationManager() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('tenaye_lang') : null;
+    if (saved && saved !== 'en') {
+      const combo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+      if (combo && combo.value !== saved) {
+        combo.value = saved;
+        combo.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  }, [pathname]);
+
+  return null;
+}
+
 export default function App() {
   useEffect(() => {
     document.title = 'Tenaye (ጤናዬ) — Health Companion';
@@ -51,6 +68,7 @@ export default function App() {
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <ScrollToTop />
         <NavigationListener />
+        <RouteTranslationManager />
         <Navbar />
         <div className="flex-1">
           <Routes>

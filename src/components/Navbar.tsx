@@ -1,7 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { IconGlobe, IconChevronDown, IconMenu, IconX } from './Icons';
 import logoImg from '../imports/image-removebg-preview.png';
+import {
+  PRIMARY_LANGUAGES,
+  LanguageOption,
+  getSavedLanguage,
+  setWebsiteLanguage
+} from '../services/translatorService';
+import { MoreLanguagesModal } from './MoreLanguagesModal';
 
 const NAV_LINKS = [
   { label: 'Home',           href: '/' },
@@ -13,29 +20,41 @@ const NAV_LINKS = [
   { label: 'Health Tips',    href: '/health-tips' },
 ];
 
-const LANGUAGES = [
-  { code: 'en', label: 'English',    flag: 'EN' },
-  { code: 'am', label: 'አማርኛ',      flag: 'AM' },
-  { code: 'om', label: 'Afan Oromo', flag: 'OM' },
-  { code: 'ti', label: 'Tigrinya',   flag: 'TI' },
-  { code: 'so', label: 'Somali',     flag: 'SO' },
-];
-
 export function Navbar() {
-  const [open, setOpen]         = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
-  const [lang, setLang]         = useState(() => {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem('tenaye_lang') : null;
-    return LANGUAGES.find(l => l.code === saved) || LANGUAGES[0];
-  });
-  const [scrolled, setScrolled] = useState(false);
-  const location = useLocation();
+  const [open, setOpen]                 = useState(false);
+  const [langOpen, setLangOpen]         = useState(false);
+  const [moreModalOpen, setMoreModalOpen] = useState(false);
+  const [lang, setLang]                 = useState<LanguageOption>(getSavedLanguage);
+  const [scrolled, setScrolled]         = useState(false);
+  const location                        = useLocation();
+  const langDropdownRef                 = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 4);
     window.addEventListener('scroll', h, { passive: true });
     return () => window.removeEventListener('scroll', h);
   }, []);
+
+  // Sync saved language on mount
+  useEffect(() => {
+    const current = getSavedLanguage();
+    setLang(current);
+  }, []);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+        setLangOpen(false);
+      }
+    }
+    if (langOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [langOpen]);
 
   useEffect(() => { setOpen(false); setLangOpen(false); }, [location.pathname]);
 
@@ -51,26 +70,26 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
 
         {/* ── Logo ── */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0">
-          <img src={logoImg} alt="Tenaye logo" className="w-9 h-9 object-contain" />
-          <div className="leading-none">
-            <p className="font-logo text-[13px] leading-tight tracking-tight">
-              <span className="text-white bg-[#119197] px-2 py-[2px] rounded-full">Ten</span>
-              <span className="text-[#dc2626] ml-0.5">aye</span>
+        <Link to="/" className="flex items-center gap-2.5 shrink-0 notranslate" translate="no">
+          <img src={logoImg} alt="Tenaye logo" className="w-9 h-9 object-contain notranslate" translate="no" />
+          <div className="leading-none notranslate" translate="no">
+            <p className="font-logo text-[13px] leading-tight tracking-tight notranslate" translate="no">
+              <span className="text-white bg-[#119197] px-2 py-[2px] rounded-full notranslate" translate="no">Ten</span>
+              <span className="text-[#dc2626] ml-0.5 notranslate" translate="no">aye</span>
             </p>
-            <p className="text-[9px] text-slate-400 font-medium tracking-wide mt-1">
+            <p className="text-[9px] text-slate-400 font-medium tracking-wide mt-1 notranslate" translate="no">
               ጤናዬ &bull; Health Companion
             </p>
           </div>
         </Link>
 
         {/* ── Desktop nav ── */}
-        <nav className="hidden lg:flex items-center gap-0.5 flex-1 justify-center">
+        <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 flex-1 justify-center">
           {NAV_LINKS.map(({ label, href }) => (
             <Link
               key={href}
               to={href}
-              className={`px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-150 ${
+              className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-lg text-[13px] font-medium transition-colors duration-150 whitespace-nowrap shrink-0 ${
                 isActive(href)
                   ? 'text-[#119197] bg-[#e6f7f7]'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -85,47 +104,87 @@ export function Navbar() {
         <div className="flex items-center gap-2 shrink-0">
 
           {/* Language picker */}
-          <div className="relative">
+          <div className="relative notranslate" ref={langDropdownRef} translate="no">
             <button
               onClick={() => setLangOpen(v => !v)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition-colors notranslate"
+              aria-label="Select Language"
+              translate="no"
             >
-              <IconGlobe size={14} className="text-slate-400" />
-              <span className="font-medium text-xs">{lang.flag}</span>
-              <IconChevronDown size={12} className={`text-slate-400 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+              <IconGlobe size={15} className="text-slate-500 notranslate" />
+              <span className="font-bold text-xs uppercase tracking-wider notranslate" translate="no">{lang.countryCode}</span>
+              <IconChevronDown size={13} className={`text-slate-400 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {langOpen && (
-              <div className="absolute top-full right-0 mt-1.5 w-44 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50">
-                <div className="px-3 py-2 border-b border-slate-100">
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Language</p>
-                </div>
-                {LANGUAGES.map(l => (
+              <div className="absolute top-full right-0 mt-2 w-56 sm:w-60 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 animate-fade-in notranslate" translate="no">
+                {/* Header with Title and Close X */}
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white notranslate" translate="no">
+                  <span className="text-sm font-bold text-slate-800 tracking-tight notranslate" translate="no">Select Language</span>
                   <button
-                    key={l.code}
-                    onClick={() => {
-                      setLang(l);
-                      setLangOpen(false);
-                      if (typeof window !== 'undefined') {
-                        localStorage.setItem('tenaye_lang', l.code);
-                        window.dispatchEvent(new CustomEvent('tenaye-lang-change', { detail: { lang: l.code } }));
-                      }
-                    }}
-                    className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-slate-50 ${
-                      lang.code === l.code ? 'text-[#119197] bg-[#e6f7f7]' : 'text-slate-700'
-                    }`}
+                    onClick={() => setLangOpen(false)}
+                    className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100 notranslate"
+                    aria-label="Close"
+                    translate="no"
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono text-slate-400">{l.flag}</span>
-                      <span className={lang.code === l.code ? 'font-semibold' : ''}>{l.label}</span>
-                    </div>
-                    {lang.code === l.code && (
-                      <svg className="w-3.5 h-3.5 text-[#119197]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    )}
+                    <IconX size={15} />
                   </button>
-                ))}
+                </div>
+
+                {/* Primary Languages List (Scrollable) */}
+                <div className="max-h-72 overflow-y-auto lang-dropdown-scroll py-1 notranslate" translate="no">
+                  {PRIMARY_LANGUAGES.map(l => {
+                    const isActive = lang.code.toLowerCase() === l.code.toLowerCase();
+                    return (
+                      <button
+                        key={l.code}
+                        translate="no"
+                        onClick={() => {
+                          setLang(l);
+                          setLangOpen(false);
+                          setWebsiteLanguage(l);
+                        }}
+                        className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors text-left notranslate ${
+                          isActive
+                            ? 'bg-[#e6f7f7] text-[#119197] font-semibold'
+                            : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 notranslate" translate="no">
+                          <span
+                            translate="no"
+                            className={`text-xs font-mono font-bold w-6 notranslate ${
+                              isActive ? 'text-[#119197]' : 'text-slate-700'
+                            }`}
+                          >
+                            {l.countryCode}
+                          </span>
+                          <span translate="no" className={`notranslate ${isActive ? 'font-semibold text-[#119197]' : ''}`}>
+                            {l.label}
+                          </span>
+                        </div>
+                        {isActive && (
+                          <span translate="no" className="text-[#119197] font-bold text-sm ml-2 notranslate">✓</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Pinned Bottom Item: More Languages... */}
+                <div className="border-t border-slate-100 bg-white notranslate" translate="no">
+                  <button
+                    translate="no"
+                    onClick={() => {
+                      setLangOpen(false);
+                      setMoreModalOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-[#119197] hover:bg-[#e6f7f7]/70 transition-colors text-left notranslate"
+                  >
+                    <IconGlobe size={16} className="text-[#119197] shrink-0 notranslate" />
+                    <span className="notranslate" translate="no">More Languages...</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -156,8 +215,31 @@ export function Navbar() {
               {label}
             </Link>
           ))}
+          <div className="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between px-2 notranslate" translate="no">
+            <span className="text-xs text-slate-500 font-medium notranslate" translate="no">Active Language:</span>
+            <button
+              translate="no"
+              onClick={() => {
+                setOpen(false);
+                setMoreModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 notranslate"
+            >
+              <span className="font-mono text-[#119197] font-bold notranslate" translate="no">{lang.countryCode}</span>
+              <span className="notranslate" translate="no">{lang.label}</span>
+              <span className="text-[#119197] ml-1 notranslate" translate="no">Change →</span>
+            </button>
+          </div>
         </div>
       )}
+
+      {/* ── More Languages Modal ── */}
+      <MoreLanguagesModal
+        isOpen={moreModalOpen}
+        onClose={() => setMoreModalOpen(false)}
+        currentLang={lang}
+        onSelectLang={setLang}
+      />
     </header>
   );
 }

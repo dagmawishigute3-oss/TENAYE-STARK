@@ -23,11 +23,11 @@ export function Footer() {
 
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2.5 mb-3">
-              <img src={logoImg} alt="Tenaye" className="w-8 h-8 object-contain" />
-              <p className="font-logo text-sm leading-tight">
-                <span className="text-white bg-[#119197] px-2 py-[2px] rounded-full">Ten</span>
-                <span className="text-[#dc2626] ml-0.5">aye</span>
+            <div className="flex items-center gap-2.5 mb-3 notranslate" translate="no">
+              <img src={logoImg} alt="Tenaye" className="w-8 h-8 object-contain notranslate" translate="no" />
+              <p className="font-logo text-sm leading-tight notranslate" translate="no">
+                <span className="text-white bg-[#119197] px-2 py-[2px] rounded-full notranslate" translate="no">Ten</span>
+                <span className="text-[#dc2626] ml-0.5 notranslate" translate="no">aye</span>
               </p>
             </div>
             <p className="text-xs text-slate-500 leading-relaxed mb-3">
@@ -73,7 +73,7 @@ export function Footer() {
       <div className="border-t border-slate-800 px-4 sm:px-6 py-3">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-[11px] text-slate-600">
-            &copy; {new Date().getFullYear()} Tenaye Health Platform &middot; Addis Ababa, Ethiopia
+            &copy; {new Date().getFullYear()} <span className="notranslate" translate="no">Tenaye</span> Health Platform &middot; Addis Ababa, Ethiopia
           </p>
           <p className="text-[10px] text-slate-700 text-center max-w-md">
             <span className="text-slate-500 font-medium">Disclaimer:</span>{' '}

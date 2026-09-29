@@ -5,11 +5,118 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><!-- figma:title --></title>
+    <script type="text/javascript">
+      // Pre-hydration language sync: ensures Google Translate cookie matches localStorage before Google scripts execute
+      (function() {
+        try {
+          var saved = localStorage.getItem('tenaye_lang');
+          if (saved && saved !== 'en') {
+            document.documentElement.classList.add('translating-pre-active');
+            var valEn = '/en/' + saved;
+            var valAuto = '/auto/' + saved;
+            document.cookie = 'googtrans=' + valEn + '; path=/; max-age=31536000; SameSite=Lax';
+            document.cookie = 'googtrans=' + valAuto + '; path=/; max-age=31536000; SameSite=Lax';
+            var host = window.location.hostname;
+            if (host && host !== 'localhost') {
+              document.cookie = 'googtrans=' + valEn + '; domain=.' + host + '; path=/; max-age=31536000; SameSite=Lax';
+              document.cookie = 'googtrans=' + valEn + '; domain=' + host + '; path=/; max-age=31536000; SameSite=Lax';
+              document.cookie = 'googtrans=' + valAuto + '; domain=.' + host + '; path=/; max-age=31536000; SameSite=Lax';
+              document.cookie = 'googtrans=' + valAuto + '; domain=' + host + '; path=/; max-age=31536000; SameSite=Lax';
+            }
+            // Auto safety reveal after 600ms in case Google Translate is delayed or offline
+            setTimeout(function() {
+              document.documentElement.classList.remove('translating-pre-active');
+            }, 600);
+          } else if (saved === 'en') {
+            document.cookie = 'googtrans=/en/en; path=/; max-age=31536000; SameSite=Lax';
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      /* Hide ANY external element inserted into body by Google Translate outside #root */
+      body > :not(#root):not(script):not(style) {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
+      }
+
+      /* Specific classes for Google Translate floating spinner & banners */
+      .goog-te-banner-frame,
+      iframe.goog-te-banner-frame,
+      iframe.skiptranslate,
+      #goog-gt-tt,
+      .goog-te-balloon-frame,
+      .goog-te-spinner-pos,
+      .goog-te-spinner,
+      .goog-te-spinner-animation,
+      div.VIpgJd-ZVi9od-ORHb-OEVmcb,
+      div.VIpgJd-ZVi9od-ORHb,
+      div.VIpgJd-ZVi9od-l4eHX-hSRGPd,
+      div.VIpgJd-ZVi9od-SmMuJa {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+
+      /* Prevent flash of English on refresh: keep #root concealed until Google Translate applies translation */
+      html.translating-pre-active:not(.translated-ltr):not(.translated-rtl) #root {
+        opacity: 0 !important;
+        visibility: hidden !important;
+      }
+      html.translating-pre-active #root {
+        transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      body { top: 0px !important; position: static !important; }
+    </style>
     <!-- figma:head-end -->
   </head>
   <body>
     <!-- figma:body-start -->
     <div id="root"></div>
+    <div id="google_translate_element" style="display:none;" aria-hidden="true"></div>
+    <script type="text/javascript">
+      window.googleTranslateElementInit = function() {
+        if (window.google && window.google.translate) {
+          new window.google.translate.TranslateElement({
+            pageLanguage: 'en',
+            autoDisplay: false
+          }, 'google_translate_element');
+
+          // Keep selected language active across refresh
+          try {
+            var saved = localStorage.getItem('tenaye_lang');
+            if (saved && saved !== 'en') {
+              var count = 0;
+              var poll = setInterval(function() {
+                count++;
+                var select = document.querySelector('.goog-te-combo');
+                if (select) {
+                  if (select.value !== saved) {
+                    select.value = saved;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                  }
+                  clearInterval(poll);
+                } else if (count > 30) {
+                  clearInterval(poll);
+                }
+              }, 60);
+            }
+          } catch(e) {}
+        }
+      };
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async defer></script>
     <script type="module" src="/src/main.tsx"></script>
     <!-- figma:body-end -->
   </body>
