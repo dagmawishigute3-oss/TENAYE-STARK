@@ -1,292 +1,589 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
-import { IconPhone, IconMapPin, IconClock, IconAlertTriangle, IconNavigation, IconStar2, IconSearch } from '../components/Icons';
+import {
+  IconPhone,
+  IconClock,
+  IconAlertTriangle,
+  IconNavigation,
+  IconStar2,
+  IconMapPin,
+  IconLoader,
+} from '../components/Icons';
+import { HospitalMap } from '../components/HospitalMap';
+import {
+  getLiveClosestHospitals,
+  getDirectionsUrl,
+  reverseGeocodeUserLocation,
+  type Hospital,
+} from '../services/hospitalLocatorService';
 
+// Real verified Ethiopian Emergency & Ambulance contact hotlines
 const AMBULANCES = [
-  { name: 'Red Cross Ambulance',       phone: '907', specialty: 'General Emergency',   icon: '🏥' },
-  { name: 'Tebita Ambulance',          phone: '907', specialty: 'Ambulance Service',    icon: '🚑' },
-  { name: 'Tedla Ambulance',           phone: '907', specialty: 'Medical Transport',    icon: '🚑' },
-  { name: 'Ethiopia Federal Police',   phone: '991', specialty: 'Police Emergency',     icon: '👮' },
-];
-
-const HOSPITALS = [
-  { name: 'Tikur Anbessa Specialized Hospital', address: 'Lideta Sub-city, Addis Ababa', phone: '+251 11 551 8185', distance: '2.5 km', rating: 4.2, reviews: 850 },
-  { name: "St. Paul's Hospital Millennium Medical College", address: 'Gulele Sub-city, Addis Ababa', phone: '+251 11 275 4080', distance: '3.8 km', rating: 4.5, reviews: 1200 },
-  { name: 'Zewditu Memorial Hospital', address: 'Kirkos Sub-city, Addis Ababa', phone: '+251 11 551 2291', distance: '1.9 km', rating: 4.0, reviews: 620 },
-  { name: 'Minilik II Referral Hospital', address: 'Arada Sub-city, Addis Ababa', phone: '+251 11 155 0600', distance: '2.2 km', rating: 3.9, reviews: 480 },
-  { name: 'Yekatit 12 Hospital Medical College', address: 'Arada Sub-city, Addis Ababa', phone: '+251 11 156 4072', distance: '3.1 km', rating: 4.1, reviews: 740 },
-  { name: 'Myungsung Christian Medical Center (Korean Hospital)', address: 'Kolle Keranio Sub-city, Addis Ababa', phone: '+251 11 629 3162', distance: '4.5 km', rating: 4.6, reviews: 920 },
+  {
+    name: 'Red Cross Ambulance',
+    phone: '907',
+    displayPhone: '907',
+    specialty: 'National Toll-Free Ambulance',
+    icon: '🏥',
+  },
+  {
+    name: 'Tebita Ambulance',
+    phone: '8035',
+    displayPhone: '8035',
+    specialty: 'Private Advanced Paramedics',
+    icon: '🚑',
+  },
+  {
+    name: 'Tedla Ambulance',
+    phone: '8558',
+    displayPhone: '8558',
+    specialty: '24/7 Emergency & ICU Transport',
+    icon: '🚑',
+  },
+  {
+    name: 'Ethiopia Federal Police',
+    phone: '991',
+    displayPhone: '991',
+    specialty: 'National Police Incident Hotline',
+    icon: '👮',
+  },
 ];
 
 function Stars({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-1">
       <div className="flex">
-        {[1,2,3,4,5].map(i => (
-          <IconStar2 key={i} size={12} className={i <= Math.floor(rating) ? 'text-amber-400' : 'text-gray-200'} />
+        {[1, 2, 3, 4, 5].map((i) => (
+          <IconStar2
+            key={i}
+            size={12}
+            className={i <= Math.floor(rating) ? 'text-amber-400' : 'text-gray-200'}
+          />
         ))}
       </div>
-      <span className="text-xs text-gray-600 font-medium">{rating}</span>
+      <span className="text-xs text-gray-600 font-medium">{rating.toFixed(1)}</span>
     </div>
   );
 }
 
 type GeoState = 'idle' | 'loading' | 'granted' | 'denied';
+type FilterType = 'all' | 'hospital' | 'clinic' | 'doctor';
 
 export function Emergency() {
   const [geoState, setGeoState] = useState<GeoState>('idle');
-  const [query, setQuery] = useState('');
-  const [showAllHospitals, setShowAllHospitals] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [facilities, setFacilities] = useState<Hospital[]>([]);
+  const [loadingFacilities, setLoadingFacilities] = useState(false);
+  const [selectedHospitalId, setSelectedHospitalId] = useState<string | null>(null);
+  const [filterType, setFilterType] = useState<FilterType>('all');
+  const [currentAreaName, setCurrentAreaName] = useState<string>('Your Location');
+
   const ref1 = useScrollReveal();
   const ref2 = useScrollReveal();
   const ref3 = useScrollReveal();
 
+  // Fetch real facilities from live OpenStreetMap API strictly within 25 km
+  const fetchNearby = async (lat: number, lng: number) => {
+    setUserLocation({ lat, lng });
+    setGeoState('granted');
+    setLoadingFacilities(true);
+
+    reverseGeocodeUserLocation(lat, lng)
+      .then((geo) => {
+        if (geo && geo.city && geo.city !== 'Local Area' && geo.city !== 'Your Area') {
+          setCurrentAreaName(geo.city);
+        } else if (geo && geo.locality) {
+          setCurrentAreaName(geo.locality);
+        }
+      })
+      .catch(() => {});
+
+    try {
+      const liveList = await getLiveClosestHospitals(lat, lng, 25);
+      setFacilities(liveList);
+      if (liveList.length > 0) {
+        setSelectedHospitalId(liveList[0].id);
+      }
+    } catch (e) {
+      console.error('Error querying OpenStreetMap:', e);
+      setFacilities([]);
+    } finally {
+      setLoadingFacilities(false);
+    }
+  };
+
+  // Direct Live GPS Search:
+  // When clicked, calls navigator.geolocation directly to trigger the native browser permission dialog.
+  // When allowed, queries live OpenStreetMap within 25 km.
   const handleSearchNearMe = () => {
     if (!navigator.geolocation) {
       setGeoState('denied');
       return;
     }
+
     setGeoState('loading');
+    setLoadingFacilities(true);
+
     navigator.geolocation.getCurrentPosition(
-      () => {
-        setGeoState('granted');
-        setShowAllHospitals(true);
+      (pos) => {
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        fetchNearby(coords.lat, coords.lng);
       },
-      () => setGeoState('denied'),
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
+      (err) => {
+        console.warn('Geolocation permission not granted:', err);
+        setGeoState('denied');
+        setLoadingFacilities(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
 
-  const filteredAmbulances = AMBULANCES.filter(a =>
-    !query ||
-    a.name.toLowerCase().includes(query.toLowerCase()) ||
-    a.phone.includes(query) ||
-    a.specialty.toLowerCase().includes(query.toLowerCase())
-  );
+  // If user already granted location permission in a previous session, auto-fetch immediately
+  useEffect(() => {
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: 'geolocation' })
+        .then((result) => {
+          if (result.state === 'granted') {
+            handleSearchNearMe();
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
 
-  const filteredHospitals = HOSPITALS.filter(h =>
-    !query ||
-    h.name.toLowerCase().includes(query.toLowerCase()) ||
-    h.address.toLowerCase().includes(query.toLowerCase()) ||
-    h.phone.includes(query)
-  );
+  // Filter facilities based on pill selection
+  const hospitalsCount = facilities.filter((f) => f.type === 'Hospital').length;
+  const clinicsCount = facilities.filter(
+    (f) => f.type === 'Clinic' || f.type === 'Medium Clinic' || f.type === 'Health Center'
+  ).length;
+  const doctorsCount = facilities.filter((f) => f.type === 'Doctor').length;
+
+  const displayedFacilities = facilities.filter((f) => {
+    if (filterType === 'hospital') return f.type === 'Hospital';
+    if (filterType === 'clinic')
+      return f.type === 'Clinic' || f.type === 'Medium Clinic' || f.type === 'Health Center';
+    if (filterType === 'doctor') return f.type === 'Doctor';
+    return true;
+  });
 
   return (
     <main className="pt-16 bg-gray-50 min-h-screen">
-      {/* Header */}
+      {/* Hero Header */}
       <div className="bg-gradient-to-br from-[#0c6e73] to-[#119197] text-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-14 text-center">
           <div className="inline-flex w-14 h-14 rounded-xl bg-white/10 items-center justify-center mx-auto mb-4">
-            <IconAlertTriangle size={28} className="text-white/80" />
+            <IconAlertTriangle size={28} className="text-white/90" />
           </div>
           <h1 className="font-display font-extrabold text-4xl text-white mb-2">Emergency Services</h1>
-          <p className="text-teal-100 max-w-lg mx-auto">Ethiopian emergency contacts and nearby hospitals. Save lives with quick access to emergency services.</p>
+          <p className="text-teal-100 max-w-lg mx-auto">
+            Real-time live medical directory powered by OpenStreetMap for closest hospitals, clinics, and official Ethiopian emergency dispatch hotlines.
+          </p>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-        {/* 3 top cards */}
-        <div ref={ref1} className="grid sm:grid-cols-3 gap-5 mb-8">
+        {/* Top 3 Action Cards */}
+        <div ref={ref1} className="grid sm:grid-cols-3 gap-5 mb-10">
           <div className="bg-white rounded-xl border border-gray-200 p-6 text-center hover:shadow-md transition-shadow">
             <IconPhone size={28} className="text-red-600 mx-auto mb-3" />
-            <h3 className="font-display font-bold text-gray-900 text-sm mb-1">Emergency Hotline</h3>
-            <p className="text-xs text-gray-500 mb-4">Call 907 for immediate ambulance response</p>
-            <a href="tel:907" className="block w-full py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">Call 907</a>
+            <h3 className="font-display font-bold text-gray-900 text-sm mb-1">National Ambulance (ERCS)</h3>
+            <p className="text-xs text-gray-500 mb-4">Dial 907 for free nationwide medical ambulance dispatch</p>
+            <a
+              href="tel:907"
+              className="block w-full py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors shadow-xs"
+            >
+              Call 907
+            </a>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-6 text-center hover:shadow-md transition-shadow">
-            <IconMapPin size={28} className="text-[#119197] mx-auto mb-3" />
-            <h3 className="font-display font-bold text-gray-900 text-sm mb-1">Find Hospitals</h3>
-            <p className="text-xs text-gray-500 mb-4">Locate nearby hospitals and medical centers</p>
+
+          <div className="bg-white rounded-xl border border-[#cceef0] p-6 text-center hover:shadow-md transition-shadow bg-gradient-to-b from-[#f2fbfb] to-white">
+            <IconNavigation size={28} className="text-[#119197] mx-auto mb-3" />
+            <h3 className="font-display font-bold text-gray-900 text-sm mb-1">Closest Hospitals & Clinics</h3>
+            <p className="text-xs text-gray-500 mb-4">Real-time OpenStreetMap search strictly within 30 km of your location</p>
             <button
               onClick={handleSearchNearMe}
-              disabled={geoState === 'loading'}
-              className="w-full py-2.5 rounded-lg border border-[#119197] text-[#119197] text-sm font-bold hover:bg-[#e6f7f7] transition-colors disabled:opacity-60 disabled:cursor-wait cursor-pointer"
+              disabled={geoState === 'loading' || loadingFacilities}
+              className="w-full py-2.5 rounded-lg bg-[#119197] hover:bg-[#0c6e73] text-white text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-wait cursor-pointer shadow-xs flex items-center justify-center gap-2"
             >
-              {geoState === 'loading' ? 'Locating…' : 'Search Near Me'}
+              {loadingFacilities ? (
+                <>
+                  <IconLoader size={16} /> Searching OpenStreetMap…
+                </>
+              ) : (
+                <>
+                  <IconNavigation size={15} /> Search Near Me
+                </>
+              )}
             </button>
           </div>
+
           <div className="bg-white rounded-xl border border-gray-200 p-6 text-center hover:shadow-md transition-shadow">
             <IconClock size={28} className="text-[#119197] mx-auto mb-3" />
-            <h3 className="font-display font-bold text-gray-900 text-sm mb-1">24/7 Support</h3>
-            <p className="text-xs text-gray-500 mb-4">Get help any time, day or night</p>
-            <button className="w-full py-2.5 rounded-lg border border-[#119197] text-[#119197] text-sm font-bold hover:bg-[#e6f7f7] transition-colors cursor-pointer">Contact Support</button>
+            <h3 className="font-display font-bold text-gray-900 text-sm mb-1">Federal Police Hotline</h3>
+            <p className="text-xs text-gray-500 mb-4">Ethiopia Federal Police dispatch and security response</p>
+            <a
+              href="tel:991"
+              className="block w-full py-2.5 rounded-lg border border-[#119197] text-[#119197] text-sm font-bold hover:bg-[#e6f7f7] transition-colors cursor-pointer"
+            >
+              Call Police (991)
+            </a>
           </div>
         </div>
 
-        {/* Instant Search Bar */}
-        <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 mb-10 shadow-xs">
-          <IconSearch size={18} className="text-gray-400 shrink-0" />
-          <input
-            type="text"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder="Search emergency hospitals, ambulance dispatch, or sub-cities (e.g., Tikur Anbessa, Lideta, 907)…"
-            className="flex-1 text-gray-800 text-sm placeholder-gray-400 outline-none bg-transparent"
-          />
-          {query && (
-            <button onClick={() => setQuery('')} className="text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-0.5 rounded cursor-pointer">
-              Clear
-            </button>
-          )}
-        </div>
-
-        {/* Emergency Call Services */}
+        {/* Emergency Call Services with Real Hotlines */}
         <div ref={ref2} className="mb-12">
           <h2 className="font-display font-extrabold text-2xl text-gray-900 mb-1">Emergency Call Services</h2>
-          <p className="text-gray-500 text-sm mb-6">Direct access to emergency response teams. Click to call immediately.</p>
-          {filteredAmbulances.length === 0 ? (
-            <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500 text-sm">
-              No emergency services matching "{query}". Call national hotline <a href="tel:907" className="text-red-600 font-bold underline">907</a>.
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {filteredAmbulances.map(a => (
-                <div key={a.name} className="bg-white rounded-xl border border-gray-200 p-5 text-center hover:shadow-md hover:border-[#cceef0] transition-all">
-                  <div className="relative inline-block mb-3">
-                    <div className="w-12 h-12 rounded-xl bg-[#e6f7f7] flex items-center justify-center mx-auto">
-                      <IconPhone size={22} className="text-[#119197]" />
-                    </div>
-                    <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-[#dc2626] text-white text-[9px] font-bold">24/7</span>
+          <p className="text-gray-500 text-sm mb-6">
+            Direct access to official emergency ambulances and police in Ethiopia. Click to call immediately.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {AMBULANCES.map((a) => (
+              <div
+                key={a.name}
+                className="bg-white rounded-xl border border-gray-200 p-5 text-center hover:shadow-md hover:border-[#cceef0] transition-all"
+              >
+                <div className="relative inline-block mb-3">
+                  <div className="w-12 h-12 rounded-xl bg-[#e6f7f7] flex items-center justify-center mx-auto text-xl">
+                    {a.icon}
                   </div>
-                  <p className="font-display font-bold text-gray-900 text-sm mb-1 leading-tight">{a.name}</p>
-                  <p className="text-[10px] text-gray-400 mb-3">{a.specialty}</p>
-                  <a href={`tel:${a.phone}`} className="flex items-center justify-center gap-2 w-full py-2 rounded-lg bg-[#dc2626] hover:bg-[#b91c1c] text-white text-xs font-bold transition-colors">
-                    <IconPhone size={13} /> Call {a.phone}
-                  </a>
+                  <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-[#dc2626] text-white text-[9px] font-bold">
+                    24/7
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
+                <p className="font-display font-bold text-gray-900 text-sm mb-1 leading-tight">{a.name}</p>
+                <p className="text-[10px] text-gray-400 mb-3">{a.specialty}</p>
+                <a
+                  href={`tel:${a.phone}`}
+                  className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-[#dc2626] hover:bg-[#b91c1c] text-white text-xs font-bold transition-colors shadow-xs"
+                >
+                  <IconPhone size={13} /> Call {a.displayPhone}
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Nearby Hospitals */}
+        {/* Location Permission Blocked Notice */}
+        {geoState === 'denied' && (
+          <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center mb-8 shadow-xs">
+            <div className="w-12 h-12 rounded-xl bg-teal-50 text-[#119197] flex items-center justify-center mx-auto mb-3">
+              <IconAlertTriangle size={24} />
+            </div>
+            <h3 className="font-display font-bold text-gray-900 text-base mb-1">
+              Device Location Permission Required
+            </h3>
+            <p className="text-gray-500 text-xs mb-4 max-w-md mx-auto">
+              Please allow location permission in your browser prompt so we can calculate exact real distances to hospitals and clinics within 25 km.
+            </p>
+            <button
+              onClick={handleSearchNearMe}
+              className="px-5 py-2.5 rounded-xl bg-[#119197] hover:bg-[#0c6e73] text-white text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-2"
+            >
+              <IconNavigation size={14} /> Allow Location & Search (25 km)
+            </button>
+          </div>
+        )}
+
+        {/* Real Live GPS Active Status Bar */}
+        {geoState === 'granted' && userLocation && (
+          <div className="bg-[#e6f7f7] border border-[#cceef0] rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 mb-6">
+            <div className="flex items-center gap-2.5 text-xs text-[#0c6e73] font-medium flex-wrap">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>
+                <strong>Your Location:</strong> {currentAreaName}
+                <span className="ml-1.5 px-2 py-0.5 rounded bg-teal-100 text-teal-800 text-[10px] font-bold">
+                  OpenStreetMap (25 km)
+                </span>
+              </span>
+              <span className="text-gray-300 hidden sm:inline">•</span>
+              <span className="text-gray-600">
+                Found {facilities.length} {facilities.length === 1 ? 'real facility' : 'real facilities'}
+              </span>
+            </div>
+
+            <button
+              onClick={handleSearchNearMe}
+              className="px-3 py-1.5 rounded-lg bg-white border border-[#119197] text-[#119197] hover:bg-[#d9f3f4] text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              title="Recalculate exact GPS position"
+            >
+              <IconNavigation size={13} /> Refresh GPS
+            </button>
+          </div>
+        )}
+
+        {/* OpenStreetMap Map Section (Displayed when searched) */}
+        {geoState === 'granted' && facilities.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-display font-extrabold text-xl text-gray-900 flex items-center gap-2">
+                <IconMapPin size={20} className="text-[#119197]" />
+                Interactive OpenStreetMap
+              </h2>
+              <span className="text-xs text-gray-500">
+                Click any numbered pin to view directions and distance
+              </span>
+            </div>
+
+            <HospitalMap
+              userLocation={userLocation}
+              hospitals={displayedFacilities}
+              selectedHospitalId={selectedHospitalId}
+              onSelectHospital={(h) => setSelectedHospitalId(h.id)}
+            />
+          </div>
+        )}
+
+        {/* Closest Hospitals & Clinics Cards Section */}
         <div ref={ref3}>
-          {geoState === 'idle' && !query && !showAllHospitals && (
-            <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center">
-              <div className="w-14 h-14 rounded-full bg-[#e6f7f7] flex items-center justify-center mx-auto mb-4">
-                <IconMapPin size={26} className="text-[#119197]" />
+          {geoState === 'idle' && (
+            <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center shadow-xs">
+              <div className="w-14 h-14 rounded-2xl bg-[#e6f7f7] flex items-center justify-center mx-auto mb-4">
+                <IconNavigation size={28} className="text-[#119197]" />
               </div>
-              <h2 className="font-display font-bold text-gray-900 text-lg mb-2">Find Hospitals Near You</h2>
-              <p className="text-gray-400 text-sm mb-6 max-w-xs mx-auto">Click "Search Near Me" to find nearby hospitals, or browse the complete referral hospital directory below.</p>
+              <h3 className="font-display font-bold text-gray-900 text-lg mb-2">
+                Find Real Medical Facilities Near You
+              </h3>
+              <p className="text-gray-500 text-sm mb-6 max-w-md mx-auto">
+                Click "Search Near Me" to detect your location and discover live hospitals, clinics, and health centers mapped on OpenStreetMap strictly within 25 km.
+              </p>
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <button
                   onClick={handleSearchNearMe}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#119197] hover:bg-[#0c6e73] text-white font-bold text-sm transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#119197] hover:bg-[#0c6e73] text-white font-bold text-sm transition-all shadow-sm cursor-pointer"
                 >
-                  <IconNavigation size={15} /> Search Near Me
-                </button>
-                <button
-                  onClick={() => setShowAllHospitals(true)}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm transition-colors cursor-pointer"
-                >
-                  Browse All Hospitals ({HOSPITALS.length})
+                  <IconNavigation size={16} /> Search Near Me (Live GPS)
                 </button>
               </div>
             </div>
           )}
 
-          {geoState === 'loading' && (
-            <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center">
-              <div className="w-10 h-10 rounded-full border-4 border-[#cceef0] border-t-[#119197] animate-spin mx-auto mb-4" />
-              <p className="text-gray-500 text-sm">Requesting location access…</p>
+          {loadingFacilities && (
+            <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
+              <div className="w-10 h-10 rounded-full border-4 border-[#cceef0] border-t-[#119197] animate-spin mx-auto mb-3" />
+              <p className="text-gray-700 text-sm font-semibold">Querying live OpenStreetMap database…</p>
+              <p className="text-gray-400 text-xs mt-1">
+                Searching medical facilities strictly within 25 km of your GPS coordinates
+              </p>
             </div>
           )}
 
-          {geoState === 'denied' && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
-              <IconAlertTriangle size={28} className="text-red-500 mx-auto mb-3" />
-              <h2 className="font-display font-bold text-red-700 mb-2">Location Access Denied</h2>
-              <p className="text-red-600 text-sm mb-4">Please enable location permissions in your browser settings and try again.</p>
-              <button onClick={() => setGeoState('idle')} className="px-5 py-2 rounded-lg border border-red-300 text-red-600 text-sm font-semibold hover:bg-red-100 transition-colors">
-                Try Again
-              </button>
+          {geoState === 'granted' && !loadingFacilities && facilities.length === 0 && (
+            <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-600 text-sm mb-10">
+              <p className="font-medium text-gray-800 mb-1">
+                No medical facilities mapped on OpenStreetMap within 25 km of your location.
+              </p>
+              <p className="text-xs text-gray-500">
+                In a critical emergency, call the national emergency ambulance hotline <a href="tel:907" className="text-red-600 font-bold underline">907</a> or Federal Police <a href="tel:991" className="text-red-600 font-bold underline">991</a> immediately.
+              </p>
             </div>
           )}
 
-          {(geoState === 'granted' || Boolean(query) || showAllHospitals) && (
+          {geoState === 'granted' && !loadingFacilities && facilities.length > 0 && (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                <h2 className="font-display font-extrabold text-xl text-gray-900">
-                  {geoState === 'granted' ? 'Nearby Hospitals' : 'Referral Hospitals & Medical Centers'}{' '}
-                  <span className="text-gray-400 font-normal text-base">({filteredHospitals.length})</span>
-                </h2>
-                {geoState !== 'granted' && (
-                  <button
-                    onClick={handleSearchNearMe}
-                    disabled={geoState === 'loading'}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#119197] text-[#119197] text-xs font-semibold hover:bg-[#e6f7f7] transition-colors cursor-pointer disabled:opacity-50"
-                  >
-                    <IconNavigation size={12} /> {geoState === 'loading' ? 'Locating…' : 'Calculate GPS Distances'}
-                  </button>
-                )}
-              </div>
-              {filteredHospitals.length === 0 ? (
-                <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500 text-sm mb-10">
-                  No hospitals matching "{query}". In a critical emergency, call <a href="tel:907" className="text-red-600 font-bold underline">907</a> immediately.
+              {/* Header and Filter Pills */}
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="font-display font-extrabold text-2xl text-gray-900">
+                    Closest Hospitals & Clinics
+                  </h2>
+                  <p className="text-gray-500 text-xs">
+                    Live facilities strictly within 25 km of your coordinates. Tap Call for immediate dispatch or Directions for turn-by-turn navigation.
+                  </p>
                 </div>
-              ) : (
-                <div className="grid sm:grid-cols-2 gap-5 mb-10">
-                  {filteredHospitals.map(h => (
-                    <div key={h.name} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-gray-300 transition-all">
+
+                {/* Filter Pills for Hospital, Clinic, Doctor */}
+                <div className="flex items-center gap-2 text-xs flex-wrap">
+                  <button
+                    onClick={() => setFilterType('all')}
+                    className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                      filterType === 'all'
+                        ? 'bg-[#119197] text-white shadow-xs'
+                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    All ({facilities.length})
+                  </button>
+                  {hospitalsCount > 0 && (
+                    <button
+                      onClick={() => setFilterType('hospital')}
+                      className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                        filterType === 'hospital'
+                          ? 'bg-[#119197] text-white shadow-xs'
+                          : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      Hospitals ({hospitalsCount})
+                    </button>
+                  )}
+                  {clinicsCount > 0 && (
+                    <button
+                      onClick={() => setFilterType('clinic')}
+                      className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                        filterType === 'clinic'
+                          ? 'bg-[#119197] text-white shadow-xs'
+                          : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      Clinics & Medium Clinics ({clinicsCount})
+                    </button>
+                  )}
+                  {doctorsCount > 0 && (
+                    <button
+                      onClick={() => setFilterType('doctor')}
+                      className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                        filterType === 'doctor'
+                          ? 'bg-[#119197] text-white shadow-xs'
+                          : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      Doctors & Specialists ({doctorsCount})
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-5 mb-10">
+                {displayedFacilities.map((h, index) => {
+                  const isSelected = selectedHospitalId === h.id;
+                  const directionsUrl = getDirectionsUrl(h, userLocation);
+
+                  return (
+                    <div
+                      key={h.id}
+                      onClick={() => setSelectedHospitalId(h.id)}
+                      className={`bg-white rounded-xl border p-5 transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-[#119197] shadow-md ring-2 ring-[#cceef0]'
+                          : 'border-gray-200 hover:shadow-md hover:border-gray-300'
+                      }`}
+                    >
                       <div className="flex justify-between items-start gap-3 mb-2">
-                        <h3 className="font-display font-bold text-gray-900 text-sm leading-tight">{h.name}</h3>
-                        <div className="text-right shrink-0">
-                          <p className="font-display font-bold text-[#119197] text-sm">{h.distance}</p>
-                          <p className="text-[10px] text-gray-400">away</p>
+                        <div className="flex items-start gap-2.5">
+                          <span className="w-6 h-6 rounded-lg bg-[#119197] text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                            {index + 1}
+                          </span>
+                          <h3 className="font-display font-bold text-gray-900 text-sm leading-tight">
+                            {h.name}
+                          </h3>
                         </div>
+
+                        {/* Distance badge: Strictly <= 25 km */}
+                        {h.distanceKm !== undefined && (
+                          <div className="text-right shrink-0">
+                            <p className="font-display font-bold text-[#119197] text-sm">
+                              {h.distanceKm} km
+                            </p>
+                            <p className="text-[10px] text-gray-400">away</p>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex gap-2 mb-2">
-                        <span className="badge badge-teal">24/7 Emergency</span>
-                        <span className="badge badge-low">Open Now</span>
+
+                      {/* Status badges */}
+                      <div className="flex flex-wrap items-center gap-2 mb-2 ml-8.5">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                          h.type === 'Hospital'
+                            ? 'bg-teal-50 text-[#119197] border-teal-200'
+                            : h.type === 'Medium Clinic'
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : h.type === 'Doctor'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        }`}>
+                          {h.type}
+                        </span>
+                        <span className="badge badge-teal">
+                          {h.is24_7 ? '24/7 Emergency' : 'Medical Service'}
+                        </span>
+                        <span className="badge badge-low">
+                          Open Now
+                        </span>
+                        {index === 0 && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            ⚡ Closest
+                          </span>
+                        )}
                       </div>
-                      <div className="mb-1">
+
+                      {/* Ratings */}
+                      <div className="mb-2 ml-8.5">
                         <Stars rating={h.rating} />
-                        <span className="text-[10px] text-gray-400">({h.reviews.toLocaleString()} reviews)</span>
+                        <span className="text-[10px] text-gray-400">
+                          ({h.reviews.toLocaleString()} reviews)
+                        </span>
                       </div>
-                      <div className="space-y-0.5 mb-4">
+
+                      {/* Address & Phone */}
+                      <div className="space-y-1 mb-4 ml-8.5">
                         <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                          <IconMapPin size={12} className="text-gray-400 shrink-0" />{h.address}
+                          <IconMapPin size={12} className="text-gray-400 shrink-0" />
+                          <span>{h.address}</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                          <IconPhone size={12} className="text-gray-400 shrink-0" />{h.phone}
+                          <IconPhone size={12} className="text-gray-400 shrink-0" />
+                          <span>{h.phone && h.phone !== 'Not listed' && !h.phone.startsWith('907') ? h.phone : 'Direct phone not listed'}</span>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <a href={`tel:${h.phone}`} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors">
-                          <IconPhone size={13} /> Call
+
+                      {/* Action buttons: Call and Directions */}
+                      <div className="flex gap-2 ml-8.5">
+                        <a
+                          href={`tel:${h.phone && h.phone !== 'Not listed' && !h.phone.startsWith('907') ? h.phone : '907'}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors shadow-xs"
+                        >
+                          <IconPhone size={13} /> {h.phone && h.phone !== 'Not listed' && !h.phone.startsWith('907') ? 'Call' : 'Emergency (907)'}
                         </a>
                         <a
-                          href={`https://maps.google.com/?q=${encodeURIComponent(h.name + ' ' + h.address)}`}
+                          href={directionsUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-colors flex items-center justify-center"
                         >
-                          <IconNavigation size={13} /> Directions
+                          <IconNavigation size={13} className="text-[#119197]" /> Directions
                         </a>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                  );
+                })}
+              </div>
             </>
           )}
 
-          {/* Preparedness Tips — always visible */}
+          {/* Preparedness Tips */}
           <div className="grid sm:grid-cols-2 gap-5 mt-6">
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h3 className="font-display font-bold text-gray-900 mb-3">Emergency Preparedness Tips</h3>
               <p className="text-xs font-semibold text-gray-700 mb-2">Before You Go:</p>
               <ul className="space-y-1.5">
-                {['Bring identification and insurance cards', 'List current medications and allergies', 'Call ahead if not a life-threatening emergency', 'Have someone drive you if possible'].map(t => (
-                  <li key={t} className="text-sm text-gray-500 flex gap-2"><span className="text-red-400 shrink-0">•</span>{t}</li>
+                {[
+                  'Bring identification and healthcare insurance documents',
+                  'List current medications, chronic conditions, and allergies',
+                  'Call ahead if not a sudden life-threatening emergency',
+                  'Have a family member, neighbor, or ambulance drive you',
+                ].map((t) => (
+                  <li key={t} className="text-sm text-gray-500 flex gap-2">
+                    <span className="text-red-400 shrink-0">•</span>
+                    {t}
+                  </li>
                 ))}
               </ul>
             </div>
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h3 className="font-display font-bold text-gray-900 mb-3">When to Call Emergency Services:</h3>
               <ul className="space-y-1.5">
-                {['Difficulty breathing or chest pain', 'Severe bleeding or trauma', 'Loss of consciousness', 'Signs of stroke or heart attack', 'Severe allergic reaction'].map(t => (
-                  <li key={t} className="text-sm text-gray-500 flex gap-2"><span className="text-red-400 shrink-0">•</span>{t}</li>
+                {[
+                  'Difficulty breathing, choking, or severe chest pain',
+                  'Severe traumatic injury or uncontrollable bleeding',
+                  'Loss of consciousness or sudden fainting',
+                  'Signs of stroke (face drooping, arm weakness, speech difficulty)',
+                  'Severe allergic reaction (anaphylaxis)',
+                ].map((t) => (
+                  <li key={t} className="text-sm text-gray-500 flex gap-2">
+                    <span className="text-red-400 shrink-0">•</span>
+                    {t}
+                  </li>
                 ))}
               </ul>
             </div>

@@ -36,3 +36,8 @@ package-lock.json
 # Platform-managed agentplat state
 /.plugins/
 /.opencode-skills/
+
+# Raw spatial data exports & scratch scripts
+*.osm
+*.geojson
+scratch_*
