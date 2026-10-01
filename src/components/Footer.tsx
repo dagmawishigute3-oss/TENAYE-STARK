@@ -4,14 +4,20 @@ import logoImg from '../imports/image-removebg-preview.png';
 const QUICK_LINKS = [
   { label: 'Home',            href: '/' },
   { label: 'About',           href: '/about' },
-  { label: 'Emergency',       href: '/emergency' },
-  { label: 'First Aid',       href: '/first-aid' },
-  { label: 'Disease Library', href: '/diseases' },
-  { label: 'Health Tips',     href: '/health-tips' },
   { label: 'Contact',         href: '/contact' },
+  { label: 'Disease Library', href: '/diseases' },
+  { label: 'First Aid',       href: '/first-aid' },
+  { label: 'Health Tips',     href: '/health-tips' },
+  { label: 'Symptom Checker', href: '/symptoms' },
+  { label: 'Emergency',       href: '/emergency' },
 ];
 
-const LEGAL_LINKS = ['Privacy Policy', 'Terms of Service', 'Medical Disclaimer', 'Accessibility'];
+const LEGAL_LINKS = [
+  { label: 'Privacy Policy',     href: '/privacy' },
+  { label: 'Terms of Service',   href: '/terms' },
+  { label: 'Medical Disclaimer', href: '/disclaimer' },
+  { label: 'Accessibility',      href: '/accessibility' },
+];
 
 export function Footer() {
   return (
@@ -60,8 +66,13 @@ export function Footer() {
             <p className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-3">Legal</p>
             <ul className="space-y-2">
               {LEGAL_LINKS.map(l => (
-                <li key={l}>
-                  <span className="text-xs text-slate-500 hover:text-slate-300 cursor-pointer transition-colors">{l}</span>
+                <li key={l.href}>
+                  <Link
+                    to={l.href}
+                    className="text-xs text-slate-500 hover:text-teal-400 transition-colors block"
+                  >
+                    {l.label}
+                  </Link>
                 </li>
               ))}
             </ul>

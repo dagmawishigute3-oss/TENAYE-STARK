@@ -62,3 +62,45 @@ export const IconPlay = ({ size, ...p }: IconProps) => <svg {...base(size)} {...
 export const IconPause = ({ size, ...p }: IconProps) => <svg {...base(size)} {...p}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
 export const IconSquare = ({ size, ...p }: IconProps) => <svg {...base(size)} {...p}><rect x="4" y="4" width="16" height="16" rx="2"/></svg>;
 
+/* ── Medical & Anatomical Category Icons ── */
+export const IconThermometer = ({ size, ...p }: IconProps) => (
+  <svg {...base(size)} {...p}>
+    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+  </svg>
+);
+
+export const IconLungs = ({ size, ...p }: IconProps) => (
+  <svg {...base(size)} {...p}>
+    <path d="M6 18c-2 0-3-2-3-5 0-3.5 2-8 6-10v8" />
+    <path d="M18 18c2 0 3-2 3-5 0-3.5-2-8-6-10v8" />
+    <path d="M12 3v13" />
+    <path d="M9 16c1.5 1.5 3 2 3 2s1.5-.5 3-2" />
+  </svg>
+);
+
+export const IconStomach = ({ size, ...p }: IconProps) => (
+  <svg {...base(size)} {...p}>
+    <path d="M12 3v3c0 2-1 3-3 4-3 1.5-4 4-4 7a6 6 0 0 0 11 3c3-1 4-4 4-8 0-3-2-5-5-6l-3-3" />
+  </svg>
+);
+
+export const IconBone = ({ size, ...p }: IconProps) => (
+  <svg {...base(size)} {...p}>
+    <path d="M17 10c.7-.7 1.6-1 2.5-.7a2.5 2.5 0 0 1 1.7 3.5 2.5 2.5 0 0 1-3.5 1.7L7.5 4.3A2.5 2.5 0 0 1 5.8 2.6a2.5 2.5 0 0 1-3.5 1.7 2.5 2.5 0 0 1 1.7 3.5L14 17.5" />
+    <path d="M6 14.5a2.5 2.5 0 0 1-3.5 1.7 2.5 2.5 0 0 1 1.7 3.5 2.5 2.5 0 0 1 3.5-1.7" />
+    <path d="M18 9.5a2.5 2.5 0 0 1 3.5-1.7 2.5 2.5 0 0 1-1.7-3.5 2.5 2.5 0 0 1-3.5 1.7" />
+  </svg>
+);
+
+export const IconSparkles = ({ size, ...p }: IconProps) => (
+  <svg {...base(size)} {...p}>
+    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" />
+  </svg>
+);
+
+export const IconDroplet = ({ size, ...p }: IconProps) => (
+  <svg {...base(size)} {...p}>
+    <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-6-2.5-2.7-4-6-4-6s-1.5 3.3-4 6c-2 2.1-3 4-3 6a7 7 0 0 0 7 7z" />
+  </svg>
+);
+

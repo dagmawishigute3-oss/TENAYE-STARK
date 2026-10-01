@@ -11,6 +11,8 @@ import { FirstAid } from './pages/FirstAid';
 import { HealthTips } from './pages/HealthTips';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
+import { Legal } from './pages/Legal';
+import { SymptomChecker } from './pages/SymptomChecker';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -80,6 +82,13 @@ export default function App() {
             <Route path="/health-tips" element={<HealthTips />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/symptoms" element={<SymptomChecker />} />
+            <Route path="/symptom-checker" element={<SymptomChecker />} />
+            <Route path="/legal" element={<Legal />} />
+            <Route path="/privacy" element={<Legal />} />
+            <Route path="/terms" element={<Legal />} />
+            <Route path="/disclaimer" element={<Legal />} />
+            <Route path="/accessibility" element={<Legal />} />
           </Routes>
         </div>
         <Footer />

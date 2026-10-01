@@ -259,4 +259,134 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
+/* ── Vital Heartbeat & Loader Line Animation ── */
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.15); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.08); }
+  70% { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.25s ease-in-out infinite;
+}
+
+@keyframes loaderBar {
+  0% { width: 0%; left: 0%; }
+  50% { width: 75%; left: 15%; }
+  100% { width: 100%; left: 0%; }
+}
+
+.animate-loader-bar {
+  animation: loaderBar 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* ── Floating Pin Hover & Ground Shadow Animation ── */
+@keyframes pinFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(1.2deg);
+  }
+}
+
+.animate-pin-float {
+  animation: pinFloat 2.6s ease-in-out infinite;
+}
+
+@keyframes pinShadow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(0.65);
+    opacity: 0.12;
+  }
+}
+
+.animate-pin-shadow {
+  animation: pinShadow 2.6s ease-in-out infinite;
+}
+
+/* ── Ambient Background Mesh Glow ── */
+@keyframes ambientDrift1 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(35px, -25px) scale(1.12);
+  }
+}
+
+@keyframes ambientDrift2 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(-35px, 25px) scale(1.15);
+  }
+}
+
+.animate-ambient-drift-1 {
+  animation: ambientDrift1 8s ease-in-out infinite;
+}
+
+.animate-ambient-drift-2 {
+  animation: ambientDrift2 9s ease-in-out infinite;
+}
+
+/* ── Cinematic Zoom Entrance ── */
+@keyframes zoomEntrance {
+  0% {
+    transform: scale(0.15);
+    opacity: 0;
+    filter: blur(8px);
+  }
+  65% {
+    transform: scale(1.08);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+.animate-zoom-entrance {
+  animation: zoomEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── 3-Dot Pulse Animation ── */
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.animate-dot-1 {
+  animation: dotPulse 1.2s infinite ease-in-out;
+  animation-delay: 0s;
+}
+
+.animate-dot-2 {
+  animation: dotPulse 1.2s infinite ease-in-out;
+  animation-delay: 0.2s;
+}
+
+.animate-dot-3 {
+  animation: dotPulse 1.2s infinite ease-in-out;
+  animation-delay: 0.4s;
+}
+
 

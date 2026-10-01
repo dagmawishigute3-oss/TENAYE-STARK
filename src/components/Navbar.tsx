@@ -11,13 +11,13 @@ import {
 import { MoreLanguagesModal } from './MoreLanguagesModal';
 
 const NAV_LINKS = [
-  { label: 'Home',           href: '/' },
-  { label: 'About',          href: '/about' },
-  { label: 'Contact',        href: '/contact' },
-  { label: 'Emergency',      href: '/emergency' },
-  { label: 'First Aid',      href: '/first-aid' },
-  { label: 'Disease Library',href: '/diseases' },
-  { label: 'Health Tips',    href: '/health-tips' },
+  { label: 'Home',             href: '/' },
+  { label: 'About',            href: '/about' },
+  { label: 'Contact',          href: '/contact' },
+  { label: 'Disease Library',  href: '/diseases' },
+  { label: 'First Aid',        href: '/first-aid' },
+  { label: 'Health Tips',      href: '/health-tips' },
+  { label: 'Symptom Checker',  href: '/symptoms' },
 ];
 
 export function Navbar() {
@@ -27,7 +27,28 @@ export function Navbar() {
   const [lang, setLang]                 = useState<LanguageOption>(getSavedLanguage);
   const [scrolled, setScrolled]         = useState(false);
   const location                        = useLocation();
+  const [isIntroLoading, setIsIntroLoading] = useState(() => (
+    typeof window !== 'undefined' && (window.location.pathname === '/' || window.location.pathname === '')
+  ));
   const langDropdownRef                 = useRef<HTMLDivElement>(null);
+
+  // Synchronize logo visibility with Home intro loading animation
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<{ active: boolean }>;
+      setIsIntroLoading(Boolean(ce.detail?.active));
+    };
+    window.addEventListener('tenaye-intro-loading', handler);
+    return () => {
+      window.removeEventListener('tenaye-intro-loading', handler);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      setIsIntroLoading(false);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 4);
@@ -70,8 +91,15 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
 
         {/* ── Logo ── */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0 notranslate" translate="no">
-          <img src={logoImg} alt="Tenaye logo" className="w-9 h-9 object-contain notranslate" translate="no" />
+        <Link
+          to="/"
+          id="navbar-logo-link"
+          className={`flex items-center gap-2.5 shrink-0 notranslate transition-opacity duration-300 ${
+            isIntroLoading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}
+          translate="no"
+        >
+          <img id="navbar-logo-img" src={logoImg} alt="Tenaye logo" className="w-9 h-9 object-contain notranslate" translate="no" />
           <div className="leading-none notranslate" translate="no">
             <p className="font-logo text-[13px] leading-tight tracking-tight notranslate" translate="no">
               <span className="text-white bg-[#119197] px-2 py-[2px] rounded-full notranslate" translate="no">Ten</span>

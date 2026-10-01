@@ -53,7 +53,7 @@ export function Diseases() {
           </div>
           <h1 className="font-display font-extrabold text-4xl text-white mb-2">Disease Library</h1>
           <p className="text-teal-100 text-sm mb-1">Comprehensive information about {ALL_DISEASES.length} diseases — expert verified</p>
-          <div className="flex items-center justify-center gap-4 mb-0">
+          <div className="flex items-center justify-center gap-4 mb-4">
             <span className="flex items-center gap-1.5 text-xs text-teal-200">
               <span className="w-1.5 h-1.5 rounded-full bg-white" />{ALL_DISEASES.length} Diseases
             </span>
@@ -61,6 +61,14 @@ export function Diseases() {
               <span className="w-1.5 h-1.5 rounded-full bg-green-300" />Expert Verified
             </span>
           </div>
+
+          <Link
+            to="/symptoms"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white text-white hover:text-[#0c6e73] rounded-xl text-xs font-bold transition-all backdrop-blur-sm border border-white/30 shadow-xs"
+          >
+            <span>Have specific symptoms? Try our Interactive Symptom Checker</span>
+            <IconChevronRight size={14} />
+          </Link>
         </div>
       </div>
 

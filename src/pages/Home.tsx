@@ -6,6 +6,7 @@ import {
   IconActivity, IconHeart, IconBrain, IconSearch, IconPhone,
 } from '../components/Icons';
 import { ScholarXivSearchBar } from '../components/ScholarXivSearchBar';
+import { HomeIntroLoader } from '../components/HomeIntroLoader';
 
 const STATS = [
   { icon: IconShield, value: '2,500+', label: 'Health Articles' },
@@ -44,7 +45,9 @@ export function Home() {
   };
 
   return (
-    <main className="pt-16">
+    <>
+      <HomeIntroLoader />
+      <main className="pt-16">
       {/* ── HERO ── */}
       <section className="relative z-30 bg-gradient-to-br from-[#0c6e73] via-[#119197] to-[#0e9fa6] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
@@ -82,10 +85,13 @@ export function Home() {
             </p>
 
             <div className="flex flex-wrap gap-3">
-              <Link to="/diseases" className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-white text-white font-semibold text-sm hover:bg-white hover:text-[#119197] transition-colors">
+              <Link to="/symptoms" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[#0c6e73] font-bold text-sm hover:bg-teal-50 transition-colors shadow-sm">
+                <IconActivity size={16} className="text-[#119197]" /> Check Symptoms
+              </Link>
+              <Link to="/diseases" className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-white/80 text-white font-semibold text-sm hover:bg-white hover:text-[#119197] transition-colors">
                 <IconSearch size={16} /> Disease Library
               </Link>
-              <a href="tel:907" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold text-sm transition-colors">
+              <a href="tel:907" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold text-sm transition-colors shadow-sm">
                 <IconPhone size={16} /> Emergency Help
               </a>
             </div>
@@ -186,5 +192,6 @@ export function Home() {
 
       <div className="py-8" />
     </main>
+  </>
   );
 }
