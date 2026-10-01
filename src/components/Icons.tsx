@@ -58,3 +58,7 @@ export const IconLightbulb = ({ size, ...p }: IconProps) => <svg {...base(size)}
 export const IconExternalLink = ({ size, ...p }: IconProps) => <svg {...base(size)} {...p}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
 export const IconFileText = ({ size, ...p }: IconProps) => <svg {...base(size)} {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>;
 export const IconLoader = ({ size, ...p }: IconProps) => <svg {...base(size)} {...p} className={`animate-spin ${p.className || ''}`}><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>;
+export const IconPlay = ({ size, ...p }: IconProps) => <svg {...base(size)} {...p}><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+export const IconPause = ({ size, ...p }: IconProps) => <svg {...base(size)} {...p}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
+export const IconSquare = ({ size, ...p }: IconProps) => <svg {...base(size)} {...p}><rect x="4" y="4" width="16" height="16" rx="2"/></svg>;
+

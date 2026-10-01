@@ -8,10 +8,12 @@ import {
   IconStar2,
   IconMapPin,
   IconLoader,
+  IconSearch,
 } from '../components/Icons';
 import { HospitalMap } from '../components/HospitalMap';
 import {
   getLiveClosestHospitals,
+  getInstantDatabaseHospitals,
   getDirectionsUrl,
   reverseGeocodeUserLocation,
   type Hospital,
@@ -82,11 +84,20 @@ export function Emergency() {
   const ref2 = useScrollReveal();
   const ref3 = useScrollReveal();
 
-  // Fetch real facilities from live OpenStreetMap API strictly within 25 km
+  // Fetch real facilities: Instant database preview in 1ms, then live OpenStreetMap in 1-3s
   const fetchNearby = async (lat: number, lng: number) => {
     setUserLocation({ lat, lng });
     setGeoState('granted');
-    setLoadingFacilities(true);
+
+    // 1. Instant preview from verified local healthcare database (0 milliseconds response!)
+    const instantList = getInstantDatabaseHospitals(lat, lng, 25);
+    if (instantList.length > 0) {
+      setFacilities(instantList);
+      setSelectedHospitalId(instantList[0].id);
+      setLoadingFacilities(false);
+    } else {
+      setLoadingFacilities(true);
+    }
 
     reverseGeocodeUserLocation(lat, lng)
       .then((geo) => {
@@ -98,23 +109,26 @@ export function Emergency() {
       })
       .catch(() => {});
 
+    // 2. High-speed live OpenStreetMap search (parallel race across fast mirrors)
     try {
       const liveList = await getLiveClosestHospitals(lat, lng, 25);
-      setFacilities(liveList);
       if (liveList.length > 0) {
-        setSelectedHospitalId(liveList[0].id);
+        setFacilities(liveList);
+        setSelectedHospitalId((prev) => (prev ? prev : liveList[0].id));
       }
     } catch (e) {
       console.error('Error querying OpenStreetMap:', e);
-      setFacilities([]);
+      if (instantList.length === 0) {
+        setFacilities([]);
+      }
     } finally {
       setLoadingFacilities(false);
     }
   };
 
-  // Direct Live GPS Search:
-  // When clicked, calls navigator.geolocation directly to trigger the native browser permission dialog.
-  // When allowed, queries live OpenStreetMap within 25 km.
+  // High-speed two-tier GPS search:
+  // First tries fast cached/network location (sub-second response).
+  // If delayed or not available, falls back to high accuracy with 5s timeout.
   const handleSearchNearMe = () => {
     if (!navigator.geolocation) {
       setGeoState('denied');
@@ -124,17 +138,34 @@ export function Emergency() {
     setGeoState('loading');
     setLoadingFacilities(true);
 
+    let resolved = false;
+
+    // Fast attempt (cached/network)
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        fetchNearby(coords.lat, coords.lng);
+        if (resolved) return;
+        resolved = true;
+        fetchNearby(pos.coords.latitude, pos.coords.longitude);
       },
-      (err) => {
-        console.warn('Geolocation permission not granted:', err);
-        setGeoState('denied');
-        setLoadingFacilities(false);
+      (_err) => {
+        // Fallback to high accuracy if fast attempt timed out or failed
+        if (resolved) return;
+        navigator.geolocation.getCurrentPosition(
+          (posHigh) => {
+            if (resolved) return;
+            resolved = true;
+            fetchNearby(posHigh.coords.latitude, posHigh.coords.longitude);
+          },
+          (errHigh) => {
+            if (resolved) return;
+            console.warn('Geolocation permission not granted:', errHigh);
+            setGeoState('denied');
+            setLoadingFacilities(false);
+          },
+          { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+        );
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      { enableHighAccuracy: false, timeout: 2500, maximumAge: 180000 }
     );
   };
 
@@ -200,7 +231,7 @@ export function Emergency() {
           <div className="bg-white rounded-xl border border-[#cceef0] p-6 text-center hover:shadow-md transition-shadow bg-gradient-to-b from-[#f2fbfb] to-white">
             <IconNavigation size={28} className="text-[#119197] mx-auto mb-3" />
             <h3 className="font-display font-bold text-gray-900 text-sm mb-1">Closest Hospitals & Clinics</h3>
-            <p className="text-xs text-gray-500 mb-4">Real-time OpenStreetMap search strictly within 30 km of your location</p>
+            <p className="text-xs text-gray-500 mb-4">Real-time OpenStreetMap search strictly within 25 km of your location</p>
             <button
               onClick={handleSearchNearMe}
               disabled={geoState === 'loading' || loadingFacilities}
@@ -321,7 +352,7 @@ export function Emergency() {
                 Interactive OpenStreetMap
               </h2>
               <span className="text-xs text-gray-500">
-                Click any numbered pin to view directions and distance
+                Click pin or drag location marker to adjust search center
               </span>
             </div>
 
@@ -330,6 +361,7 @@ export function Emergency() {
               hospitals={displayedFacilities}
               selectedHospitalId={selectedHospitalId}
               onSelectHospital={(h) => setSelectedHospitalId(h.id)}
+              onLocationChange={(lat, lng) => fetchNearby(lat, lng)}
             />
           </div>
         )}
@@ -358,7 +390,7 @@ export function Emergency() {
             </div>
           )}
 
-          {loadingFacilities && (
+          {loadingFacilities && facilities.length === 0 && (
             <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
               <div className="w-10 h-10 rounded-full border-4 border-[#cceef0] border-t-[#119197] animate-spin mx-auto mb-3" />
               <p className="text-gray-700 text-sm font-semibold">Querying live OpenStreetMap database…</p>
@@ -379,7 +411,7 @@ export function Emergency() {
             </div>
           )}
 
-          {geoState === 'granted' && !loadingFacilities && facilities.length > 0 && (
+          {geoState === 'granted' && facilities.length > 0 && (
             <>
               {/* Header and Filter Pills */}
               <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -519,9 +551,23 @@ export function Emergency() {
                           <IconMapPin size={12} className="text-gray-400 shrink-0" />
                           <span>{h.address}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                          <IconPhone size={12} className="text-gray-400 shrink-0" />
-                          <span>{h.phone && h.phone !== 'Not listed' && !h.phone.startsWith('907') ? h.phone : 'Direct phone not listed'}</span>
+                        <div className="flex items-center justify-between gap-1.5 text-xs text-gray-500">
+                          <div className="flex items-center gap-1.5">
+                            <IconPhone size={12} className="text-gray-400 shrink-0" />
+                            <span>{h.phone && h.phone !== 'Not listed' && !h.phone.startsWith('907') ? h.phone : 'Direct phone not listed'}</span>
+                          </div>
+                          {(!h.phone || h.phone === 'Not listed' || h.phone.startsWith('907')) && (
+                            <a
+                              href={`https://www.google.com/search?q=${encodeURIComponent(h.name + ' ' + (h.city || 'Ethiopia') + ' phone number')}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-[10px] text-[#119197] hover:underline flex items-center gap-0.5 font-medium shrink-0"
+                              title="Search Google for facility phone number"
+                            >
+                              <IconSearch size={10} /> Search web
+                            </a>
+                          )}
                         </div>
                       </div>
 

@@ -19,6 +19,7 @@ import {
 } from '../components/Icons';
 import { DISEASE_DB, DiseaseItem } from '../data/diseasesIndex';
 import { DISEASE_IMAGES, DiseaseImageInfo } from '../data/diseaseImages';
+import { DiseaseReadAloudFloatingWidget } from '../components/DiseaseReadAloudFloatingWidget';
 
 const TABS = ['Overview', 'Symptoms', 'Causes', 'Treatment', 'Self-Care', 'Prevention'] as const;
 type Tab = typeof TABS[number];
@@ -595,6 +596,12 @@ export function DiseaseDetail() {
       </div>
 
       <div className="py-8" />
+
+      {/* Floating Read Aloud Controller & Text Selection Player */}
+      <DiseaseReadAloudFloatingWidget
+        diseaseTitle={disease.name}
+        fullTextToRead={`${disease.name}. ${disease.description}. Severity: ${disease.severity}. Prevalence: ${disease.prevalence}. Category: ${disease.category}. Overview: ${disease.desc}. Symptoms: ${disease.symptoms.join('. ')}. Causes: ${disease.causes.join('. ')}. Treatment: ${disease.treatment.join('. ')}. Self-Care: ${disease.selfCare.join('. ')}. Prevention: ${disease.prevention.join('. ')}.`}
+      />
     </main>
   );
 }

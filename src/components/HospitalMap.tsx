@@ -8,6 +8,7 @@ interface HospitalMapProps {
   hospitals: Hospital[];
   selectedHospitalId?: string | null;
   onSelectHospital?: (hospital: Hospital) => void;
+  onLocationChange?: (lat: number, lng: number) => void;
 }
 
 export function HospitalMap({
@@ -15,6 +16,7 @@ export function HospitalMap({
   hospitals,
   selectedHospitalId,
   onSelectHospital,
+  onLocationChange,
 }: HospitalMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -52,6 +54,13 @@ export function HospitalMap({
     // Metric scale at bottom-left
     L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
 
+    // Allow user to click anywhere on map to set/adjust their exact location
+    map.on('click', (e: L.LeafletMouseEvent) => {
+      if (onLocationChange) {
+        onLocationChange(e.latlng.lat, e.latlng.lng);
+      }
+    });
+
     const layerGroup = L.layerGroup().addTo(map);
     mapInstanceRef.current = map;
     layerGroupRef.current = layerGroup;
@@ -67,7 +76,7 @@ export function HospitalMap({
       mapInstanceRef.current = null;
       layerGroupRef.current = null;
     };
-  }, []);
+  }, [onLocationChange]);
 
   // 2. Render Markers & Fit Bounds only when hospitals or userLocation changes
   useEffect(() => {
@@ -80,7 +89,7 @@ export function HospitalMap({
 
     const bounds = L.latLngBounds([]);
 
-    // 2.1 Add User Location Marker
+    // 2.1 Add User Location Marker (Draggable so desktop users can adjust if Wi-Fi placed them in wrong neighborhood)
     if (userLocation) {
       const userLatLng = L.latLng(userLocation.lat, userLocation.lng);
       bounds.extend(userLatLng);
@@ -88,7 +97,7 @@ export function HospitalMap({
       const userIcon = L.divIcon({
         className: 'custom-user-marker',
         html: `
-          <div class="relative flex items-center justify-center w-8 h-8 pointer-events-auto">
+          <div class="relative flex items-center justify-center w-8 h-8 pointer-events-auto cursor-grab active:cursor-grabbing">
             <span class="absolute inline-flex h-full w-full rounded-full bg-[#119197] opacity-40 animate-ping"></span>
             <span class="relative inline-flex rounded-full h-5 w-5 bg-[#119197] border-2 border-white shadow-md items-center justify-center">
               <span class="w-2 h-2 rounded-full bg-white"></span>
@@ -99,19 +108,27 @@ export function HospitalMap({
         iconAnchor: [16, 16],
       });
 
-      const userMarker = L.marker(userLatLng, { icon: userIcon, zIndexOffset: 1000 })
+      const userMarker = L.marker(userLatLng, { icon: userIcon, zIndexOffset: 1000, draggable: true })
         .addTo(layerGroup)
         .bindPopup(
           `
-          <div class="p-1 font-sans text-center">
+          <div class="p-1 font-sans text-center max-w-[190px]">
             <p class="font-bold text-gray-900 text-xs flex items-center justify-center gap-1">
-              📍 <span>Your Current GPS Location</span>
+              📍 <span>Your Location</span>
             </p>
             <p class="text-[10px] text-gray-500 mt-0.5">Searching within 25 km</p>
+            <p class="text-[9px] text-[#119197] font-semibold mt-1">💡 Drag pin or click map to adjust exact spot</p>
           </div>
         `,
           { closeButton: false, offset: [0, -10] }
         );
+
+      userMarker.on('dragend', (e) => {
+        const newPos = (e.target as L.Marker).getLatLng();
+        if (onLocationChange) {
+          onLocationChange(newPos.lat, newPos.lng);
+        }
+      });
 
       markersMapRef.current.set('user', userMarker);
     }
@@ -140,6 +157,7 @@ export function HospitalMap({
       });
 
       const directionsUrl = getDirectionsUrl(h, userLocation);
+      const hasDirectPhone = Boolean(h.phone && h.phone !== 'Not listed' && !h.phone.startsWith('907'));
 
       const popupContent = `
         <div class="p-2 font-sans max-w-[260px]">
@@ -149,10 +167,10 @@ export function HospitalMap({
           </div>
           <h4 class="font-bold text-gray-900 text-xs leading-tight mb-1">${h.name}</h4>
           <p class="text-[11px] text-gray-500 mb-1 leading-tight">${h.address}</p>
-          <p class="text-[11px] font-bold text-gray-800 mb-2 flex items-center gap-1">📞 ${h.phone}</p>
+          <p class="text-[11px] font-bold text-gray-800 mb-2 flex items-center gap-1">📞 ${hasDirectPhone ? h.phone : 'Direct phone not listed'}</p>
           <div class="flex gap-2 pt-1 border-t border-gray-100">
-            <a href="tel:${h.phone && h.phone !== 'Not listed' ? h.phone : '907'}" class="flex-1 py-1.5 rounded-lg bg-red-600 text-white text-center text-[11px] font-bold no-underline hover:bg-red-700 shadow-xs">
-              ${h.phone && h.phone !== 'Not listed' && h.phone !== '907' ? 'Call Now' : 'Call 907'}
+            <a href="tel:${hasDirectPhone ? h.phone : '907'}" class="flex-1 py-1.5 rounded-lg bg-red-600 text-white text-center text-[11px] font-bold no-underline hover:bg-red-700 shadow-xs">
+              ${hasDirectPhone ? 'Call' : 'Emergency (907)'}
             </a>
             <a href="${directionsUrl}" target="_blank" rel="noreferrer" class="flex-1 py-1.5 rounded-lg bg-[#119197] text-white text-center text-[11px] font-bold no-underline hover:bg-[#0c6e73] shadow-xs">
               🧭 Directions
@@ -226,7 +244,7 @@ export function HospitalMap({
           Live OpenStreetMap
         </span>
         <span className="px-2.5 py-1 rounded-lg bg-white/95 backdrop-blur-xs border border-gray-200/80 shadow-xs text-[11px] font-medium text-gray-600 pointer-events-auto">
-          Max Radius: 30 km
+          Max Radius: 25 km
         </span>
       </div>
 
