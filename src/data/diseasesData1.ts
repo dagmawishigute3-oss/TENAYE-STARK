@@ -1,50 +1,55 @@
 // Part database file for Tenaye Disease Library (65 entries)
 export interface DiseaseItem {
-  id: string;
-  name: string;
-  category: string;
-  severity: 'High' | 'Medium' | 'Low';
-  prevalence: string;
-  description: string;
-  desc: string;
-  symptoms: string[];
-  causes: string[];
-  treatment: string[];
-  selfCare: string[];
-  prevention: string[];
-  riskFactors: string[];
-  warningSigns: string[];
+  id: string
+  name: string
+  category: string
+  severity: "High" | "Medium" | "Low"
+  prevalence: string
+  description: string
+  desc: string
+  overview?: string
+  amharicName?: string
+  whenToSeeDoctor?: string[]
+  symptoms: string[]
+  causes: string[]
+  treatment: string[]
+  selfCare: string[]
+  prevention: string[]
+  riskFactors: string[]
+  warningSigns: string[]
 }
 
 export const DISEASES_DATA_1: DiseaseItem[] = [
   {
-    "id": "hypertension-htn",
-    "name": "Hypertension (HTN)",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Extremely Common: Affects nearly half of all adults in the United States. • Age Factor: Prevalence increases with age; over 70% of adults aged 65 and older have hypertension. • Demographics: More common and often more severe in Black adults, developing at an earlier age.",
-    "description": "Hypertension, commonly known as high blood pressure, is a chronic medical condition where the force of blood against the walls of your arteries is consistently too high. It is often called the \"silent killer\" because it typically has no warning signs but significantly increases the risk of heart disease, stroke, and kidney failure.",
-    "desc": "Hypertension, commonly known as high blood pressure, is a chronic medical condition where the force of blood against the walls of your arteries is consistently too high. It is often called the \"silent killer\" because it typically has no warning signs but significantly increases the risk of heart disease, stroke, and kidney failure.",
-    "symptoms": [
+    id: "hypertension-htn",
+    name: "Hypertension (HTN)",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Extremely Common: Affects nearly half of all adults in the United States. • Age Factor: Prevalence increases with age; over 70% of adults aged 65 and older have hypertension. • Demographics: More common and often more severe in Black adults, developing at an earlier age.",
+    description:
+      'Hypertension, commonly known as high blood pressure, is a chronic medical condition where the force of blood against the walls of your arteries is consistently too high. It is often called the "silent killer" because it typically has no warning signs but significantly increases the risk of heart disease, stroke, and kidney failure.',
+    desc: 'Hypertension, commonly known as high blood pressure, is a chronic medical condition where the force of blood against the walls of your arteries is consistently too high. It is often called the "silent killer" because it typically has no warning signs but significantly increases the risk of heart disease, stroke, and kidney failure.',
+    symptoms: [
       "Headaches, often severe.",
       "Nosebleeds.",
       "Shortness of breath.",
       "Flushing.",
       "Dizziness.",
-      "Chest pain."
+      "Chest pain.",
     ],
-    "causes": [
-      "In about 90-95% of cases, there is no single identifiable cause. This is called Primary (Essential) Hypertension. Secondary Hypertension is caused by an underlying condition."
+    causes: [
+      "In about 90-95% of cases, there is no single identifiable cause. This is called Primary (Essential) Hypertension. Secondary Hypertension is caused by an underlying condition.",
     ],
-    "treatment": [
+    treatment: [
       "The goal is to lower blood pressure and reduce the risk of complications.",
       "Lifestyle Modifications (Crucial for all stages): Heart-healthy diet, reduced sodium intake, regular physical activity, maintaining a healthy weight, limiting alcohol, quitting smoking.",
-      "Diuretics (\"Water Pills\")",
+      'Diuretics ("Water Pills")',
       "ACE Inhibitors & ARBs",
       "Calcium Channel Blockers",
-      "Beta-Blockers"
+      "Beta-Blockers",
     ],
-    "selfCare": [
+    selfCare: [
       "Monitor at Home: Regularly check your blood pressure with a home monitor.",
       "Take Medications as Prescribed.",
       "Attend Follow-Up Appointments.",
@@ -52,9 +57,9 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Adopt the DASH Diet.",
       "Reduce Sodium.",
       "Exercise Regularly.",
-      "Maintain a Healthy Weight."
+      "Maintain a Healthy Weight.",
     ],
-    "prevention": [
+    prevention: [
       "The same healthy lifestyle changes used to treat hypertension can help prevent it.",
       "Eat a Healthy Diet.",
       "Exercise Regularly.",
@@ -62,50 +67,50 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Limit Salt Intake.",
       "Drink Alcohol in Moderation.",
       "Don't Smoke.",
-      "Manage Stress."
+      "Manage Stress.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Age over 65, family history, Black race, obesity.",
       "Secondary: High-sodium diet, low-potassium diet, physical inactivity, excessive alcohol consumption, chronic stress.",
       "Non-Modifiable: Age, Family History, Race.",
-      "Modifiable: Obesity, Tobacco Use, High Sodium Diet, Low Potassium Diet, Excessive Alcohol, Physical Inactivity, Chronic Stress."
+      "Modifiable: Obesity, Tobacco Use, High Sodium Diet, Low Potassium Diet, Excessive Alcohol, Physical Inactivity, Chronic Stress.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe headache.",
       "Blurred vision or other vision changes.",
       "Severe anxiety or shortness of breath.",
       "Confusion.",
       "Chest pain.",
-      "Irregular heartbeat."
-    ]
+      "Irregular heartbeat.",
+    ],
   },
   {
-    "id": "coronary-artery-disease-cad",
-    "name": "Coronary Artery Disease (CAD)",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Leading Cause of Death: CAD is the leading cause of death for both men and women worldwide. • Extremely Common: Affects about 18.2 million American adults. • Age & Gender: More common in men and risk increases with age.",
-    "description": "Coronary Artery Disease (CAD) is the most common type of heart disease. It occurs when the major blood vessels (coronary arteries) that supply the heart muscle become damaged or diseased due to plaque buildup (atherosclerosis), reducing blood flow to the heart.",
-    "desc": "Coronary Artery Disease (CAD) is the most common type of heart disease. It occurs when the major blood vessels (coronary arteries) that supply the heart muscle become damaged or diseased due to plaque buildup (atherosclerosis), reducing blood flow to the heart.",
-    "symptoms": [
+    id: "coronary-artery-disease-cad",
+    name: "Coronary Artery Disease (CAD)",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Leading Cause of Death: CAD is the leading cause of death for both men and women worldwide. • Extremely Common: Affects about 18.2 million American adults. • Age & Gender: More common in men and risk increases with age.",
+    description:
+      "Coronary Artery Disease (CAD) is the most common type of heart disease. It occurs when the major blood vessels (coronary arteries) that supply the heart muscle become damaged or diseased due to plaque buildup (atherosclerosis), reducing blood flow to the heart.",
+    desc: "Coronary Artery Disease (CAD) is the most common type of heart disease. It occurs when the major blood vessels (coronary arteries) that supply the heart muscle become damaged or diseased due to plaque buildup (atherosclerosis), reducing blood flow to the heart.",
+    symptoms: [
       "Angina (Chest Pain): Pressure, tightness, or squeezing in the chest, often triggered by stress and relieved by rest.",
       "Shortness of Breath.",
       "Fatigue.",
       "Heart Attack: More severe and prolonged symptoms.",
       "Silent CAD",
-      "Some people, especially those with diabetes, may have no symptoms until a heart attack."
+      "Some people, especially those with diabetes, may have no symptoms until a heart attack.",
     ],
-    "causes": [
-      "The primary cause is atherosclerosis."
-    ],
-    "treatment": [
+    causes: ["The primary cause is atherosclerosis."],
+    treatment: [
       "Treatment focuses on reducing symptoms and lowering the risk of heart attack.",
       "Lifestyle Changes: Heart-healthy diet, regular exercise, smoking cessation, weight management.",
       "Medications: Statins, Aspirin, Beta-blockers, Nitroglycerin, ACE inhibitors.",
       "1.Angioplasty and Stent Placement (PCI).",
-      "2.Coronary Artery Bypass Grafting (CABG)."
+      "2.Coronary Artery Bypass Grafting (CABG).",
     ],
-    "selfCare": [
+    selfCare: [
       "Know Your Numbers.",
       "Take Medications as Prescribed.",
       "Cardiac Rehabilitation.",
@@ -113,9 +118,9 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Adopt a Heart-Healthy Diet.",
       "Exercise Regularly.",
       "Maintain a Healthy Weight.",
-      "Quit Smoking."
+      "Quit Smoking.",
     ],
-    "prevention": [
+    prevention: [
       "Preventing CAD involves controlling modifiable risk factors.",
       "Don't Smoke.",
       "Control Blood Pressure and Cholesterol.",
@@ -123,51 +128,53 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Eat a Healthy Diet.",
       "Exercise Regularly.",
       "Maintain a Healthy Weight.",
-      "Manage Stress."
+      "Manage Stress.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: High blood pressure, high cholesterol, smoking, diabetes.",
       "Secondary: Obesity, physical inactivity, unhealthy diet, family history.",
       "Non-Modifiable: Age, Sex, Family History.",
-      "Modifiable: Smoking, High Blood Pressure, High Cholesterol, Diabetes, Overweight/Obesity, Physical Inactivity, Unhealthy Diet, Stress."
+      "Modifiable: Smoking, High Blood Pressure, High Cholesterol, Diabetes, Overweight/Obesity, Physical Inactivity, Unhealthy Diet, Stress.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Chest pain or discomfort.",
       "Pain in one or both arms, back, neck, jaw, or stomach.",
       "Shortness of breath.",
-      "Cold sweat, nausea, lightheadedness."
-    ]
+      "Cold sweat, nausea, lightheadedness.",
+    ],
   },
   {
-    "id": "congestive-heart-failure-chf",
-    "name": "Congestive Heart Failure (CHF)",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Common: Affects over 6 million adults in the United States. • Leading Cause of Hospitalization: A primary reason for hospitalization in adults over 65. • Age Factor: Prevalence increases sharply with age.",
-    "description": "Congestive Heart Failure (CHF) is a chronic, progressive condition where the heart muscle is unable to pump enough blood to meet the body's needs, leading to fluid buildup (congestion) in the lungs and other tissues.",
-    "desc": "Congestive Heart Failure (CHF) is a chronic, progressive condition where the heart muscle is unable to pump enough blood to meet the body's needs, leading to fluid buildup (congestion) in the lungs and other tissues.",
-    "symptoms": [
+    id: "congestive-heart-failure-chf",
+    name: "Congestive Heart Failure (CHF)",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Common: Affects over 6 million adults in the United States. • Leading Cause of Hospitalization: A primary reason for hospitalization in adults over 65. • Age Factor: Prevalence increases sharply with age.",
+    description:
+      "Congestive Heart Failure (CHF) is a chronic, progressive condition where the heart muscle is unable to pump enough blood to meet the body's needs, leading to fluid buildup (congestion) in the lungs and other tissues.",
+    desc: "Congestive Heart Failure (CHF) is a chronic, progressive condition where the heart muscle is unable to pump enough blood to meet the body's needs, leading to fluid buildup (congestion) in the lungs and other tissues.",
+    symptoms: [
       "Shortness of breath (Dyspnea).",
       "Fatigue and Weakness.",
       "Edema (Swelling) in legs, ankles, feet, and abdomen.",
       "Rapid or Irregular Heartbeat.",
       "Persistent Cough.",
-      "Sudden Weight Gain."
+      "Sudden Weight Gain.",
     ],
-    "causes": [
+    causes: [
       "CHF is often the end result of other conditions that have damaged the heart.",
       "Coronary Artery Disease and Heart Attack.",
       "High Blood Pressure.",
       "Faulty Heart Valves.",
-      "Cardiomyopathy."
+      "Cardiomyopathy.",
     ],
-    "treatment": [
+    treatment: [
       "The goal is to improve symptoms, slow disease progression, and increase survival.",
       "Lifestyle Changes: Sodium/fluid restriction, weight monitoring, exercise, smoking cessation.",
       "Medications: ACE Inhibitors/ARBs/ARNIs, Beta-blockers, Diuretics, MRAs, SGLT2 Inhibitors.",
-      "Devices and Surgery: ICD, CRT Pacemaker, VADs, Heart Transplant."
+      "Devices and Surgery: ICD, CRT Pacemaker, VADs, Heart Transplant.",
     ],
-    "selfCare": [
+    selfCare: [
       "Daily Weight Monitoring.",
       "Monitor Symptoms.",
       "Fluid and Sodium Management.",
@@ -175,60 +182,62 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Low-sodium, heart-healthy diet.",
       "Stay as active as possible.",
-      "Balance activity with rest."
+      "Balance activity with rest.",
     ],
-    "prevention": [
+    prevention: [
       "The best way to prevent heart failure is to control conditions that cause it.",
       "Prevent and Control Coronary Artery Disease.",
       "Manage High Blood Pressure and Diabetes.",
       "Stay Physically Active.",
       "Eat a Healthy Diet.",
       "Maintain a Healthy Weight.",
-      "Don't Smoke."
+      "Don't Smoke.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Coronary artery disease, heart attack, high blood pressure.",
       "Secondary: Diabetes, obesity, valve disease, cardiomyopathy.",
       "Non-Modifiable: Age, Family History, Congenital Heart Defects.",
-      "Modifiable: High Blood Pressure, Coronary Artery Disease, Diabetes, Obesity, Tobacco use."
+      "Modifiable: High Blood Pressure, Coronary Artery Disease, Diabetes, Obesity, Tobacco use.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Shortness of breath that worsens, especially at rest.",
       "Sudden weight gain from fluid.",
       "Persistent coughing or wheezing.",
       "Increased heart rate.",
       "Confusion.",
-      "Severe fatigue."
-    ]
+      "Severe fatigue.",
+    ],
   },
   {
-    "id": "atrial-fibrillation-afib",
-    "name": "Atrial Fibrillation (AFib)",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Common: Affects an estimated 2.7 to 6.1 million people in the US. • Age Factor: The risk increases with age, affecting about 10% of people over 80.",
-    "description": "Atrial Fibrillation (AFib) is a common irregular and often rapid heart rhythm where the upper chambers of the heart beat out of sync with the lower chambers, increasing the risk of stroke, heart failure, and other complications.",
-    "desc": "Atrial Fibrillation (AFib) is a common irregular and often rapid heart rhythm where the upper chambers of the heart beat out of sync with the lower chambers, increasing the risk of stroke, heart failure, and other complications.",
-    "symptoms": [
+    id: "atrial-fibrillation-afib",
+    name: "Atrial Fibrillation (AFib)",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Common: Affects an estimated 2.7 to 6.1 million people in the US. • Age Factor: The risk increases with age, affecting about 10% of people over 80.",
+    description:
+      "Atrial Fibrillation (AFib) is a common irregular and often rapid heart rhythm where the upper chambers of the heart beat out of sync with the lower chambers, increasing the risk of stroke, heart failure, and other complications.",
+    desc: "Atrial Fibrillation (AFib) is a common irregular and often rapid heart rhythm where the upper chambers of the heart beat out of sync with the lower chambers, increasing the risk of stroke, heart failure, and other complications.",
+    symptoms: [
       "Palpitations (racing, fluttering heartbeat).",
       "Shortness of breath.",
       "Weakness and fatigue.",
       "Reduced ability to exercise.",
       "Lightheadedness.",
-      "Chest pain."
+      "Chest pain.",
     ],
-    "causes": [
+    causes: [
       "AFib is caused by disorganized electrical signals in the atria.",
-      "Primary Causes: Hypertension, Coronary Artery Disease, Heart Valve Disease, Hyperthyroidism."
+      "Primary Causes: Hypertension, Coronary Artery Disease, Heart Valve Disease, Hyperthyroidism.",
     ],
-    "treatment": [
+    treatment: [
       "Goals: Restore normal rhythm, control heart rate, prevent blood clots.",
       "Rate Control: Beta-blockers, Calcium Channel Blockers.",
       "Rhythm Control: Anti-arrhythmic drugs, Electrical Cardioversion, Catheter Ablation.",
       "Stroke Prevention: Anticoagulants (Warfarin, DOACs).",
-      "Procedures: Catheter Ablation, Maze Procedure."
+      "Procedures: Catheter Ablation, Maze Procedure.",
     ],
-    "selfCare": [
+    selfCare: [
       "Monitor Your Pulse.",
       "Adhere to Medications.",
       "Report Symptoms.",
@@ -236,39 +245,41 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Heart-Healthy Diet.",
       "Exercise Regularly.",
       "Limit or Avoid Alcohol and Caffeine.",
-      "Don't Smoke."
+      "Don't Smoke.",
     ],
-    "prevention": [
+    prevention: [
       "Treat Underlying Conditions.",
       "Get Regular Exercise.",
       "Eat a Nutritious Diet.",
       "Avoid Excessive Alcohol.",
       "Don't Smoke.",
-      "Get Screened for Sleep Apnea."
+      "Get Screened for Sleep Apnea.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Age over 65, high blood pressure, underlying heart disease.",
       "Secondary: Obesity, sleep apnea, diabetes, hyperthyroidism, excessive alcohol use.",
       "Non-Modifiable: Age, Family History, Other Heart Conditions.",
-      "Modifiable: High Blood Pressure, Obesity, Sleep Apnea, Diabetes, Excessive Alcohol, Smoking."
+      "Modifiable: High Blood Pressure, Obesity, Sleep Apnea, Diabetes, Excessive Alcohol, Smoking.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Chest pain or pressure.",
       "Signs of a stroke.",
       "Severe shortness of breath.",
       "Fainting.",
-      "Rapid heart rate with dizziness."
-    ]
+      "Rapid heart rate with dizziness.",
+    ],
   },
   {
-    "id": "myocardial-infarction-heart-attack",
-    "name": "Myocardial Infarction (Heart Attack)",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Leading Cause of Death Globally. • Common: In the US, someone has a heart attack about every 40 seconds.",
-    "description": "A Myocardial Infarction (MI) occurs when blood flow to a part of the heart muscle is severely reduced or completely blocked, usually by a blood clot on a ruptured plaque, causing tissue death.",
-    "desc": "A Myocardial Infarction (MI) occurs when blood flow to a part of the heart muscle is severely reduced or completely blocked, usually by a blood clot on a ruptured plaque, causing tissue death.",
-    "symptoms": [
+    id: "myocardial-infarction-heart-attack",
+    name: "Myocardial Infarction (Heart Attack)",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Leading Cause of Death Globally. • Common: In the US, someone has a heart attack about every 40 seconds.",
+    description:
+      "A Myocardial Infarction (MI) occurs when blood flow to a part of the heart muscle is severely reduced or completely blocked, usually by a blood clot on a ruptured plaque, causing tissue death.",
+    desc: "A Myocardial Infarction (MI) occurs when blood flow to a part of the heart muscle is severely reduced or completely blocked, usually by a blood clot on a ruptured plaque, causing tissue death.",
+    symptoms: [
       "Chest Pain (Angina).",
       "Upper Body Pain.",
       "Stomach Pain.",
@@ -276,17 +287,17 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Anxiety.",
       "Sweating.",
       "Nausea and Vomiting.",
-      "Note: Women are more likely to experience subtle symptoms."
+      "Note: Women are more likely to experience subtle symptoms.",
     ],
-    "causes": [
-      "The primary cause is Coronary Artery Disease (CAD). A heart attack occurs when a plaque ruptures and a clot forms, blocking the artery."
+    causes: [
+      "The primary cause is Coronary Artery Disease (CAD). A heart attack occurs when a plaque ruptures and a clot forms, blocking the artery.",
     ],
-    "treatment": [
+    treatment: [
       "Time is muscle. The faster blood flow is restored, the less damage occurs.",
       "Emergency Treatments: Aspirin, Nitroglycerin, Oxygen, Thrombolytics, Percutaneous Coronary Intervention (PCI).",
-      "Post-Heart Attack Treatment: Medications, Cardiac Rehabilitation, Lifestyle Changes."
+      "Post-Heart Attack Treatment: Medications, Cardiac Rehabilitation, Lifestyle Changes.",
     ],
-    "selfCare": [
+    selfCare: [
       "Know Your Risk.",
       "Take Medications as Prescribed.",
       "Participate in Cardiac Rehab.",
@@ -294,9 +305,9 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Adopt a Heart-Healthy Diet.",
       "Exercise Regularly.",
-      "Maintain a Healthy Weight."
+      "Maintain a Healthy Weight.",
     ],
-    "prevention": [
+    prevention: [
       "Don't Smoke.",
       "Control Your Blood Pressure and Cholesterol.",
       "Get Regular Health Screenings.",
@@ -304,30 +315,32 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Maintain a Healthy Weight.",
       "Manage Diabetes.",
       "Eat a Healthy Diet.",
-      "Limit Alcohol Intake."
+      "Limit Alcohol Intake.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Coronary Artery Disease, smoking, high blood pressure, high cholesterol, diabetes.",
       "Secondary: Obesity, physical inactivity, unhealthy diet, family history.",
       "Non-Modifiable: Age (Men 45+, Women 55+), Family History, Preeclampsia.",
-      "Modifiable: Smoking, High Blood Pressure, High Cholesterol, Diabetes, Obesity, Unhealthy Diet, Physical Inactivity, Stress."
+      "Modifiable: Smoking, High Blood Pressure, High Cholesterol, Diabetes, Obesity, Unhealthy Diet, Physical Inactivity, Stress.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Chest pain or discomfort.",
       "Pain in other areas (arms, back, neck, jaw, stomach).",
       "Shortness of breath.",
-      "Cold sweat, nausea, lightheadedness."
-    ]
+      "Cold sweat, nausea, lightheadedness.",
+    ],
   },
   {
-    "id": "peripheral-artery-disease-pad",
-    "name": "Peripheral Artery Disease (PAD)",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Common: Affects over 8.5 million people in the United States. • Underdiagnosed: Many people with PAD do not have symptoms or mistake them for something else. • Age Factor: Becomes more common after age 50.",
-    "description": "Peripheral Artery Disease (PAD) is a common circulatory problem where narrowed arteries reduce blood flow to the limbs, most commonly the legs. This is caused by atherosclerosis. When your legs don't get enough blood flow, it can cause pain, especially when walking (claudication), and increase the risk of serious complications.",
-    "desc": "Peripheral Artery Disease (PAD) is a common circulatory problem where narrowed arteries reduce blood flow to the limbs, most commonly the legs. This is caused by atherosclerosis. When your legs don't get enough blood flow, it can cause pain, especially when walking (claudication), and increase the risk of serious complications.",
-    "symptoms": [
+    id: "peripheral-artery-disease-pad",
+    name: "Peripheral Artery Disease (PAD)",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Common: Affects over 8.5 million people in the United States. • Underdiagnosed: Many people with PAD do not have symptoms or mistake them for something else. • Age Factor: Becomes more common after age 50.",
+    description:
+      "Peripheral Artery Disease (PAD) is a common circulatory problem where narrowed arteries reduce blood flow to the limbs, most commonly the legs. This is caused by atherosclerosis. When your legs don't get enough blood flow, it can cause pain, especially when walking (claudication), and increase the risk of serious complications.",
+    desc: "Peripheral Artery Disease (PAD) is a common circulatory problem where narrowed arteries reduce blood flow to the limbs, most commonly the legs. This is caused by atherosclerosis. When your legs don't get enough blood flow, it can cause pain, especially when walking (claudication), and increase the risk of serious complications.",
+    symptoms: [
       "Intermittent Claudication: Pain, cramping, or aching in the muscles (calf, thigh, or buttock) that is triggered by activity and relieved by rest.",
       "Leg numbness or weakness.",
       "Coldness in your lower leg or foot.",
@@ -335,21 +348,21 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "A change in the color of your legs.",
       "Hair loss or slower hair growth on your feet and legs.",
       "Shiny skin on the legs.",
-      "Slow growth of your toenails."
+      "Slow growth of your toenails.",
     ],
-    "causes": [
-      "The primary cause of PAD is atherosclerosis—the buildup of fatty deposits (plaques) in the artery walls."
+    causes: [
+      "The primary cause of PAD is atherosclerosis—the buildup of fatty deposits (plaques) in the artery walls.",
     ],
-    "treatment": [
+    treatment: [
       "The goals are to manage symptoms, stop the progression of atherosclerosis, and reduce the risk of heart attack and stroke.",
       "Supervised Exercise Therapy: The cornerstone of treatment for claudication.",
       "Smoking Cessation: Absolutely critical.",
       "Medications: Cilostazol or Pentoxifylline (for walking), Antiplatelet Agents (Aspirin, Clopidogrel), Statins, Blood Pressure medications.",
       "1.Angioplasty and Stenting.",
       "2.Bypass Surgery.",
-      "3.Atherectomy."
+      "3.Atherectomy.",
     ],
-    "selfCare": [
+    selfCare: [
       "Foot Care: Inspect your feet daily for sores. Wear proper footwear.",
       "Exercise: Walk until you feel moderate pain, rest, and repeat.",
       "Manage Other Conditions: Keep diabetes, blood pressure, and cholesterol under tight control.",
@@ -357,18 +370,18 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Quit Smoking.",
       "Eat a Heart-Healthy Diet.",
       "Exercise Regularly.",
-      "Maintain a Healthy Weight."
+      "Maintain a Healthy Weight.",
     ],
-    "prevention": [
+    prevention: [
       "The best way to prevent PAD is to maintain a healthy lifestyle and manage risk factors.",
       "Don't Smoke.",
       "Control Blood Sugar if you have diabetes.",
       "Exercise Regularly.",
       "Lower Cholesterol and Blood Pressure.",
       "Eat a Diet low in saturated fat.",
-      "Maintain a Healthy Weight."
+      "Maintain a Healthy Weight.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Smoking, diabetes, high blood pressure, high cholesterol.",
       "Secondary: Age over 50, obesity, family history of PAD or heart disease.",
       "o Age (especially over 50).",
@@ -376,45 +389,47 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "o Smoking: The single most important risk factor.",
       "o Diabetes: Dramatically increases risk and severity.",
       "o High Blood Pressure.",
-      "o High Cholesterol."
+      "o High Cholesterol.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe leg pain even at rest.",
       "Cold, numb, or weak leg.",
       "Sores or ulcers on toes/feet that do not heal.",
       "Gangrene (blackened skin or tissue).",
-      "A weak or absent pulse in your legs or feet."
-    ]
+      "A weak or absent pulse in your legs or feet.",
+    ],
   },
   {
-    "id": "aortic-aneurysm",
-    "name": "Aortic Aneurysm",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Abdominal (AAA) is more common: Affects 4-8% of older men. • Gender Disparity: Much more common in men than women. • Age Factor: Risk increases significantly after age 65.",
-    "description": "An Aortic Aneurysm is a balloon-like bulge in the aorta, the major blood vessel carrying blood from the heart. It can occur in the chest (Thoracic Aortic Aneurysm) or abdomen (Abdominal Aortic Aneurysm). The primary danger is rupture, which causes life-threatening internal bleeding.",
-    "desc": "An Aortic Aneurysm is a balloon-like bulge in the aorta, the major blood vessel carrying blood from the heart. It can occur in the chest (Thoracic Aortic Aneurysm) or abdomen (Abdominal Aortic Aneurysm). The primary danger is rupture, which causes life-threatening internal bleeding.",
-    "symptoms": [
-      "Aneurysms are often \"silent\" and cause NO symptoms until they rupture or leak.",
+    id: "aortic-aneurysm",
+    name: "Aortic Aneurysm",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Abdominal (AAA) is more common: Affects 4-8% of older men. • Gender Disparity: Much more common in men than women. • Age Factor: Risk increases significantly after age 65.",
+    description:
+      "An Aortic Aneurysm is a balloon-like bulge in the aorta, the major blood vessel carrying blood from the heart. It can occur in the chest (Thoracic Aortic Aneurysm) or abdomen (Abdominal Aortic Aneurysm). The primary danger is rupture, which causes life-threatening internal bleeding.",
+    desc: "An Aortic Aneurysm is a balloon-like bulge in the aorta, the major blood vessel carrying blood from the heart. It can occur in the chest (Thoracic Aortic Aneurysm) or abdomen (Abdominal Aortic Aneurysm). The primary danger is rupture, which causes life-threatening internal bleeding.",
+    symptoms: [
+      'Aneurysms are often "silent" and cause NO symptoms until they rupture or leak.',
       "Thoracic: Pain in the jaw, neck, chest, or back; coughing, hoarseness, shortness of breath.",
-      "Abdominal: A persistent, deep pain in the abdomen or back; a pulsating feeling near the navel; a sense of fullness."
+      "Abdominal: A persistent, deep pain in the abdomen or back; a pulsating feeling near the navel; a sense of fullness.",
     ],
-    "causes": [
+    causes: [
       "The exact cause is linked to a weakening of the aortic wall.",
       "Primary Causes",
       "Atherosclerosis.",
       "Degeneration of the Media: The middle layer of the aortic wall breaks down over time.",
-      "Genetic Factors."
+      "Genetic Factors.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment depends entirely on the size, growth rate, and symptoms.",
       "Small (AAA: 3.0-4.4 cm / TAA: <5.5 cm): Monitoring with regular scans.",
       "Medium (AAA: 4.5-5.4 cm): More frequent monitoring; surgery considered if growing rapidly.",
       "Large (AAA: =5.5 cm / TAA: =5.5-6.0 cm) or Growing Rapidly: Surgical repair is strongly recommended.",
       "1.Open Surgical Repair: The damaged section is replaced with a synthetic graft. Pros: Durable. Cons: Major surgery with long recovery.",
-      "2.Endovascular Aneurysm Repair (EVAR/TEVAR): A stent-graft is placed via catheters in the groin. Pros: Minimally invasive, shorter recovery. Cons: Requires lifelong follow-up, may not be suitable for all anatomies."
+      "2.Endovascular Aneurysm Repair (EVAR/TEVAR): A stent-graft is placed via catheters in the groin. Pros: Minimally invasive, shorter recovery. Cons: Requires lifelong follow-up, may not be suitable for all anatomies.",
     ],
-    "selfCare": [
+    selfCare: [
       "Adhere to Scan Schedules.",
       "Monitor for Symptoms.",
       "Manage Stress: Avoid heavy lifting and strenuous activities.",
@@ -422,62 +437,64 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Stop Smoking.",
       "Control Blood Pressure.",
       "Manage Cholesterol.",
-      "Eat a Heart-Healthy Diet."
+      "Eat a Heart-Healthy Diet.",
     ],
-    "prevention": [
+    prevention: [
       "Prevention focuses on risk factor management and screening.",
       "Get Screened: USPSTF recommends one-time ultrasound screening for men 65-75 who have ever smoked.",
       "Don't Smoke or Use Tobacco Products.",
       "Maintain Healthy Blood Pressure and Cholesterol Levels.",
       "Adopt a Heart-Healthy Diet.",
       "Exercise Regularly.",
-      "See Your Doctor Regularly if you have risk factors."
+      "See Your Doctor Regularly if you have risk factors.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Male sex, age over 65, smoking history, family history.",
       "Secondary: Atherosclerosis, high blood pressure, high cholesterol, genetic conditions (Marfan, Ehlers-Danlos).",
       "Non-Modifiable: Age, Sex, Family History, Genetic Conditions, Race (more common in white people).",
-      "Modifiable: Tobacco Use (most important), High Blood Pressure, High Cholesterol, Obesity, Physical Inactivity."
+      "Modifiable: Tobacco Use (most important), High Blood Pressure, High Cholesterol, Obesity, Physical Inactivity.",
     ],
-    "warningSigns": [
-      "A sudden, intense, and persistent pain in the abdomen, back, or chest, often described as \"tearing.\"",
+    warningSigns: [
+      'A sudden, intense, and persistent pain in the abdomen, back, or chest, often described as "tearing."',
       "Pain that radiates to the back, buttocks, groin, or legs.",
       "Clammy, sweaty skin.",
       "Dizziness, lightheadedness, or fainting.",
       "Rapid heart rate.",
       "Nausea and vomiting.",
-      "Shock."
-    ]
+      "Shock.",
+    ],
   },
   {
-    "id": "hypertrophic-cardiomyopathy-hcm",
-    "name": "Hypertrophic Cardiomyopathy (HCM)",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Common Genetic Heart Condition: Affects about 1 in 500 people. • Underlying Cause: Often caused by genetic mutations.",
-    "description": "Hypertrophic Cardiomyopathy (HCM) is a disease where the heart muscle becomes abnormally thick (hypertrophied). This thickening makes it harder for the heart to pump blood and can cause obstruction of blood flow. It is a leading cause of sudden cardiac death in young athletes.",
-    "desc": "Hypertrophic Cardiomyopathy (HCM) is a disease where the heart muscle becomes abnormally thick (hypertrophied). This thickening makes it harder for the heart to pump blood and can cause obstruction of blood flow. It is a leading cause of sudden cardiac death in young athletes.",
-    "symptoms": [
+    id: "hypertrophic-cardiomyopathy-hcm",
+    name: "Hypertrophic Cardiomyopathy (HCM)",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Common Genetic Heart Condition: Affects about 1 in 500 people. • Underlying Cause: Often caused by genetic mutations.",
+    description:
+      "Hypertrophic Cardiomyopathy (HCM) is a disease where the heart muscle becomes abnormally thick (hypertrophied). This thickening makes it harder for the heart to pump blood and can cause obstruction of blood flow. It is a leading cause of sudden cardiac death in young athletes.",
+    desc: "Hypertrophic Cardiomyopathy (HCM) is a disease where the heart muscle becomes abnormally thick (hypertrophied). This thickening makes it harder for the heart to pump blood and can cause obstruction of blood flow. It is a leading cause of sudden cardiac death in young athletes.",
+    symptoms: [
       "Shortness of breath, especially with physical activity.",
       "Chest pain, especially during exercise.",
       "Fainting or near-fainting.",
       "Heart palpitations.",
       "Fatigue.",
-      "Sensation of rapid, fluttering, or pounding heartbeats."
+      "Sensation of rapid, fluttering, or pounding heartbeats.",
     ],
-    "causes": [
-      "HCM is usually an inherited genetic disorder caused by mutations in genes that control heart muscle growth."
+    causes: [
+      "HCM is usually an inherited genetic disorder caused by mutations in genes that control heart muscle growth.",
     ],
-    "treatment": [
+    treatment: [
       "The goal is to relieve symptoms, prevent complications, and reduce the risk of sudden death.",
       "Beta-blockers: To slow the heart rate and reduce obstruction.",
       "Calcium Channel Blockers: To relax the heart and improve filling.",
       "Anti-arrhythmic Drugs: To control heart rhythm.",
       "1.Septal Myectomy: Open-heart surgery to remove part of the thickened septal wall.",
       "2.Alcohol Septal Ablation: A catheter-based procedure to destroy a small part of the thickened muscle.",
-      "3.Implantable Cardioverter-Defibrillator (ICD): To prevent sudden death from lethal arrhythmias."
+      "3.Implantable Cardioverter-Defibrillator (ICD): To prevent sudden death from lethal arrhythmias.",
     ],
-    "selfCare": [
+    selfCare: [
       "Get Regular Follow-up Care with a cardiologist.",
       "Take Medications as Prescribed.",
       "Stay Hydrated.",
@@ -485,38 +502,40 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Avoid Strenuous Exercise and competitive sports unless cleared by your doctor.",
       "Eat a Heart-Healthy Diet.",
       "Limit or Avoid Alcohol.",
-      "Manage Stress."
+      "Manage Stress.",
     ],
-    "prevention": [
+    prevention: [
       "Because HCM is often inherited, prevention focuses on identification and risk management.",
       "Genetic Counseling and Testing for family members of an affected individual.",
       "Early Screening with echocardiograms for at-risk individuals.",
-      "Avoiding intense competitive sports if diagnosed."
+      "Avoiding intense competitive sports if diagnosed.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Family history of HCM or sudden cardiac death.",
       "Secondary: The condition itself is the risk factor for complications.",
       "o Family History: Having a parent, child, or sibling with HCM.",
       "o Genetic Mutation.",
-      "o Symptoms and complications can be managed with treatment."
+      "o Symptoms and complications can be managed with treatment.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Fainting (syncope), especially during exercise.",
       "Severe shortness of breath.",
       "Chest pain that doesn't go away quickly.",
       "Heart palpitations that feel rapid, pounding, or fluttering.",
-      "Sudden cardiac arrest."
-    ]
+      "Sudden cardiac arrest.",
+    ],
   },
   {
-    "id": "infective-endocarditis",
-    "name": "Infective Endocarditis",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Relatively Rare: Incidence is about 3-10 per 100,000 people per year. • Higher Risk in people with pre-existing heart conditions, artificial valves, or a history of IV drug use.",
-    "description": "Infective Endocarditis (IE) is an infection of the inner lining of the heart chambers and valves (the endocardium). It occurs when germs (usually bacteria) enter the bloodstream, travel to the heart, and attach to damaged areas or artificial valves, forming vegetations (clumps of bacteria and cells) that can damage the heart.",
-    "desc": "Infective Endocarditis (IE) is an infection of the inner lining of the heart chambers and valves (the endocardium). It occurs when germs (usually bacteria) enter the bloodstream, travel to the heart, and attach to damaged areas or artificial valves, forming vegetations (clumps of bacteria and cells) that can damage the heart.",
-    "symptoms": [
+    id: "infective-endocarditis",
+    name: "Infective Endocarditis",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Relatively Rare: Incidence is about 3-10 per 100,000 people per year. • Higher Risk in people with pre-existing heart conditions, artificial valves, or a history of IV drug use.",
+    description:
+      "Infective Endocarditis (IE) is an infection of the inner lining of the heart chambers and valves (the endocardium). It occurs when germs (usually bacteria) enter the bloodstream, travel to the heart, and attach to damaged areas or artificial valves, forming vegetations (clumps of bacteria and cells) that can damage the heart.",
+    desc: "Infective Endocarditis (IE) is an infection of the inner lining of the heart chambers and valves (the endocardium). It occurs when germs (usually bacteria) enter the bloodstream, travel to the heart, and attach to damaged areas or artificial valves, forming vegetations (clumps of bacteria and cells) that can damage the heart.",
+    symptoms: [
       "Symptoms can develop slowly (subacute) or suddenly (acute).",
       "Fever and chills.",
       "A new or changed heart murmur.",
@@ -524,60 +543,62 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Aching joints and muscles.",
       "Night sweats.",
       "Shortness of breath.",
-      "Chest pain when you breathe."
+      "Chest pain when you breathe.",
     ],
-    "causes": [
-      "IE is caused by an infection, most commonly bacteria (e.g., Staphylococcus aureus, Streptococcus viridans), and rarely by fungi."
+    causes: [
+      "IE is caused by an infection, most commonly bacteria (e.g., Staphylococcus aureus, Streptococcus viridans), and rarely by fungi.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment involves prolonged courses of antibiotics and may require surgery.",
       "Intravenous (IV) Antibiotics: Administered in the hospital for 2 to 6 weeks or more.",
       "Specific antibiotic choice is based on blood culture results to identify the causative organism.",
       "The infection damages heart valves, causing severe leakages or obstruction.",
       "The infection cannot be controlled with antibiotics alone.",
-      "There are large vegetations at high risk of embolizing (causing a stroke)."
+      "There are large vegetations at high risk of embolizing (causing a stroke).",
     ],
-    "selfCare": [
+    selfCare: [
       "Practice Excellent Oral Hygiene: Brush and floss regularly and have regular dental checkups.",
       "Inform Healthcare Providers of your heart condition before any procedure.",
       "Watch for Symptoms of infection and seek care early.",
       "Avoid IV Drug Use.",
       "Lifestyle Recommendations",
       "Skin Care: Clean cuts and wounds promptly to prevent infection.",
-      "Do not pierce or tattoo your body."
+      "Do not pierce or tattoo your body.",
     ],
-    "prevention": [
+    prevention: [
       "Antibiotic Prophylaxis: For high-risk patients before certain dental and medical procedures.",
       "Maintain Good Oral and Skin Hygiene.",
       "Never Use Illegal IV Drugs.",
-      "Seek Prompt Medical Care for suspected infections."
+      "Seek Prompt Medical Care for suspected infections.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Pre-existing heart valve disease, artificial heart valve, prior history of endocarditis, congenital heart defects.",
       "Secondary: IV drug use, poor dental health, invasive medical procedures, having a central venous catheter.",
       "o Structural Heart Disease: Valve disease, congenital defects.",
       "o Prior History of IE.",
       "o IV Drug Use.",
       "o Poor Dental Hygiene.",
-      "o Invasive Medical Procedures (dental, surgical) without proper antibiotic prophylaxis in high-risk patients."
+      "o Invasive Medical Procedures (dental, surgical) without proper antibiotic prophylaxis in high-risk patients.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "High fever and chills.",
       "Signs of stroke (weakness, confusion, vision loss).",
       "Severe shortness of breath.",
       "Unexplained weight loss and night sweats.",
-      "Blood in the urine."
-    ]
+      "Blood in the urine.",
+    ],
   },
   {
-    "id": "constrictive-pericarditis",
-    "name": "Constrictive Pericarditis",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Rare: Much less common than other forms of pericardial disease. • Can occur at any age, but is more common in adults.",
-    "description": "Constrictive Pericarditis is a chronic condition where the pericardium (the sac-like membrane surrounding the heart) becomes thick, scarred, and rigid. This loss of elasticity constricts the heart, preventing it from stretching properly and filling with blood, which leads to a decrease in cardiac output and symptoms of heart failure.",
-    "desc": "Constrictive Pericarditis is a chronic condition where the pericardium (the sac-like membrane surrounding the heart) becomes thick, scarred, and rigid. This loss of elasticity constricts the heart, preventing it from stretching properly and filling with blood, which leads to a decrease in cardiac output and symptoms of heart failure.",
-    "symptoms": [
+    id: "constrictive-pericarditis",
+    name: "Constrictive Pericarditis",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Rare: Much less common than other forms of pericardial disease. • Can occur at any age, but is more common in adults.",
+    description:
+      "Constrictive Pericarditis is a chronic condition where the pericardium (the sac-like membrane surrounding the heart) becomes thick, scarred, and rigid. This loss of elasticity constricts the heart, preventing it from stretching properly and filling with blood, which leads to a decrease in cardiac output and symptoms of heart failure.",
+    desc: "Constrictive Pericarditis is a chronic condition where the pericardium (the sac-like membrane surrounding the heart) becomes thick, scarred, and rigid. This loss of elasticity constricts the heart, preventing it from stretching properly and filling with blood, which leads to a decrease in cardiac output and symptoms of heart failure.",
+    symptoms: [
       "Symptoms are due to the heart's inability to fill properly and the backup of blood in the body.",
       "Fatigue and weakness.",
       "Shortness of breath (especially with exertion and when lying flat).",
@@ -585,9 +606,9 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Abdominal swelling (ascites).",
       "Chest pain or discomfort.",
       "Weight gain (from fluid retention).",
-      "Palpitations."
+      "Palpitations.",
     ],
-    "causes": [
+    causes: [
       "Any condition that causes inflammation and injury to the pericardium can lead to constriction.",
       "Primary Causes",
       "Idiopathic (Unknown): The most common cause.",
@@ -595,16 +616,16 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Post-Radiation: For chest cancers (e.g., Hodgkin's lymphoma).",
       "Infectious: Tuberculosis (a major cause worldwide), viral infections.",
       "Connective Tissue Disorders: Rheumatoid arthritis, lupus.",
-      "Chronic Kidney Failure (uremia)."
+      "Chronic Kidney Failure (uremia).",
     ],
-    "treatment": [
+    treatment: [
       "The goal is to manage symptoms and, if possible, relieve the constriction.",
       "Diuretics: To reduce fluid overload.",
       "Treat the Underlying Cause (e.g., anti-tuberculosis drugs).",
       "Anti-inflammatory drugs are generally not effective once scarring has set in.",
-      "Pericardiectomy: The primary and only curative treatment. This is a major open-heart surgery to remove the thickened and scarred pericardium. It is high-risk but necessary to relieve the constriction."
+      "Pericardiectomy: The primary and only curative treatment. This is a major open-heart surgery to remove the thickened and scarred pericardium. It is high-risk but necessary to relieve the constriction.",
     ],
-    "selfCare": [
+    selfCare: [
       "Strict Fluid and Sodium Management as directed by your doctor.",
       "Daily Weight Monitoring to track fluid retention.",
       "Take All Medications as Prescribed.",
@@ -612,169 +633,175 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Follow a Low-Sodium Diet.",
       "Limit Fluid Intake if recommended.",
-      "Pace Your Activities to avoid excessive fatigue."
+      "Pace Your Activities to avoid excessive fatigue.",
     ],
-    "prevention": [
+    prevention: [
       "Preventing Constrictive Pericarditis involves the prompt and effective treatment of conditions that can cause it.",
       "Complete Treatment of Acute Pericarditis.",
       "Effective Treatment of Tuberculosis.",
-      "Appropriate Management of autoimmune diseases and kidney failure."
+      "Appropriate Management of autoimmune diseases and kidney failure.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Previous episode of acute pericarditis.",
       "Secondary: Radiation therapy to the chest, heart surgery, tuberculosis, viral infections, autoimmune diseases (e.g., lupus, rheumatoid arthritis).",
       "Non-Modifiable: N/A (risk is based on exposure to causative conditions).",
-      "Modifiable: Early and adequate treatment of acute pericarditis and tuberculosis can reduce risk."
+      "Modifiable: Early and adequate treatment of acute pericarditis and tuberculosis can reduce risk.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe and worsening shortness of breath.",
       "Massive swelling (edema) in the legs and abdomen.",
       "Extreme fatigue and inability to perform daily activities.",
       "Chest pain.",
-      "Lightheadedness or fainting."
-    ]
+      "Lightheadedness or fainting.",
+    ],
   },
   {
-    "id": "mitral-valve-stenosis",
-    "name": "Mitral Valve Stenosis",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Leading Cause: Rheumatic fever is the most common cause worldwide, though it is now rare in developed countries. • Gender Disparity: More common in women than men.",
-    "description": "Mitral Valve Stenosis is a narrowing of the mitral valve opening, which restricts blood flow from the left atrium to the left ventricle. This forces the heart to work harder to pump blood through the narrowed valve, leading to increased pressure in the left atrium and the lungs.",
-    "desc": "Mitral Valve Stenosis is a narrowing of the mitral valve opening, which restricts blood flow from the left atrium to the left ventricle. This forces the heart to work harder to pump blood through the narrowed valve, leading to increased pressure in the left atrium and the lungs.",
-    "symptoms": [
+    id: "mitral-valve-stenosis",
+    name: "Mitral Valve Stenosis",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Leading Cause: Rheumatic fever is the most common cause worldwide, though it is now rare in developed countries. • Gender Disparity: More common in women than men.",
+    description:
+      "Mitral Valve Stenosis is a narrowing of the mitral valve opening, which restricts blood flow from the left atrium to the left ventricle. This forces the heart to work harder to pump blood through the narrowed valve, leading to increased pressure in the left atrium and the lungs.",
+    desc: "Mitral Valve Stenosis is a narrowing of the mitral valve opening, which restricts blood flow from the left atrium to the left ventricle. This forces the heart to work harder to pump blood through the narrowed valve, leading to increased pressure in the left atrium and the lungs.",
+    symptoms: [
       "Shortness of breath, especially with physical activity or when lying down.",
       "Fatigue, especially during increased physical activity.",
       "Swollen feet or legs.",
       "Heart palpitations (sensations of a rapid, fluttering heartbeat).",
       "Chest discomfort or chest pain.",
-      "Dizziness or fainting."
+      "Dizziness or fainting.",
     ],
-    "causes": [
+    causes: [
       "Rheumatic Fever: An inflammatory condition that can be a complication of untreated strep throat.",
       "Calcium Deposits: Buildup of calcium on the valve with aging.",
       "Congenital Heart Defects.",
-      "Other Rare Causes: Radiation therapy, autoimmune diseases."
+      "Other Rare Causes: Radiation therapy, autoimmune diseases.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment depends on the severity of symptoms and the degree of stenosis.",
       "Medications: To manage symptoms but do not fix the narrowed valve.",
       "Diuretics to reduce fluid in the lungs.",
       "Beta-blockers or calcium channel blockers to slow the heart rate.",
       "Blood thinners (anticoagulants) to prevent blood clots if atrial fibrillation is present.",
       "1.Percutaneous Mitral Balloon Valvuloplasty: A catheter with a balloon is used to widen the valve. This is the preferred procedure for suitable candidates.",
-      "2.Mitral Valve Repair or Replacement Surgery: Open-heart surgery to repair or replace the damaged valve."
+      "2.Mitral Valve Repair or Replacement Surgery: Open-heart surgery to repair or replace the damaged valve.",
     ],
-    "selfCare": [
+    selfCare: [
       "Take all medications as prescribed.",
       "Monitor for symptoms of worsening heart failure.",
       "Inform your dentist and doctors about your condition, as you may need antibiotics before procedures.",
       "Lifestyle Recommendations",
       "Limit salt intake to reduce fluid retention.",
       "Maintain a healthy weight.",
-      "Get regular exercise as tolerated and approved by your doctor."
+      "Get regular exercise as tolerated and approved by your doctor.",
     ],
-    "prevention": [
-      "Prompt treatment of strep throat with antibiotics to prevent rheumatic fever."
+    prevention: [
+      "Prompt treatment of strep throat with antibiotics to prevent rheumatic fever.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: History of rheumatic fever.",
-      "Secondary: Congenital heart defects, calcium deposits on the valve, radiation therapy to the chest."
+      "Secondary: Congenital heart defects, calcium deposits on the valve, radiation therapy to the chest.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Sudden, severe shortness of breath.",
       "Coughing up pink, frothy sputum.",
       "Heart palpitations accompanied by dizziness or fainting.",
-      "Signs of a stroke (e.g., sudden weakness, speech difficulty)."
-    ]
+      "Signs of a stroke (e.g., sudden weakness, speech difficulty).",
+    ],
   },
   {
-    "id": "rheumatic-heart-disease",
-    "name": "Rheumatic Heart Disease",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Disease of Poverty: Most common in low- and middle-income countries, and in crowded, low-resource settings. • Age Factor: Typically begins in childhood (ages 5-15).",
-    "description": "Rheumatic Heart Disease (RHD) is a chronic condition caused by damage to the heart valves from rheumatic fever. Rheumatic fever is an inflammatory reaction to an untreated Streptococcus pyogenes (strep) infection. The inflammation can cause permanent scarring and deformity of the heart valves.",
-    "desc": "Rheumatic Heart Disease (RHD) is a chronic condition caused by damage to the heart valves from rheumatic fever. Rheumatic fever is an inflammatory reaction to an untreated Streptococcus pyogenes (strep) infection. The inflammation can cause permanent scarring and deformity of the heart valves.",
-    "symptoms": [
+    id: "rheumatic-heart-disease",
+    name: "Rheumatic Heart Disease",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Disease of Poverty: Most common in low- and middle-income countries, and in crowded, low-resource settings. • Age Factor: Typically begins in childhood (ages 5-15).",
+    description:
+      "Rheumatic Heart Disease (RHD) is a chronic condition caused by damage to the heart valves from rheumatic fever. Rheumatic fever is an inflammatory reaction to an untreated Streptococcus pyogenes (strep) infection. The inflammation can cause permanent scarring and deformity of the heart valves.",
+    desc: "Rheumatic Heart Disease (RHD) is a chronic condition caused by damage to the heart valves from rheumatic fever. Rheumatic fever is an inflammatory reaction to an untreated Streptococcus pyogenes (strep) infection. The inflammation can cause permanent scarring and deformity of the heart valves.",
+    symptoms: [
       "Shortness of breath with activity or when lying flat.",
       "Fatigue.",
       "Swelling in the legs and abdomen.",
       "Chest pain.",
       "Heart palpitations.",
-      "Symptoms of the specific valve affected (e.g., murmur)."
+      "Symptoms of the specific valve affected (e.g., murmur).",
     ],
-    "causes": [
-      "RHD is a long-term consequence of Acute Rheumatic Fever (ARF), which is an autoimmune response to a Group A Streptococcal (strep) infection."
+    causes: [
+      "RHD is a long-term consequence of Acute Rheumatic Fever (ARF), which is an autoimmune response to a Group A Streptococcal (strep) infection.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment focuses on managing symptoms, preventing recurrence, and treating valve damage.",
       "Long-term antibiotics (e.g., monthly penicillin injections) to prevent recurrent strep infections and worsening of valve damage.",
       "Medications for heart failure (diuretics, ACE inhibitors).",
       "Anticoagulants if atrial fibrillation is present.",
-      "Valve Repair or Replacement for severely damaged valves."
+      "Valve Repair or Replacement for severely damaged valves.",
     ],
-    "selfCare": [
+    selfCare: [
       "Strict adherence to long-term antibiotic prophylaxis as prescribed.",
       "Get regular dental care to prevent infections.",
       "Attend all cardiology follow-up appointments.",
       "Lifestyle Recommendations",
       "Maintain a heart-healthy lifestyle with a balanced diet and appropriate exercise.",
-      "Inform all healthcare providers of your history of RHD."
+      "Inform all healthcare providers of your history of RHD.",
     ],
-    "prevention": [
+    prevention: [
       "RHD is entirely preventable.",
       "Prompt diagnosis and complete antibiotic treatment of strep throat.",
-      "Regular antibiotic prophylaxis for those who have had ARF or RHD to prevent recurrence."
+      "Regular antibiotic prophylaxis for those who have had ARF or RHD to prevent recurrence.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Untreated or inadequately treated strep throat.",
       "Secondary: Overcrowding, poor access to healthcare, family history.",
       "Non-Modifiable: Age (children 5-15), Genetic predisposition.",
-      "Modifiable: Poverty, overcrowding, poor access to medical care for strep throat."
+      "Modifiable: Poverty, overcrowding, poor access to medical care for strep throat.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe shortness of breath at rest.",
       "Coughing up blood.",
       "Chest pain.",
-      "Rapid, jerky, involuntary movements of the face, hands, and feet."
-    ]
+      "Rapid, jerky, involuntary movements of the face, hands, and feet.",
+    ],
   },
   {
-    "id": "pulmonary-hypertension",
-    "name": "Pulmonary Hypertension",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Rare but Serious: Pulmonary Arterial Hypertension (Group 1) affects about 15-50 people per million. • More Common in Women.",
-    "description": "Pulmonary Hypertension (PH) is a type of high blood pressure that affects the arteries in the lungs and the right side of the heart. In PH, the pulmonary arteries become narrowed, blocked, or destroyed, forcing the right heart ventricle to work harder to pump blood, eventually causing heart failure.",
-    "desc": "Pulmonary Hypertension (PH) is a type of high blood pressure that affects the arteries in the lungs and the right side of the heart. In PH, the pulmonary arteries become narrowed, blocked, or destroyed, forcing the right heart ventricle to work harder to pump blood, eventually causing heart failure.",
-    "symptoms": [
+    id: "pulmonary-hypertension",
+    name: "Pulmonary Hypertension",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Rare but Serious: Pulmonary Arterial Hypertension (Group 1) affects about 15-50 people per million. • More Common in Women.",
+    description:
+      "Pulmonary Hypertension (PH) is a type of high blood pressure that affects the arteries in the lungs and the right side of the heart. In PH, the pulmonary arteries become narrowed, blocked, or destroyed, forcing the right heart ventricle to work harder to pump blood, eventually causing heart failure.",
+    desc: "Pulmonary Hypertension (PH) is a type of high blood pressure that affects the arteries in the lungs and the right side of the heart. In PH, the pulmonary arteries become narrowed, blocked, or destroyed, forcing the right heart ventricle to work harder to pump blood, eventually causing heart failure.",
+    symptoms: [
       "Shortness of breath (dyspnea) during routine activity.",
       "Fatigue.",
       "Chest pressure or pain.",
       "Dizziness or fainting spells.",
       "Swelling in the ankles, legs, and eventually the abdomen (ascites).",
       "Bluish color to the lips and skin (cyanosis).",
-      "Racing heartbeat or palpitations."
+      "Racing heartbeat or palpitations.",
     ],
-    "causes": [
+    causes: [
       "PH is classified into 5 groups by the World Health Organization based on cause.",
       "Group 1: Pulmonary Arterial Hypertension (PAH): Idiopathic, heritable, drug-induced, or associated with other conditions.",
       "Group 2: PH due to left heart disease (most common form).",
       "Group 3: PH due to lung disease (e.g., COPD, interstitial lung disease).",
       "Group 4: PH due to chronic blood clots in the lungs (CTEPH).",
-      "Group 5: PH with unclear or multifactorial mechanisms."
+      "Group 5: PH with unclear or multifactorial mechanisms.",
     ],
-    "treatment": [
+    treatment: [
       "There is no cure, but treatments can improve symptoms and slow progression. Treatment is tailored to the PH group.",
       "Vasodilators (e.g., endothelin receptor antagonists, phosphodiesterase-5 inhibitors, prostacyclins).",
       "Diuretics to reduce fluid buildup.",
       "Oxygen therapy.",
       "Anticoagulants.",
       "Atrial Septostomy: A procedure to create an opening between the heart's upper chambers to relieve pressure.",
-      "Lung or Heart-Lung Transplant: For severe, progressive PAH."
+      "Lung or Heart-Lung Transplant: For severe, progressive PAH.",
     ],
-    "selfCare": [
+    selfCare: [
       "Get vaccinated against flu and pneumonia.",
       "Avoid activities that can excessively lower blood pressure, such as heavy lifting or hot tubs.",
       "Monitor your weight daily to detect fluid retention.",
@@ -782,45 +809,47 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Stay active but pace yourself.",
       "Do not smoke.",
       "Avoid pregnancy, as it can be life-threatening.",
-      "Follow a low-sodium diet."
+      "Follow a low-sodium diet.",
     ],
-    "prevention": [
+    prevention: [
       "Prevention focuses on early diagnosis and management of underlying conditions.",
       "Effectively manage conditions like COPD, heart failure, and liver disease.",
-      "Seek early evaluation for unexplained shortness of breath."
+      "Seek early evaluation for unexplained shortness of breath.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Idiopathic (no known cause), heritable.",
-      "Secondary: Connective tissue disease (e.g., scleroderma), congenital heart disease, liver disease (portopulmonary hypertension), HIV, drug use."
+      "Secondary: Connective tissue disease (e.g., scleroderma), congenital heart disease, liver disease (portopulmonary hypertension), HIV, drug use.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Worsening shortness of breath with minimal exertion or at rest.",
       "Chest pain.",
       "Fainting (syncope).",
-      "Severe swelling in the ankles, legs, or abdomen."
-    ]
+      "Severe swelling in the ankles, legs, or abdomen.",
+    ],
   },
   {
-    "id": "atherosclerosis",
-    "name": "Atherosclerosis",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Ubiquitous: The leading underlying cause of cardiovascular disease, the number one cause of death globally. • Age Factor: Begins in youth and progresses with age.",
-    "description": "Atherosclerosis is a hardening and narrowing of the arteries due to a buildup of plaque (cholesterol, fatty substances, cellular waste, calcium, and fibrin) inside the artery walls. This process can restrict blood flow and is the underlying cause of most heart attacks, strokes, and peripheral artery disease.",
-    "desc": "Atherosclerosis is a hardening and narrowing of the arteries due to a buildup of plaque (cholesterol, fatty substances, cellular waste, calcium, and fibrin) inside the artery walls. This process can restrict blood flow and is the underlying cause of most heart attacks, strokes, and peripheral artery disease.",
-    "symptoms": [
+    id: "atherosclerosis",
+    name: "Atherosclerosis",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Ubiquitous: The leading underlying cause of cardiovascular disease, the number one cause of death globally. • Age Factor: Begins in youth and progresses with age.",
+    description:
+      "Atherosclerosis is a hardening and narrowing of the arteries due to a buildup of plaque (cholesterol, fatty substances, cellular waste, calcium, and fibrin) inside the artery walls. This process can restrict blood flow and is the underlying cause of most heart attacks, strokes, and peripheral artery disease.",
+    desc: "Atherosclerosis is a hardening and narrowing of the arteries due to a buildup of plaque (cholesterol, fatty substances, cellular waste, calcium, and fibrin) inside the artery walls. This process can restrict blood flow and is the underlying cause of most heart attacks, strokes, and peripheral artery disease.",
+    symptoms: [
       "Coronary Arteries (CAD): Chest pain (angina), shortness of breath.",
       "Carotid Arteries: Sudden weakness, slurred speech, facial drooping (transient ischemic attack or stroke).",
       "Peripheral Arteries (PAD): Leg pain when walking (claudication).",
-      "Renal Arteries: High blood pressure or kidney failure."
+      "Renal Arteries: High blood pressure or kidney failure.",
     ],
-    "causes": [
+    causes: [
       "High blood pressure.",
       "High levels of cholesterol and triglycerides.",
       "Smoking.",
-      "Insulin resistance / Diabetes."
+      "Insulin resistance / Diabetes.",
     ],
-    "treatment": [
+    treatment: [
       "The goal is to slow or stop plaque buildup, prevent blood clots, and relieve symptoms.",
       "Lifestyle Changes: The foundation of treatment.",
       "Heart-healthy diet (low in saturated/trans fats, cholesterol, and sodium).",
@@ -828,58 +857,60 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Smoking cessation.",
       "Weight management.",
       "Cholesterol-lowering drugs (Statins).",
-      "Antiplatelet agents (Aspirin, Clopidogrel) to prevent clots."
+      "Antiplatelet agents (Aspirin, Clopidogrel) to prevent clots.",
     ],
-    "selfCare": [
+    selfCare: [
       "Know your numbers (cholesterol, blood pressure).",
       "Take medications as prescribed.",
       "Follow up with your doctor regularly.",
       "Lifestyle Recommendations",
       "Adopt a plant-based or Mediterranean-style diet.",
       "Aim for at least 150 minutes of moderate exercise per week.",
-      "Manage stress through healthy outlets."
+      "Manage stress through healthy outlets.",
     ],
-    "prevention": [
+    prevention: [
       "Preventing atherosclerosis is a lifelong endeavor.",
       "Don't smoke.",
       "Eat a diet rich in fruits, vegetables, and whole grains.",
       "Exercise regularly.",
       "Maintain a healthy weight.",
-      "Manage existing health conditions like hypertension and diabetes."
+      "Manage existing health conditions like hypertension and diabetes.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: High LDL cholesterol, high blood pressure, smoking, diabetes.",
       "Secondary: Obesity, physical inactivity, unhealthy diet, family history.",
       "Non-Modifiable: Age, Family History, Male Sex (pre-menopause).",
-      "Modifiable: Smoking, High Blood Pressure, High Cholesterol, Diabetes, Physical Inactivity, Obesity, Unhealthy Diet."
+      "Modifiable: Smoking, High Blood Pressure, High Cholesterol, Diabetes, Physical Inactivity, Obesity, Unhealthy Diet.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Heart Attack: Chest pain, shortness of breath.",
       "Stroke: Sudden numbness, confusion, vision problems.",
-      "Critical Limb Ischemia: Severe leg pain, non-healing sores."
-    ]
+      "Critical Limb Ischemia: Severe leg pain, non-healing sores.",
+    ],
   },
   {
-    "id": "unstable-angina",
-    "name": "Unstable Angina",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Medical Emergency: A common reason for emergency department visits. • Precursor: Often precedes a myocardial infarction.",
-    "description": "Unstable Angina is a type of chest pain that occurs suddenly, often at rest or with minimal exertion, and is a sign that a heart attack could happen imminently. It is part of a condition called Acute Coronary Syndrome (ACS). Unlike stable angina, it is unpredictable, not relieved by rest or nitroglycerin, and indicates a severe, unstable blockage in a coronary artery.",
-    "desc": "Unstable Angina is a type of chest pain that occurs suddenly, often at rest or with minimal exertion, and is a sign that a heart attack could happen imminently. It is part of a condition called Acute Coronary Syndrome (ACS). Unlike stable angina, it is unpredictable, not relieved by rest or nitroglycerin, and indicates a severe, unstable blockage in a coronary artery.",
-    "symptoms": [
+    id: "unstable-angina",
+    name: "Unstable Angina",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Medical Emergency: A common reason for emergency department visits. • Precursor: Often precedes a myocardial infarction.",
+    description:
+      "Unstable Angina is a type of chest pain that occurs suddenly, often at rest or with minimal exertion, and is a sign that a heart attack could happen imminently. It is part of a condition called Acute Coronary Syndrome (ACS). Unlike stable angina, it is unpredictable, not relieved by rest or nitroglycerin, and indicates a severe, unstable blockage in a coronary artery.",
+    desc: "Unstable Angina is a type of chest pain that occurs suddenly, often at rest or with minimal exertion, and is a sign that a heart attack could happen imminently. It is part of a condition called Acute Coronary Syndrome (ACS). Unlike stable angina, it is unpredictable, not relieved by rest or nitroglycerin, and indicates a severe, unstable blockage in a coronary artery.",
+    symptoms: [
       "Chest pain or discomfort that may feel like pressure, squeezing, or fullness.",
       "Pain that radiates to the shoulders, arms, neck, jaw, or back.",
       "Shortness of breath.",
       "Sweating.",
       "Dizziness or lightheadedness.",
-      "Nausea."
+      "Nausea.",
     ],
-    "causes": [
+    causes: [
       "Rupture of an atherosclerotic plaque, leading to the formation of a blood clot that severely narrows the artery.",
-      "Coronary artery spasm."
+      "Coronary artery spasm.",
     ],
-    "treatment": [
+    treatment: [
       "The goal is to quickly restore blood flow, prevent a complete blockage (heart attack), and stabilize the patient.",
       "Hospitalization is required.",
       "Aspirin to prevent further clotting.",
@@ -887,94 +918,98 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Antiplatelet drugs (e.g., Clopidogrel).",
       "Anticoagulants (e.g., heparin).",
       "1.Cardiac Catheterization with Percutaneous Coronary Intervention (PCI): Angioplasty and stenting is the preferred treatment.",
-      "2.Coronary Artery Bypass Grafting (CABG): For complex blockages not suitable for stenting."
+      "2.Coronary Artery Bypass Grafting (CABG): For complex blockages not suitable for stenting.",
     ],
-    "selfCare": [
+    selfCare: [
       "After discharge, strictly adhere to your medication regimen (dual antiplatelet therapy is critical).",
       "Participate fully in cardiac rehabilitation.",
       "Know the signs of ACS and have an action plan.",
       "Lifestyle Recommendations",
-      "Aggressive lifestyle modification is essential to prevent progression: smoking cessation, heart-healthy diet, regular exercise, weight management."
+      "Aggressive lifestyle modification is essential to prevent progression: smoking cessation, heart-healthy diet, regular exercise, weight management.",
     ],
-    "prevention": [
+    prevention: [
       "Preventing Unstable Angina means preventing the progression of Coronary Artery Disease.",
       "All strategies for preventing Atherosclerosis and CAD apply.",
-      "For those with known CAD, strict adherence to medications and lifestyle changes is the best prevention."
+      "For those with known CAD, strict adherence to medications and lifestyle changes is the best prevention.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Established Coronary Artery Disease.",
-      "Secondary: The same as for CAD: smoking, hypertension, high cholesterol, diabetes, sedentary lifestyle."
+      "Secondary: The same as for CAD: smoking, hypertension, high cholesterol, diabetes, sedentary lifestyle.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "New, severe, or frequent chest pain or pressure.",
       "Chest pain that occurs at rest and lasts more than a few minutes.",
       "Pain that is not relieved by rest or nitroglycerin.",
-      "Pain that is increasing in intensity, duration, or frequency."
-    ]
+      "Pain that is increasing in intensity, duration, or frequency.",
+    ],
   },
   {
-    "id": "third-degree-heart-block",
-    "name": "Third-Degree Heart Block",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Uncommon: Less common than first- or second-degree heart block. • Can be congenital but is more often acquired in adulthood.",
-    "description": "Third-Degree Heart Block, also known as Complete Heart Block, is a serious arrhythmia where no electrical impulses from the upper chambers of the heart (atria) can pass through the atrioventricular (AV) node to the lower chambers (ventricles). The atria and ventricles beat independently, leading to a very slow and often inadequate heart rate.",
-    "desc": "Third-Degree Heart Block, also known as Complete Heart Block, is a serious arrhythmia where no electrical impulses from the upper chambers of the heart (atria) can pass through the atrioventricular (AV) node to the lower chambers (ventricles). The atria and ventricles beat independently, leading to a very slow and often inadequate heart rate.",
-    "symptoms": [
+    id: "third-degree-heart-block",
+    name: "Third-Degree Heart Block",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Uncommon: Less common than first- or second-degree heart block. • Can be congenital but is more often acquired in adulthood.",
+    description:
+      "Third-Degree Heart Block, also known as Complete Heart Block, is a serious arrhythmia where no electrical impulses from the upper chambers of the heart (atria) can pass through the atrioventricular (AV) node to the lower chambers (ventricles). The atria and ventricles beat independently, leading to a very slow and often inadequate heart rate.",
+    desc: "Third-Degree Heart Block, also known as Complete Heart Block, is a serious arrhythmia where no electrical impulses from the upper chambers of the heart (atria) can pass through the atrioventricular (AV) node to the lower chambers (ventricles). The atria and ventricles beat independently, leading to a very slow and often inadequate heart rate.",
+    symptoms: [
       "Dizziness or lightheadedness.",
       "Fainting or near-fainting.",
       "Fatigue.",
       "Shortness of breath.",
       "Chest pain.",
-      "Palpitations."
+      "Palpitations.",
     ],
-    "causes": [
+    causes: [
       "The block is caused by a failure in the heart's electrical conduction system.",
       "Primary Causes",
       "Idiopathic fibrosis and sclerosis of the electrical system (most common in adults).",
       "Myocardial Infarction (heart attack) damaging the conduction tissue.",
       "Cardiac Surgery.",
       "Inflammatory conditions (e.g., Lyme disease, sarcoidosis).",
-      "Medication toxicity (e.g., beta-blockers, calcium channel blockers, digoxin)."
+      "Medication toxicity (e.g., beta-blockers, calcium channel blockers, digoxin).",
     ],
-    "treatment": [
+    treatment: [
       "There is no medication that can correct third-degree heart block. The definitive treatment is a pacemaker.",
       "A small electronic device is implanted under the skin near the collarbone.",
       "It sends electrical impulses to the heart to maintain an adequate heart rate.",
-      "This is a life-saving and life-sustaining treatment for this condition."
+      "This is a life-saving and life-sustaining treatment for this condition.",
     ],
-    "selfCare": [
+    selfCare: [
       "Attend all pacemaker check-up appointments (in-person and remote monitoring).",
       "Carry your pacemaker ID card at all times.",
       "Take precautions around strong magnetic fields and electronic devices.",
       "Monitor your pulse as instructed by your doctor.",
       "Lifestyle Recommendations",
-      "Live a full and active life, as the pacemaker will ensure your heart rate meets your body's demands."
+      "Live a full and active life, as the pacemaker will ensure your heart rate meets your body's demands.",
     ],
-    "prevention": [
+    prevention: [
       "Managing underlying heart disease may reduce the risk of acquired heart block.",
-      "Careful medication management to avoid toxicity."
+      "Careful medication management to avoid toxicity.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Aging (fibrosis of the electrical system), heart attack.",
-      "Secondary: Heart surgery, certain medications, myocarditis, Lyme disease."
+      "Secondary: Heart surgery, certain medications, myocarditis, Lyme disease.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Fainting (Stokes-Adams attack).",
       "Severe dizziness or lightheadedness.",
       "Sudden cardiac arrest.",
-      "Extreme fatigue and confusion."
-    ]
+      "Extreme fatigue and confusion.",
+    ],
   },
   {
-    "id": "supraventricular-tachycardia-svt",
-    "name": "Supraventricular Tachycardia (SVT)",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Common: Affects about 2 in 1,000 people. • Can occur at any age, but often first appears in young adulthood.",
-    "description": "Supraventricular Tachycardia (SVT) is a broad term for a group of arrhythmias originating above the ventricles that cause episodes of a very rapid heart rate, often between 150-250 beats per minute. It is caused by a \"short circuit\" in the heart's electrical system.",
-    "desc": "Supraventricular Tachycardia (SVT) is a broad term for a group of arrhythmias originating above the ventricles that cause episodes of a very rapid heart rate, often between 150-250 beats per minute. It is caused by a \"short circuit\" in the heart's electrical system.",
-    "symptoms": [
+    id: "supraventricular-tachycardia-svt",
+    name: "Supraventricular Tachycardia (SVT)",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Common: Affects about 2 in 1,000 people. • Can occur at any age, but often first appears in young adulthood.",
+    description:
+      'Supraventricular Tachycardia (SVT) is a broad term for a group of arrhythmias originating above the ventricles that cause episodes of a very rapid heart rate, often between 150-250 beats per minute. It is caused by a "short circuit" in the heart\'s electrical system.',
+    desc: 'Supraventricular Tachycardia (SVT) is a broad term for a group of arrhythmias originating above the ventricles that cause episodes of a very rapid heart rate, often between 150-250 beats per minute. It is caused by a "short circuit" in the heart\'s electrical system.',
+    symptoms: [
       "Episodes begin and end suddenly and may last from seconds to hours.",
       "Sudden racing or fluttering heartbeat (palpitations).",
       "Dizziness or lightheadedness.",
@@ -982,53 +1017,55 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Chest tightness.",
       "Anxiety.",
       "Sweating.",
-      "Fatigue after the episode."
+      "Fatigue after the episode.",
     ],
-    "causes": [
+    causes: [
       "SVT is typically caused by a re-entry circuit—a loop of electrical activity that keeps circulating in the heart.",
       "AV Nodal Reentrant Tachycardia (AVNRT): Most common type.",
       "AV Reentrant Tachycardia (AVRT): Involves an extra pathway (e.g., in WPW syndrome).",
       "Atrial Tachycardia.",
-      "Triggers: Caffeine, alcohol, stress, fatigue, nicotine, stimulant drugs."
+      "Triggers: Caffeine, alcohol, stress, fatigue, nicotine, stimulant drugs.",
     ],
-    "treatment": [
+    treatment: [
       "Vagal Maneuvers: Techniques like bearing down (Valsalva), coughing, or applying a cold pack to the face to slow the heart rate.",
       "Medications: If vagal maneuvers fail, an injection of adenosine or other antiarrhythmic drugs in a hospital setting can stop the episode.",
       "Medications: Beta-blockers, calcium channel blockers.",
-      "Catheter Ablation: A curative, minimally invasive procedure that destroys the small area of heart tissue causing the short circuit. This is the preferred long-term treatment for many."
+      "Catheter Ablation: A curative, minimally invasive procedure that destroys the small area of heart tissue causing the short circuit. This is the preferred long-term treatment for many.",
     ],
-    "selfCare": [
+    selfCare: [
       "Learn and practice vagal maneuvers.",
       "Keep a log of your episodes to identify triggers.",
       "Stay hydrated.",
       "Lifestyle Recommendations",
       "Identify and avoid personal triggers (e.g., caffeine, alcohol, lack of sleep).",
-      "Manage stress through relaxation techniques."
+      "Manage stress through relaxation techniques.",
     ],
-    "prevention": [
+    prevention: [
       "For recurrent SVT, catheter ablation is a preventive cure.",
-      "Otherwise, trigger avoidance and medications can prevent episodes."
+      "Otherwise, trigger avoidance and medications can prevent episodes.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Presence of an extra electrical pathway in the heart (e.g., WPW syndrome).",
-      "Secondary: Anxiety, fatigue, caffeine, alcohol, smoking, underlying heart disease."
+      "Secondary: Anxiety, fatigue, caffeine, alcohol, smoking, underlying heart disease.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Chest pain, pressure, or tightness.",
       "Severe shortness of breath.",
       "Fainting or near-fainting.",
-      "The rapid heartbeat does not stop with vagal maneuvers."
-    ]
+      "The rapid heartbeat does not stop with vagal maneuvers.",
+    ],
   },
   {
-    "id": "sick-sinus-syndrome",
-    "name": "Sick Sinus Syndrome",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Most common in older adults. • Often associated with degenerative changes of the heart's conduction system.",
-    "description": "Sick Sinus Syndrome is a group of heart rhythm problems where the sinus node (the heart's natural pacemaker) doesn't work properly. This can lead to alternating periods of abnormally slow (bradycardia) and fast (tachycardia) heart rates.",
-    "desc": "Sick Sinus Syndrome is a group of heart rhythm problems where the sinus node (the heart's natural pacemaker) doesn't work properly. This can lead to alternating periods of abnormally slow (bradycardia) and fast (tachycardia) heart rates.",
-    "symptoms": [
+    id: "sick-sinus-syndrome",
+    name: "Sick Sinus Syndrome",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Most common in older adults. • Often associated with degenerative changes of the heart's conduction system.",
+    description:
+      "Sick Sinus Syndrome is a group of heart rhythm problems where the sinus node (the heart's natural pacemaker) doesn't work properly. This can lead to alternating periods of abnormally slow (bradycardia) and fast (tachycardia) heart rates.",
+    desc: "Sick Sinus Syndrome is a group of heart rhythm problems where the sinus node (the heart's natural pacemaker) doesn't work properly. This can lead to alternating periods of abnormally slow (bradycardia) and fast (tachycardia) heart rates.",
+    symptoms: [
       "Symptoms are related to the heart's inability to pump effectively.",
       "Fatigue.",
       "Dizziness or lightheadedness.",
@@ -1036,116 +1073,117 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Shortness of breath.",
       "Chest pain.",
       "Palpitations (a sensation of fast or irregular heartbeats).",
-      "Confusion or memory problems."
+      "Confusion or memory problems.",
     ],
-    "causes": [
+    causes: [
       "The sinus node malfunctions due to damage or scarring.",
       "Primary Causes",
       "Age-related wear and tear and fibrosis of the heart's conduction system.",
       "Heart disease (e.g., coronary artery disease, cardiomyopathy).",
       "Inflammatory conditions that can affect the heart.",
-      "Medications that suppress the sinus node (e.g., beta-blockers, calcium channel blockers, some antiarrhythmics)."
+      "Medications that suppress the sinus node (e.g., beta-blockers, calcium channel blockers, some antiarrhythmics).",
     ],
-    "treatment": [
+    treatment: [
       "The only effective treatment is usually a permanent pacemaker.",
       "The pacemaker ensures the heart does not beat too slowly.",
-      "If fast heart rates (tachycardia) are also a problem, medications may be used in conjunction with the pacemaker to control them."
+      "If fast heart rates (tachycardia) are also a problem, medications may be used in conjunction with the pacemaker to control them.",
     ],
-    "selfCare": [
+    selfCare: [
       "Attend all pacemaker checks.",
       "Take all medications as prescribed.",
       "Be aware of your symptoms and report any changes to your doctor.",
       "Lifestyle Recommendations",
-      "Follow a heart-healthy lifestyle to manage any underlying heart disease."
+      "Follow a heart-healthy lifestyle to manage any underlying heart disease.",
     ],
-    "prevention": [
+    prevention: [
       "There is no known way to prevent the age-related form of sick sinus syndrome.",
-      "Careful management of medications that can affect heart rate may help."
+      "Careful management of medications that can affect heart rate may help.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Age over 70.",
-      "Secondary: Underlying heart disease, previous heart surgery, certain medications."
+      "Secondary: Underlying heart disease, previous heart surgery, certain medications.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Fainting (syncope).",
       "Prolonged dizziness or confusion.",
       "Severe, persistent fatigue that prevents normal activity.",
-      "Chest pain with a slow or fast heart rate."
-    ]
+      "Chest pain with a slow or fast heart rate.",
+    ],
   },
   {
-    "id": "sudden-cardiac-arrest",
-    "name": "Sudden Cardiac Arrest",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Leading Cause of Natural Death: Causes about 325,000 adult deaths in the U.S. each year. • Can occur in people with known or unknown heart disease.",
-    "description": "Sudden Cardiac Arrest (SCA) is the sudden, unexpected loss of heart function, breathing, and consciousness. It is caused by a sudden malfunction in the heart's electrical system (usually Ventricular Fibrillation), which stops effective pumping. It is not a heart attack, though a heart attack can trigger SCA. Death occurs within minutes without immediate treatment.",
-    "desc": "Sudden Cardiac Arrest (SCA) is the sudden, unexpected loss of heart function, breathing, and consciousness. It is caused by a sudden malfunction in the heart's electrical system (usually Ventricular Fibrillation), which stops effective pumping. It is not a heart attack, though a heart attack can trigger SCA. Death occurs within minutes without immediate treatment.",
-    "symptoms": [
-      "Sudden loss of responsiveness.",
-      "No normal breathing."
-    ],
-    "causes": [
+    id: "sudden-cardiac-arrest",
+    name: "Sudden Cardiac Arrest",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Leading Cause of Natural Death: Causes about 325,000 adult deaths in the U.S. each year. • Can occur in people with known or unknown heart disease.",
+    description:
+      "Sudden Cardiac Arrest (SCA) is the sudden, unexpected loss of heart function, breathing, and consciousness. It is caused by a sudden malfunction in the heart's electrical system (usually Ventricular Fibrillation), which stops effective pumping. It is not a heart attack, though a heart attack can trigger SCA. Death occurs within minutes without immediate treatment.",
+    desc: "Sudden Cardiac Arrest (SCA) is the sudden, unexpected loss of heart function, breathing, and consciousness. It is caused by a sudden malfunction in the heart's electrical system (usually Ventricular Fibrillation), which stops effective pumping. It is not a heart attack, though a heart attack can trigger SCA. Death occurs within minutes without immediate treatment.",
+    symptoms: ["Sudden loss of responsiveness.", "No normal breathing."],
+    causes: [
       "The immediate cause is a life-threatening arrhythmia, most commonly Ventricular Fibrillation (V-Fib).",
       "Coronary Artery Disease (most common).",
       "Heart Attack.",
       "Cardiomyopathy.",
       "Electrical problems (e.g., Long QT Syndrome, Brugada Syndrome).",
-      "Severe physical stress (e.g., major blood loss, lack of oxygen)."
+      "Severe physical stress (e.g., major blood loss, lack of oxygen).",
     ],
-    "treatment": [
+    treatment: [
       "1.Call 911.",
       "2.Begin immediate CPR.",
       "3.Use an Automated External Defibrillator (AED) as soon as possible to deliver a shock and restore a normal rhythm.",
       "Identify and treat the underlying cause.",
-      "Often, an Implantable Cardioverter-Defibrillator (ICD) is placed to prevent recurrence."
+      "Often, an Implantable Cardioverter-Defibrillator (ICD) is placed to prevent recurrence.",
     ],
-    "selfCare": [
+    selfCare: [
       "(For Survivors and High-Risk Individuals)",
       "If you have an ICD, attend all monitoring appointments.",
       "Know your family history of heart disease and sudden death.",
       "Learn CPR.",
       "Lifestyle Recommendations",
       "Aggressively manage all heart disease risk factors.",
-      "Avoid illegal drugs and excessive alcohol."
+      "Avoid illegal drugs and excessive alcohol.",
     ],
-    "prevention": [
+    prevention: [
       "Get regular screening for heart disease.",
       "For high-risk individuals, an ICD is used for primary prevention.",
-      "Learn CPR and how to use an AED."
+      "Learn CPR and how to use an AED.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Previous heart attack, coronary artery disease, heart failure.",
-      "Secondary: Certain genetic arrhythmias (e.g., Long QT syndrome), cardiomyopathy, drug abuse, significant electrolyte imbalances."
+      "Secondary: Certain genetic arrhythmias (e.g., Long QT syndrome), cardiomyopathy, drug abuse, significant electrolyte imbalances.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Sudden collapse.",
       "No pulse.",
       "No breathing.",
       "Loss of consciousness.",
-      "Sometimes preceded by chest pain, shortness of breath, or palpitations."
-    ]
+      "Sometimes preceded by chest pain, shortness of breath, or palpitations.",
+    ],
   },
   {
-    "id": "ischemic-stroke",
-    "name": "Ischemic Stroke",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Leading Cause of Disability in adults. • Common: Someone in the US has a stroke every 40 seconds.",
-    "description": "An Ischemic Stroke occurs when a blood clot blocks or plugs an artery supplying blood to the brain. This deprives brain tissue of oxygen and nutrients, causing brain cells to die within minutes. It is the most common type of stroke, accounting for about 87% of all cases.",
-    "desc": "An Ischemic Stroke occurs when a blood clot blocks or plugs an artery supplying blood to the brain. This deprives brain tissue of oxygen and nutrients, causing brain cells to die within minutes. It is the most common type of stroke, accounting for about 87% of all cases.",
-    "symptoms": [
+    id: "ischemic-stroke",
+    name: "Ischemic Stroke",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Leading Cause of Disability in adults. • Common: Someone in the US has a stroke every 40 seconds.",
+    description:
+      "An Ischemic Stroke occurs when a blood clot blocks or plugs an artery supplying blood to the brain. This deprives brain tissue of oxygen and nutrients, causing brain cells to die within minutes. It is the most common type of stroke, accounting for about 87% of all cases.",
+    desc: "An Ischemic Stroke occurs when a blood clot blocks or plugs an artery supplying blood to the brain. This deprives brain tissue of oxygen and nutrients, causing brain cells to die within minutes. It is the most common type of stroke, accounting for about 87% of all cases.",
+    symptoms: [
       "Sudden numbness or weakness of the face, arm, or leg (especially on one side).",
       "Sudden confusion, trouble speaking or understanding speech.",
       "Sudden trouble seeing in one or both eyes.",
       "Sudden trouble walking, dizziness, loss of balance or coordination.",
-      "Sudden severe headache with no known cause."
+      "Sudden severe headache with no known cause.",
     ],
-    "causes": [
+    causes: [
       "1.Thrombotic Stroke: A clot forms in an artery directly supplying the brain (often due to atherosclerosis).",
-      "2.Embolic Stroke: A clot forms elsewhere in the body (often the heart in AFib) and travels to the brain."
+      "2.Embolic Stroke: A clot forms elsewhere in the body (often the heart in AFib) and travels to the brain.",
     ],
-    "treatment": [
+    treatment: [
       "Time is Brain. Treatment aims to quickly restore blood flow.",
       "Alteplase (tPA): A clot-busting drug, must be given within 4.5 hours of symptom onset.",
       "Thrombectomy: A procedure to mechanically remove the clot, can be effective up to 24 hours in select patients.",
@@ -1153,9 +1191,9 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Statins.",
       "Blood pressure control.",
       "Lifestyle changes.",
-      "Surgery (e.g., carotid endarterectomy)."
+      "Surgery (e.g., carotid endarterectomy).",
     ],
-    "selfCare": [
+    selfCare: [
       "Take medications exactly as prescribed to prevent a second stroke.",
       "Attend stroke rehabilitation to regain function.",
       "Monitor and control your blood pressure at home.",
@@ -1163,56 +1201,58 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Eat a low-sodium, low-fat diet.",
       "Exercise regularly.",
       "Quit smoking.",
-      "Limit alcohol."
+      "Limit alcohol.",
     ],
-    "prevention": [
+    prevention: [
       "Manage underlying conditions (AFib, hypertension, diabetes, high cholesterol).",
       "Adopt a heart-healthy lifestyle.",
-      "Take preventive medications if you are at high risk."
+      "Take preventive medications if you are at high risk.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: High blood pressure, high cholesterol, atrial fibrillation, smoking, diabetes.",
       "Secondary: Age, family history, personal history of TIA or stroke.",
       "Non-Modifiable: Age, Race (higher in Black populations), Family History.",
-      "Modifiable: Hypertension, Smoking, Diabetes, High Cholesterol, Atrial Fibrillation, Carotid Artery Disease, Obesity, Physical Inactivity."
+      "Modifiable: Hypertension, Smoking, Diabetes, High Cholesterol, Atrial Fibrillation, Carotid Artery Disease, Obesity, Physical Inactivity.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "A stroke is a medical emergency. Call 911 immediately.",
       "B - Balance: Sudden loss of balance.",
       "E - Eyes: Sudden trouble seeing.",
       "F - Face Drooping.",
       "A - Arm Weakness.",
       "S - Speech Difficulty.",
-      "T - Time to call 911."
-    ]
+      "T - Time to call 911.",
+    ],
   },
   {
-    "id": "deep-vein-thrombosis-dvt",
-    "name": "Deep Vein Thrombosis (DVT)",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Common: Affects about 1-2 per 1,000 people annually. • Higher Risk after surgery, during prolonged immobility, or with certain medical conditions.",
-    "description": "Deep Vein Thrombosis (DVT) is a condition where a blood clot (thrombus) forms in one or more of the deep veins in the body, usually in the legs. A major risk is that the clot can break loose and travel to the lungs, causing a pulmonary embolism (PE), which is life-threatening.",
-    "desc": "Deep Vein Thrombosis (DVT) is a condition where a blood clot (thrombus) forms in one or more of the deep veins in the body, usually in the legs. A major risk is that the clot can break loose and travel to the lungs, causing a pulmonary embolism (PE), which is life-threatening.",
-    "symptoms": [
+    id: "deep-vein-thrombosis-dvt",
+    name: "Deep Vein Thrombosis (DVT)",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Common: Affects about 1-2 per 1,000 people annually. • Higher Risk after surgery, during prolonged immobility, or with certain medical conditions.",
+    description:
+      "Deep Vein Thrombosis (DVT) is a condition where a blood clot (thrombus) forms in one or more of the deep veins in the body, usually in the legs. A major risk is that the clot can break loose and travel to the lungs, causing a pulmonary embolism (PE), which is life-threatening.",
+    desc: "Deep Vein Thrombosis (DVT) is a condition where a blood clot (thrombus) forms in one or more of the deep veins in the body, usually in the legs. A major risk is that the clot can break loose and travel to the lungs, causing a pulmonary embolism (PE), which is life-threatening.",
+    symptoms: [
       "Swelling in the affected leg.",
       "Pain or tenderness, often starting in the calf and feeling like a cramp or soreness.",
       "Warmth and redness or discoloration of the skin.",
-      "Worsening pain when bending the foot upward."
+      "Worsening pain when bending the foot upward.",
     ],
-    "causes": [
-      "DVT is caused by anything that impairs blood flow or causes blood to clot more easily. This is often summarized by Virchow's Triad: stasis of blood, hypercoagulability, and endothelial injury."
+    causes: [
+      "DVT is caused by anything that impairs blood flow or causes blood to clot more easily. This is often summarized by Virchow's Triad: stasis of blood, hypercoagulability, and endothelial injury.",
     ],
-    "treatment": [
+    treatment: [
       "The goals are to prevent the clot from growing, breaking off, and to reduce the risk of future clots.",
       "Primary Treatment: Anticoagulants (Blood Thinners)",
       "Initial: Injectable (e.g., heparin, enoxaparin) or oral (e.g., rivaroxaban, apixaban).",
       "Long-term: Oral anticoagulants (e.g., warfarin, DOACs) for 3 months or longer, depending on the cause.",
-      "Thrombolytics: \"Clot-busting\" drugs for severe, life-threatening DVT.",
+      'Thrombolytics: "Clot-busting" drugs for severe, life-threatening DVT.',
       "Inferior Vena Cava (IVC) Filter: A device placed in the vena cava to catch clots, used if anticoagulants are contraindicated.",
-      "Compression Stockings: To reduce swelling and prevent post-thrombotic syndrome."
+      "Compression Stockings: To reduce swelling and prevent post-thrombotic syndrome.",
     ],
-    "selfCare": [
+    selfCare: [
       "Take your anticoagulant exactly as prescribed.",
       "Get regular blood tests if taking warfarin.",
       "Elevate the affected leg to reduce swelling.",
@@ -1220,37 +1260,39 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Move regularly during long trips or periods of sitting.",
       "Stay hydrated.",
-      "Maintain a healthy weight."
+      "Maintain a healthy weight.",
     ],
-    "prevention": [
+    prevention: [
       "Move your legs and walk as soon as possible after surgery or illness.",
       "Use compression stockings if at high risk.",
       "Prophylactic blood thinners before and after high-risk surgeries.",
-      "Leg exercises and hydration during long flights or car rides."
+      "Leg exercises and hydration during long flights or car rides.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Prolonged immobility (e.g., long flights, bed rest), surgery (especially orthopedic), cancer.",
       "Secondary: Obesity, smoking, pregnancy, estrogen-containing birth control or HRT, family history of blood clots.",
       "Non-Modifiable: Age (>60), personal or family history of DVT/PE, genetic clotting disorders.",
-      "Modifiable: Prolonged immobility, smoking, obesity, pregnancy, estrogen therapy, active cancer, dehydration."
+      "Modifiable: Prolonged immobility, smoking, obesity, pregnancy, estrogen therapy, active cancer, dehydration.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Sudden shortness of breath.",
       "Sharp chest pain (may worsen with deep breath or cough).",
       "Coughing up blood.",
       "Rapid heart rate.",
-      "Lightheadedness or fainting."
-    ]
+      "Lightheadedness or fainting.",
+    ],
   },
   {
-    "id": "chronic-venous-insufficiency-cvi",
-    "name": "Chronic Venous Insufficiency (CVI)",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Very Common: Affects up to 40% of the US population. • Age Factor: Risk increases with age.",
-    "description": "Chronic Venous Insufficiency (CVI) is a long-term condition where the veins in the legs cannot pump enough blood back to the heart. This happens because the valves in the veins are damaged, allowing blood to pool (reflux) in the legs.",
-    "desc": "Chronic Venous Insufficiency (CVI) is a long-term condition where the veins in the legs cannot pump enough blood back to the heart. This happens because the valves in the veins are damaged, allowing blood to pool (reflux) in the legs.",
-    "symptoms": [
+    id: "chronic-venous-insufficiency-cvi",
+    name: "Chronic Venous Insufficiency (CVI)",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Very Common: Affects up to 40% of the US population. • Age Factor: Risk increases with age.",
+    description:
+      "Chronic Venous Insufficiency (CVI) is a long-term condition where the veins in the legs cannot pump enough blood back to the heart. This happens because the valves in the veins are damaged, allowing blood to pool (reflux) in the legs.",
+    desc: "Chronic Venous Insufficiency (CVI) is a long-term condition where the veins in the legs cannot pump enough blood back to the heart. This happens because the valves in the veins are damaged, allowing blood to pool (reflux) in the legs.",
+    symptoms: [
       "Symptoms often worsen throughout the day and improve with leg elevation.",
       "Aching, heaviness, or cramping in the legs.",
       "Swelling in the legs and ankles.",
@@ -1258,23 +1300,23 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Pain that gets worse when standing.",
       "Brownish or reddish skin discoloration around the ankles (stasis dermatitis).",
       "Varicose veins.",
-      "Skin thickening or hardening (lipodermatosclerosis)."
+      "Skin thickening or hardening (lipodermatosclerosis).",
     ],
-    "causes": [
+    causes: [
       "The primary cause is increased pressure in the leg veins due to faulty valves.",
       "Primary Causes",
       "DVT: The most common cause; the clot damages the valves.",
-      "Age: Valves can simply wear out over time."
+      "Age: Valves can simply wear out over time.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment focuses on improving blood flow and managing symptoms.",
       "Compression Therapy: The cornerstone of treatment. Wearing medical-grade compression stockings daily.",
       "Leg Elevation: Above heart level for 30 minutes, 3-4 times a day.",
       "Exercise: Especially walking to strengthen the calf muscle pump.",
       "Medications: Pentoxifylline can help with healing leg ulcers.",
-      "Sclerotherapy, Endovenous Ablation, Vein Stripping."
+      "Sclerotherapy, Endovenous Ablation, Vein Stripping.",
     ],
-    "selfCare": [
+    selfCare: [
       "Wear your compression stockings as directed.",
       "Elevate your legs regularly.",
       "Practice good skin care to prevent ulcers and infections.",
@@ -1282,33 +1324,35 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Maintain a healthy weight.",
       "Exercise regularly.",
       "Avoid long periods of standing or sitting.",
-      "Don't smoke."
+      "Don't smoke.",
     ],
-    "prevention": [
+    prevention: [
       "Prevent DVT.",
       "Stay active and maintain a healthy weight.",
-      "Wear compression stockings if you have a high-risk job or history of DVT."
+      "Wear compression stockings if you have a high-risk job or history of DVT.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: History of Deep Vein Thrombosis (DVT).",
       "Secondary: Age, obesity, pregnancy, family history, prolonged standing or sitting, smoking.",
       "Non-Modifiable: Age, Family History, Female Sex (due to pregnancy).",
-      "Modifiable: Obesity, Prolonged Standing/Sitting, Lack of Exercise, Smoking."
+      "Modifiable: Obesity, Prolonged Standing/Sitting, Lack of Exercise, Smoking.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "A sudden, painful leg ulcer with redness, swelling, or discharge (sign of infection).",
-      "A large, painful, hardened vein (could be superficial thrombophlebitis)."
-    ]
+      "A large, painful, hardened vein (could be superficial thrombophlebitis).",
+    ],
   },
   {
-    "id": "pulmonary-embolism-pe",
-    "name": "Pulmonary Embolism (PE)",
-    "category": "Cardiovascular",
-    "severity": "Medium",
-    "prevalence": "Common and Deadly: A leading cause of cardiovascular death. • Underdiagnosed: Often missed because symptoms can be non-specific.",
-    "description": "A Pulmonary Embolism (PE) is a sudden blockage in one of the pulmonary arteries in the lungs. In most cases, the blockage is caused by a blood clot that traveled to the lung from a deep vein in the leg (Deep Vein Thrombosis). It is a life-threatening condition.",
-    "desc": "A Pulmonary Embolism (PE) is a sudden blockage in one of the pulmonary arteries in the lungs. In most cases, the blockage is caused by a blood clot that traveled to the lung from a deep vein in the leg (Deep Vein Thrombosis). It is a life-threatening condition.",
-    "symptoms": [
+    id: "pulmonary-embolism-pe",
+    name: "Pulmonary Embolism (PE)",
+    category: "Cardiovascular",
+    severity: "Medium",
+    prevalence:
+      "Common and Deadly: A leading cause of cardiovascular death. • Underdiagnosed: Often missed because symptoms can be non-specific.",
+    description:
+      "A Pulmonary Embolism (PE) is a sudden blockage in one of the pulmonary arteries in the lungs. In most cases, the blockage is caused by a blood clot that traveled to the lung from a deep vein in the leg (Deep Vein Thrombosis). It is a life-threatening condition.",
+    desc: "A Pulmonary Embolism (PE) is a sudden blockage in one of the pulmonary arteries in the lungs. In most cases, the blockage is caused by a blood clot that traveled to the lung from a deep vein in the leg (Deep Vein Thrombosis). It is a life-threatening condition.",
+    symptoms: [
       "Symptoms vary depending on the size of the clot and how much of the lung is affected.",
       "Shortness of breath (appears suddenly and gets worse with exertion).",
       "Chest pain (can mimic a heart attack).",
@@ -1316,22 +1360,22 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Rapid or irregular heartbeat.",
       "Lightheadedness or dizziness.",
       "Excessive sweating.",
-      "Fever."
+      "Fever.",
     ],
-    "causes": [
-      "The vast majority of PEs are complications of DVT. A clot breaks free from a deep vein, travels through the heart, and lodges in a pulmonary artery."
+    causes: [
+      "The vast majority of PEs are complications of DVT. A clot breaks free from a deep vein, travels through the heart, and lodges in a pulmonary artery.",
     ],
-    "treatment": [
+    treatment: [
       "The goal is to stabilize the patient, break up the clot, and prevent new clots from forming.",
       "Emergency Stabilization: Oxygen, IV fluids, and medications to support blood pressure.",
       "Primary Treatment: Anticoagulants (Blood Thinners)",
       "Immediate: Injectable (heparin) or oral (DOACs).",
       "Long-term: Oral anticoagulants for at least 3-6 months, sometimes lifelong.",
-      "Thrombolytics: \"Clot-busting\" drugs (e.g., tPA) to dissolve the clot quickly.",
+      'Thrombolytics: "Clot-busting" drugs (e.g., tPA) to dissolve the clot quickly.',
       "Thrombectomy: Surgical or catheter-based removal of the clot.",
-      "IVC Filter: If anticoagulants cannot be used."
+      "IVC Filter: If anticoagulants cannot be used.",
     ],
-    "selfCare": [
+    selfCare: [
       "Strict adherence to your anticoagulant regimen.",
       "Attend all follow-up appointments.",
       "Monitor for signs of bleeding while on blood thinners.",
@@ -1339,90 +1383,94 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Stay active and avoid prolonged sitting.",
       "Maintain a healthy weight.",
-      "Stay hydrated."
+      "Stay hydrated.",
     ],
-    "prevention": [
+    prevention: [
       "Preventing PE means preventing DVT.",
       "Prophylactic blood thinners before and after surgery.",
       "Early mobilization after surgery or illness.",
       "Compression devices on the legs during surgery.",
-      "Lifestyle changes as for DVT prevention."
+      "Lifestyle changes as for DVT prevention.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Deep Vein Thrombosis (DVT).",
-      "Secondary: The same as for DVT: immobility, surgery, cancer, smoking, obesity, genetic factors."
+      "Secondary: The same as for DVT: immobility, surgery, cancer, smoking, obesity, genetic factors.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Sudden shortness of breath.",
       "Sharp, stabbing chest pain that may worsen with deep breathing or coughing.",
       "Rapid heart rate.",
       "Unexplained cough, sometimes with bloody or blood-streaked mucus.",
-      "Fainting (syncope)."
-    ]
+      "Fainting (syncope).",
+    ],
   },
   {
-    "id": "ventricular-tachycardia-v-tach",
-    "name": "Ventricular Tachycardia (V-Tach)",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Most common in people with underlying heart disease. • A leading cause of Sudden Cardiac Death.",
-    "description": "Ventricular Tachycardia (V-Tach) is a life-threatening heart rhythm that originates in the lower chambers (ventricles), characterized by a very fast heart rate (over 100 beats per minute). It can be brief and non-sustained, or sustained, which is a medical emergency as it can degrade into Ventricular Fibrillation and cause sudden cardiac arrest.",
-    "desc": "Ventricular Tachycardia (V-Tach) is a life-threatening heart rhythm that originates in the lower chambers (ventricles), characterized by a very fast heart rate (over 100 beats per minute). It can be brief and non-sustained, or sustained, which is a medical emergency as it can degrade into Ventricular Fibrillation and cause sudden cardiac arrest.",
-    "symptoms": [
+    id: "ventricular-tachycardia-v-tach",
+    name: "Ventricular Tachycardia (V-Tach)",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Most common in people with underlying heart disease. • A leading cause of Sudden Cardiac Death.",
+    description:
+      "Ventricular Tachycardia (V-Tach) is a life-threatening heart rhythm that originates in the lower chambers (ventricles), characterized by a very fast heart rate (over 100 beats per minute). It can be brief and non-sustained, or sustained, which is a medical emergency as it can degrade into Ventricular Fibrillation and cause sudden cardiac arrest.",
+    desc: "Ventricular Tachycardia (V-Tach) is a life-threatening heart rhythm that originates in the lower chambers (ventricles), characterized by a very fast heart rate (over 100 beats per minute). It can be brief and non-sustained, or sustained, which is a medical emergency as it can degrade into Ventricular Fibrillation and cause sudden cardiac arrest.",
+    symptoms: [
       "Palpitations (sensation of a racing heartbeat).",
       "Dizziness or lightheadedness.",
       "Shortness of breath.",
       "Chest pain (angina).",
       "Fainting or near-fainting.",
-      "Cardiac arrest (no pulse, no breathing)."
+      "Cardiac arrest (no pulse, no breathing).",
     ],
-    "causes": [
+    causes: [
       "Cardiomyopathy (dilated or hypertrophic).",
       "Sarcoidosis.",
       "Genetic conditions affecting the heart's electrical system.",
-      "Severe electrolyte imbalances (low potassium or magnesium)."
+      "Severe electrolyte imbalances (low potassium or magnesium).",
     ],
-    "treatment": [
+    treatment: [
       "Treatment depends on whether the V-Tach is sustained and the presence of symptoms.",
       "Cardioversion: An electrical shock to restore normal rhythm.",
       "IV Antiarrhythmic Drugs (e.g., amiodarone, lidocaine).",
       "Implantable Cardioverter-Defibrillator (ICD): The primary treatment for most at-risk patients. It monitors the rhythm and delivers a shock if V-Tach occurs.",
       "Antiarrhythmic Medications (e.g., amiodarone, sotalol).",
-      "Catheter Ablation: To destroy the small area of heart tissue causing the arrhythmia."
+      "Catheter Ablation: To destroy the small area of heart tissue causing the arrhythmia.",
     ],
-    "selfCare": [
+    selfCare: [
       "Take all medications as prescribed.",
       "Attend all ICD follow-up appointments.",
       "Know the warning signs and have an emergency plan.",
       "Lifestyle Recommendations",
       "Manage underlying heart disease aggressively.",
       "Avoid triggers like excessive alcohol, caffeine, and illegal stimulants.",
-      "Maintain electrolyte balance, especially if on diuretics."
+      "Maintain electrolyte balance, especially if on diuretics.",
     ],
-    "prevention": [
+    prevention: [
       "Preventing and managing Coronary Artery Disease is the best way to prevent V-Tach.",
-      "For high-risk patients, an ICD is used for primary prevention."
+      "For high-risk patients, an ICD is used for primary prevention.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Prior heart attack, Coronary Artery Disease, Heart Failure.",
-      "Secondary: Cardiomyopathy, certain genetic channelopathies (e.g., Long QT), drug abuse, severe electrolyte imbalances."
+      "Secondary: Cardiomyopathy, certain genetic channelopathies (e.g., Long QT), drug abuse, severe electrolyte imbalances.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Chest pain.",
       "Rapid heartbeat with dizziness or lightheadedness.",
       "Fainting (syncope).",
-      "Sudden cardiac arrest."
-    ]
+      "Sudden cardiac arrest.",
+    ],
   },
   {
-    "id": "takayasus-arteritis",
-    "name": "Takayasu's Arteritis",
-    "category": "Cardiovascular",
-    "severity": "High",
-    "prevalence": "Very Rare: Affects about 1-3 people per million per year. • Demographics: Most common in young women of Asian descent.",
-    "description": "Takayasu's Arteritis is a rare type of vasculitis that causes inflammation of the aorta (the large artery that carries blood from the heart) and its main branches. The inflammation leads to narrowed arteries, aneurysms, and reduced blood flow to organs and limbs.",
-    "desc": "Takayasu's Arteritis is a rare type of vasculitis that causes inflammation of the aorta (the large artery that carries blood from the heart) and its main branches. The inflammation leads to narrowed arteries, aneurysms, and reduced blood flow to organs and limbs.",
-    "symptoms": [
+    id: "takayasus-arteritis",
+    name: "Takayasu's Arteritis",
+    category: "Cardiovascular",
+    severity: "High",
+    prevalence:
+      "Very Rare: Affects about 1-3 people per million per year. • Demographics: Most common in young women of Asian descent.",
+    description:
+      "Takayasu's Arteritis is a rare type of vasculitis that causes inflammation of the aorta (the large artery that carries blood from the heart) and its main branches. The inflammation leads to narrowed arteries, aneurysms, and reduced blood flow to organs and limbs.",
+    desc: "Takayasu's Arteritis is a rare type of vasculitis that causes inflammation of the aorta (the large artery that carries blood from the heart) and its main branches. The inflammation leads to narrowed arteries, aneurysms, and reduced blood flow to organs and limbs.",
+    symptoms: [
       "Systemic Phase (Early): Fever, fatigue, night sweats, weight loss, joint and muscle pain.",
       "Occlusive Phase (Late): Symptoms from narrowed arteries and reduced blood flow.",
       "Weak or absent pulses in the arms or neck.",
@@ -1430,19 +1478,19 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Dizziness, lightheadedness, or fainting.",
       "Vision changes.",
       "Chest pain or shortness of breath.",
-      "High blood pressure (from renal artery involvement)."
+      "High blood pressure (from renal artery involvement).",
     ],
-    "causes": [
-      "The exact cause is unknown, but it is believed to be an autoimmune disorder where the immune system attacks the arteries. A genetic predisposition is suspected."
+    causes: [
+      "The exact cause is unknown, but it is believed to be an autoimmune disorder where the immune system attacks the arteries. A genetic predisposition is suspected.",
     ],
-    "treatment": [
+    treatment: [
       "The goal is to control inflammation and prevent damage to the arteries.",
       "Corticosteroids (e.g., Prednisone): The first-line treatment to quickly reduce inflammation.",
       "Immunosuppressants: (e.g., methotrexate, azathioprine, mycophenolate) to help reduce the steroid dose and maintain remission.",
       "Biologics: (e.g., tocilizumab) for refractory cases.",
-      "Bypass Grafting or Angioplasty: To open blocked arteries, but only performed when inflammation is well-controlled."
+      "Bypass Grafting or Angioplasty: To open blocked arteries, but only performed when inflammation is well-controlled.",
     ],
-    "selfCare": [
+    selfCare: [
       "Take medications as prescribed to prevent flares.",
       "Monitor your blood pressure in both arms regularly.",
       "Check your pulses regularly.",
@@ -1450,52 +1498,54 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Eat a heart-healthy, low-sodium diet (especially if you have high blood pressure).",
       "Exercise as tolerated to maintain blood flow.",
-      "Don't smoke."
+      "Don't smoke.",
     ],
-    "prevention": [
-      "There is no known way to prevent Takayasu's Arteritis. The focus is on early diagnosis and aggressive treatment to prevent complications and permanent damage."
+    prevention: [
+      "There is no known way to prevent Takayasu's Arteritis. The focus is on early diagnosis and aggressive treatment to prevent complications and permanent damage.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Female sex, age (typically 15-40).",
-      "Secondary: The cause is unknown, but it is an autoimmune condition."
+      "Secondary: The cause is unknown, but it is an autoimmune condition.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Stroke symptoms (vision loss, weakness, speech difficulty).",
       "Severe chest pain (could indicate aortic dissection or heart attack).",
       "Severe hypertension.",
-      "Limb-threatening ischemia (cold, painful, pale limb with no pulse)."
-    ]
+      "Limb-threatening ischemia (cold, painful, pale limb with no pulse).",
+    ],
   },
   {
-    "id": "allergic-asthma",
-    "name": "Allergic Asthma",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Very Common: Over 25 million people in the US have asthma; a majority have allergic triggers. • Age Factor: Often begins in childhood.",
-    "description": "Allergic Asthma is the most common type of asthma, triggered by inhaling allergens such as pollen, pet dander, dust mites, or mold spores. The airways become inflamed, narrowed, swollen, and filled with mucus in response to these allergens, making breathing difficult.",
-    "desc": "Allergic Asthma is the most common type of asthma, triggered by inhaling allergens such as pollen, pet dander, dust mites, or mold spores. The airways become inflamed, narrowed, swollen, and filled with mucus in response to these allergens, making breathing difficult.",
-    "symptoms": [
+    id: "allergic-asthma",
+    name: "Allergic Asthma",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Very Common: Over 25 million people in the US have asthma; a majority have allergic triggers. • Age Factor: Often begins in childhood.",
+    description:
+      "Allergic Asthma is the most common type of asthma, triggered by inhaling allergens such as pollen, pet dander, dust mites, or mold spores. The airways become inflamed, narrowed, swollen, and filled with mucus in response to these allergens, making breathing difficult.",
+    desc: "Allergic Asthma is the most common type of asthma, triggered by inhaling allergens such as pollen, pet dander, dust mites, or mold spores. The airways become inflamed, narrowed, swollen, and filled with mucus in response to these allergens, making breathing difficult.",
+    symptoms: [
       "Symptoms are often episodic and triggered by exposure to allergens.",
       "Wheezing (a whistling sound when breathing).",
       "Shortness of breath.",
       "Chest tightness or pain.",
       "Coughing (often worse at night or early morning).",
-      "Symptoms that worsen in the presence of triggers."
+      "Symptoms that worsen in the presence of triggers.",
     ],
-    "causes": [
+    causes: [
       "It is caused by an overactive immune response (allergic reaction) to a harmless substance (allergen).",
-      "Common Triggers: Pollen, dust mites, cockroaches, mold spores, pet dander, certain foods."
+      "Common Triggers: Pollen, dust mites, cockroaches, mold spores, pet dander, certain foods.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment focuses on controlling inflammation and preventing and relieving symptoms.",
       "Inhaled Corticosteroids (e.g., fluticasone). The most important controller medication.",
       "Long-Acting Beta Agonists (LABA).",
       "Leukotriene Modifiers (e.g., montelukast).",
       "Biologics for severe asthma.",
       "Short-Acting Beta Agonists (SABA) (e.g., albuterol).",
-      "Allergy shots (immunotherapy)."
+      "Allergy shots (immunotherapy).",
     ],
-    "selfCare": [
+    selfCare: [
       "Create an Asthma Action Plan with your doctor.",
       "Use a peak flow meter to monitor your lung function.",
       "Carry your rescue inhaler at all times.",
@@ -1503,46 +1553,48 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Identify and avoid your allergy triggers.",
       "Use allergen-proof mattress and pillow covers.",
       "Keep indoor humidity low to reduce mold and dust mites.",
-      "Vacuum and dust regularly."
+      "Vacuum and dust regularly.",
     ],
-    "prevention": [
+    prevention: [
       "Breastfeeding in infancy may reduce the risk.",
       "Avoiding tobacco smoke exposure, especially in childhood.",
-      "Controlling allergen exposure in the home."
+      "Controlling allergen exposure in the home.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Personal or family history of allergies (eczema, hay fever) or asthma.",
       "Secondary: Exposure to tobacco smoke, air pollution, occupational triggers.",
       "Non-Modifiable: Family history of asthma/allergies, genetic predisposition.",
-      "Modifiable: Exposure to allergens, tobacco smoke, obesity."
+      "Modifiable: Exposure to allergens, tobacco smoke, obesity.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe shortness of breath or wheezing.",
       "Inability to speak in full sentences.",
       "No improvement after using a rescue inhaler.",
-      "Lips or fingernails turning blue."
-    ]
+      "Lips or fingernails turning blue.",
+    ],
   },
   {
-    "id": "chronic-bronchitis",
-    "name": "Chronic Bronchitis",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "A major component of COPD, which affects millions of adults. • Strongly linked to a history of smoking.",
-    "description": "Chronic Bronchitis is a type of Chronic Obstructive Pulmonary Disease (COPD) characterized by a persistent, productive cough (producing phlegm) for at least three months in two consecutive years. It involves inflammation and swelling of the lining of the bronchial tubes.",
-    "desc": "Chronic Bronchitis is a type of Chronic Obstructive Pulmonary Disease (COPD) characterized by a persistent, productive cough (producing phlegm) for at least three months in two consecutive years. It involves inflammation and swelling of the lining of the bronchial tubes.",
-    "symptoms": [
-      "A chronic cough, often called a \"smoker's cough.\"",
+    id: "chronic-bronchitis",
+    name: "Chronic Bronchitis",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "A major component of COPD, which affects millions of adults. • Strongly linked to a history of smoking.",
+    description:
+      "Chronic Bronchitis is a type of Chronic Obstructive Pulmonary Disease (COPD) characterized by a persistent, productive cough (producing phlegm) for at least three months in two consecutive years. It involves inflammation and swelling of the lining of the bronchial tubes.",
+    desc: "Chronic Bronchitis is a type of Chronic Obstructive Pulmonary Disease (COPD) characterized by a persistent, productive cough (producing phlegm) for at least three months in two consecutive years. It involves inflammation and swelling of the lining of the bronchial tubes.",
+    symptoms: [
+      'A chronic cough, often called a "smoker\'s cough."',
       "Production of sputum (mucus) that can be clear, white, yellow, or green.",
       "Shortness of breath, especially with physical activity.",
       "Wheezing.",
       "Chest tightness.",
-      "Fatigue."
+      "Fatigue.",
     ],
-    "causes": [
-      "The primary cause is damage to the airways from repeated inhalation of irritants, leading to chronic inflammation, increased mucus production, and damaged cilia (the hair-like structures that clear mucus)."
+    causes: [
+      "The primary cause is damage to the airways from repeated inhalation of irritants, leading to chronic inflammation, increased mucus production, and damaged cilia (the hair-like structures that clear mucus).",
     ],
-    "treatment": [
+    treatment: [
       "There is no cure, but treatment can control symptoms and reduce the frequency of exacerbations.",
       "The single most important treatment is Smoking Cessation.",
       "Bronchodilators: Inhaled medications (e.g., albuterol, tiotropium) to relax the muscles around the airways.",
@@ -1550,9 +1602,9 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Combination Inhalers.",
       "Phosphodiesterase-4 Inhibitors (e.g., roflumilast) for severe disease.",
       "Pulmonary Rehabilitation.",
-      "Oxygen Therapy for advanced disease."
+      "Oxygen Therapy for advanced disease.",
     ],
-    "selfCare": [
+    selfCare: [
       "Stop smoking. This is non-negotiable.",
       "Avoid lung irritants.",
       "Drink plenty of fluids to help thin mucus.",
@@ -1560,57 +1612,59 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Get regular exercise as tolerated.",
       "Eat a nutritious diet.",
-      "Pace your activities to avoid breathlessness."
+      "Pace your activities to avoid breathlessness.",
     ],
-    "prevention": [
+    prevention: [
       "Do not smoke. If you smoke, quit.",
       "Avoid exposure to secondhand smoke and other lung irritants.",
-      "Wear a mask if you work with chemical fumes or dust."
+      "Wear a mask if you work with chemical fumes or dust.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Cigarette smoking (the most significant risk factor).",
       "Secondary: Long-term exposure to lung irritants (air pollution, chemical fumes, dust), genetic factors (alpha-1 antitrypsin deficiency).",
       "Non-Modifiable: Age, Genetic predisposition (e.g., alpha-1 antitrypsin deficiency).",
-      "Modifiable: Smoking, Exposure to secondhand smoke, Occupational dust/chemicals, Air pollution."
+      "Modifiable: Smoking, Exposure to secondhand smoke, Occupational dust/chemicals, Air pollution.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "A significant increase in shortness of breath.",
       "A change in sputum (more volume, thicker, or discolored yellow/green).",
       "Fever.",
-      "Confusion or excessive sleepiness."
-    ]
+      "Confusion or excessive sleepiness.",
+    ],
   },
   {
-    "id": "bacterial-pneumonia",
-    "name": "Bacterial Pneumonia",
-    "category": "Respiratory",
-    "severity": "Low",
-    "prevalence": "Common Community-Acquired Infection: A leading cause of hospitalization and death from infection. • High Risk in the very young, the elderly, and those with weakened immune systems.",
-    "description": "Bacterial Pneumonia is an infection that inflames the air sacs in one or both lungs. The air sacs may fill with fluid or pus, causing cough with phlegm, fever, chills, and difficulty breathing. It can range in seriousness from mild to life-threatening.",
-    "desc": "Bacterial Pneumonia is an infection that inflames the air sacs in one or both lungs. The air sacs may fill with fluid or pus, causing cough with phlegm, fever, chills, and difficulty breathing. It can range in seriousness from mild to life-threatening.",
-    "symptoms": [
+    id: "bacterial-pneumonia",
+    name: "Bacterial Pneumonia",
+    category: "Respiratory",
+    severity: "Low",
+    prevalence:
+      "Common Community-Acquired Infection: A leading cause of hospitalization and death from infection. • High Risk in the very young, the elderly, and those with weakened immune systems.",
+    description:
+      "Bacterial Pneumonia is an infection that inflames the air sacs in one or both lungs. The air sacs may fill with fluid or pus, causing cough with phlegm, fever, chills, and difficulty breathing. It can range in seriousness from mild to life-threatening.",
+    desc: "Bacterial Pneumonia is an infection that inflames the air sacs in one or both lungs. The air sacs may fill with fluid or pus, causing cough with phlegm, fever, chills, and difficulty breathing. It can range in seriousness from mild to life-threatening.",
+    symptoms: [
       "High fever.",
       "Chills and shaking.",
       "Cough that produces thick, rust-colored or greenish phlegm.",
       "Shortness of breath or rapid, shallow breathing.",
       "Sharp or stabbing chest pain that worsens when breathing or coughing.",
       "Fatigue and extreme tiredness.",
-      "Nausea, vomiting, or diarrhea (especially in older adults)."
+      "Nausea, vomiting, or diarrhea (especially in older adults).",
     ],
-    "causes": [
+    causes: [
       "It is caused by various bacteria. The most common cause of community-acquired pneumonia is Streptococcus pneumoniae (pneumococcus).",
-      "Other Bacteria: Haemophilus influenzae, Mycoplasma pneumoniae, Legionella pneumophila."
+      "Other Bacteria: Haemophilus influenzae, Mycoplasma pneumoniae, Legionella pneumophila.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment involves curing the infection and preventing complications.",
       "The cornerstone of treatment. The choice of antibiotic depends on the likely bacteria, your age, and health.",
       "It is crucial to take the entire course of antibiotics as prescribed.",
       "Rest and hydration.",
       "Fever reducers/pain relievers (e.g., acetaminophen, ibuprofen).",
       "Oxygen therapy for low blood oxygen levels.",
-      "Hospitalization for severe cases or high-risk individuals."
+      "Hospitalization for severe cases or high-risk individuals.",
     ],
-    "selfCare": [
+    selfCare: [
       "Get plenty of rest to help your body fight the infection.",
       "Drink lots of fluids to loosen secretions and prevent dehydration.",
       "Take all of your antibiotics, even if you start to feel better.",
@@ -1618,58 +1672,60 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Don't smoke.",
       "Get vaccinated (pneumococcal and flu vaccines).",
-      "Practice good hygiene (wash hands frequently)."
+      "Practice good hygiene (wash hands frequently).",
     ],
-    "prevention": [
+    prevention: [
       "Vaccination: Pneumococcal vaccines (PCV13, PPSV23) and annual flu shot.",
       "Wash hands regularly.",
       "Don't smoke.",
-      "Keep your immune system strong with a healthy lifestyle."
+      "Keep your immune system strong with a healthy lifestyle.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Age (very young or old), weakened immune system.",
       "Secondary: Chronic lung disease (COPD, asthma), smoking, recent viral illness (like flu), being hospitalized.",
       "Non-Modifiable: Age, Chronic Illness (heart, lung, kidney, liver disease), Weakened Immune System (HIV, chemotherapy).",
-      "Modifiable: Smoking, Alcoholism, Malnutrition, Recent Cold or Flu."
+      "Modifiable: Smoking, Alcoholism, Malnutrition, Recent Cold or Flu.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Difficulty breathing or severe shortness of breath.",
       "Confusion or disorientation.",
       "Chest pain.",
       "Persistent fever above 102°F (39°C).",
-      "Coughing up blood."
-    ]
+      "Coughing up blood.",
+    ],
   },
   {
-    "id": "acute-bronchitis",
-    "name": "Acute Bronchitis",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Extremely Common: One of the most common conditions seen in primary care. • Often follows a common cold or other viral infection.",
-    "description": "Acute Bronchitis is a temporary inflammation of the bronchial tubes (airways), usually caused by a viral infection. It is also called a \"chest cold.\" The inflammation causes swelling and increased mucus production, leading to a cough.",
-    "desc": "Acute Bronchitis is a temporary inflammation of the bronchial tubes (airways), usually caused by a viral infection. It is also called a \"chest cold.\" The inflammation causes swelling and increased mucus production, leading to a cough.",
-    "symptoms": [
+    id: "acute-bronchitis",
+    name: "Acute Bronchitis",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Extremely Common: One of the most common conditions seen in primary care. • Often follows a common cold or other viral infection.",
+    description:
+      'Acute Bronchitis is a temporary inflammation of the bronchial tubes (airways), usually caused by a viral infection. It is also called a "chest cold." The inflammation causes swelling and increased mucus production, leading to a cough.',
+    desc: 'Acute Bronchitis is a temporary inflammation of the bronchial tubes (airways), usually caused by a viral infection. It is also called a "chest cold." The inflammation causes swelling and increased mucus production, leading to a cough.',
+    symptoms: [
       "The main symptom is a cough that lasts 1-3 weeks.",
       "Cough (with or without clear, yellow, or green mucus).",
       "Fatigue.",
       "Slight fever and chills.",
       "Chest discomfort or soreness from coughing.",
       "Shortness of breath (mild).",
-      "Wheezing."
+      "Wheezing.",
     ],
-    "causes": [
-      "Viruses cause about 85-95% of cases in otherwise healthy adults (e.g., rhinovirus, influenza, RSV). Bacterial causes are rare."
+    causes: [
+      "Viruses cause about 85-95% of cases in otherwise healthy adults (e.g., rhinovirus, influenza, RSV). Bacterial causes are rare.",
     ],
-    "treatment": [
+    treatment: [
       "Since it is usually viral, antibiotics are not effective. Treatment focuses on symptom relief.",
       "Rest and hydration.",
       "Over-the-counter pain relievers/fever reducers (ibuprofen, acetaminophen).",
       "Cough suppressants (e.g., dextromethorphan) for dry, hacking coughs, especially at night.",
       "Expectorants (e.g., guaifenesin) to loosen mucus.",
       "Humidifier or steam inhalation.",
-      "Honey (in warm tea) to soothe the throat."
+      "Honey (in warm tea) to soothe the throat.",
     ],
-    "selfCare": [
+    selfCare: [
       "Get plenty of rest.",
       "Drink fluids to stay hydrated and thin mucus.",
       "Use a humidifier to moisten the air.",
@@ -1677,37 +1733,39 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Wash your hands frequently to prevent viral infections.",
       "Don't smoke.",
-      "Get an annual flu shot."
+      "Get an annual flu shot.",
     ],
-    "prevention": [
+    prevention: [
       "Avoid close contact with people who have colds or the flu.",
       "Practice good hand hygiene.",
       "Don't smoke.",
-      "Wear a mask when around dust or chemical fumes."
+      "Wear a mask when around dust or chemical fumes.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Exposure to viruses (cold, flu).",
       "Secondary: Smoking, exposure to secondhand smoke, air pollution, low immunity.",
       "Non-Modifiable: Age (very young or old).",
-      "Modifiable: Smoking, Exposure to irritants (dust, fumes), Weakened immune system, Gastric reflux (GERD)."
+      "Modifiable: Smoking, Exposure to irritants (dust, fumes), Weakened immune system, Gastric reflux (GERD).",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Symptoms lasting more than 3 weeks.",
       "A high fever (>100.4°F / 38°C).",
       "Coughing up blood.",
       "Shortness of breath or wheezing.",
-      "Underlying chronic heart or lung disease."
-    ]
+      "Underlying chronic heart or lung disease.",
+    ],
   },
   {
-    "id": "pulmonary-tuberculosis-tb",
-    "name": "Pulmonary Tuberculosis (TB)",
-    "category": "Respiratory",
-    "severity": "High",
-    "prevalence": "Global Health Problem: One of the top infectious disease killers worldwide. • Incidence is low in the US but higher in immunocompromised individuals and those from endemic areas.",
-    "description": "Pulmonary Tuberculosis (TB) is a contagious bacterial infection caused by Mycobacterium tuberculosis that primarily affects the lungs. It can be latent (asymptomatic and non-contagious) or active (symptomatic and contagious).",
-    "desc": "Pulmonary Tuberculosis (TB) is a contagious bacterial infection caused by Mycobacterium tuberculosis that primarily affects the lungs. It can be latent (asymptomatic and non-contagious) or active (symptomatic and contagious).",
-    "symptoms": [
+    id: "pulmonary-tuberculosis-tb",
+    name: "Pulmonary Tuberculosis (TB)",
+    category: "Respiratory",
+    severity: "High",
+    prevalence:
+      "Global Health Problem: One of the top infectious disease killers worldwide. • Incidence is low in the US but higher in immunocompromised individuals and those from endemic areas.",
+    description:
+      "Pulmonary Tuberculosis (TB) is a contagious bacterial infection caused by Mycobacterium tuberculosis that primarily affects the lungs. It can be latent (asymptomatic and non-contagious) or active (symptomatic and contagious).",
+    desc: "Pulmonary Tuberculosis (TB) is a contagious bacterial infection caused by Mycobacterium tuberculosis that primarily affects the lungs. It can be latent (asymptomatic and non-contagious) or active (symptomatic and contagious).",
+    symptoms: [
       "of Active TB",
       "A persistent cough that lasts 3 weeks or longer.",
       "Coughing up blood or sputum.",
@@ -1715,19 +1773,19 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Unintentional weight loss.",
       "Fatigue.",
       "Fever.",
-      "Chills."
+      "Chills.",
     ],
-    "causes": [
-      "It is caused by the bacterium Mycobacterium tuberculosis, which spreads through the air when an infected person coughs, speaks, or sneezes."
+    causes: [
+      "It is caused by the bacterium Mycobacterium tuberculosis, which spreads through the air when an infected person coughs, speaks, or sneezes.",
     ],
-    "treatment": [
+    treatment: [
       "Latent TB Infection: Treated with one or two antibiotics for 3-9 months to prevent active disease.",
       "Active TB Disease: Requires a multi-drug regimen for 6-9 months or longer.",
       "First-line drugs: Isoniazid, Rifampin, Ethambutol, Pyrazinamide.",
       "Directly Observed Therapy (DOT) is often used to ensure adherence and prevent drug resistance.",
-      "Drug-Resistant TB requires more complex, longer treatment with second-line drugs."
+      "Drug-Resistant TB requires more complex, longer treatment with second-line drugs.",
     ],
-    "selfCare": [
+    selfCare: [
       "Complete the entire course of medication, even after you feel better.",
       "Attend all medical appointments.",
       "If you have active TB, stay home and avoid public places until your doctor says you are no longer contagious.",
@@ -1735,35 +1793,37 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Eat a healthy diet to support your immune system.",
       "Cover your mouth when you cough or sneeze.",
-      "Ventilate your room if you are being treated at home."
+      "Ventilate your room if you are being treated at home.",
     ],
-    "prevention": [
+    prevention: [
       "Test and treat latent TB infection in high-risk individuals.",
       "Vaccination: The BCG vaccine is used in some countries with high TB prevalence.",
-      "Infection Control in healthcare and congregate settings."
+      "Infection Control in healthcare and congregate settings.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Close contact with someone with active TB, weakened immune system (e.g., HIV/AIDS).",
       "Secondary: Immigration from high-risk countries, living or working in crowded settings, substance abuse, healthcare work.",
       "Non-Modifiable: Weakened Immune System (HIV is the biggest risk factor), Age (very young or old).",
-      "Modifiable: Poverty, Malnutrition, Substance Abuse, Diabetes, Taking immunosuppressant drugs."
+      "Modifiable: Poverty, Malnutrition, Substance Abuse, Diabetes, Taking immunosuppressant drugs.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Coughing up blood.",
       "Severe shortness of breath.",
       "High, persistent fever.",
-      "Night sweats that drench your bedding."
-    ]
+      "Night sweats that drench your bedding.",
+    ],
   },
   {
-    "id": "non-small-cell-lung-cancer-nsclc",
-    "name": "Non-Small Cell Lung Cancer (NSCLC)",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Leading Cancer Killer: The leading cause of cancer death for both men and women. • Common: Accounts for approximately 85% of all lung cancer diagnoses.",
-    "description": "Non-Small Cell Lung Cancer (NSCLC) is the most common type of lung cancer, accounting for about 85% of all cases. It is a malignancy that arises from the epithelial cells of the lung. It tends to grow and spread more slowly than Small Cell Lung Cancer. Major subtypes include adenocarcinoma, squamous cell carcinoma, and large cell carcinoma.",
-    "desc": "Non-Small Cell Lung Cancer (NSCLC) is the most common type of lung cancer, accounting for about 85% of all cases. It is a malignancy that arises from the epithelial cells of the lung. It tends to grow and spread more slowly than Small Cell Lung Cancer. Major subtypes include adenocarcinoma, squamous cell carcinoma, and large cell carcinoma.",
-    "symptoms": [
+    id: "non-small-cell-lung-cancer-nsclc",
+    name: "Non-Small Cell Lung Cancer (NSCLC)",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Leading Cancer Killer: The leading cause of cancer death for both men and women. • Common: Accounts for approximately 85% of all lung cancer diagnoses.",
+    description:
+      "Non-Small Cell Lung Cancer (NSCLC) is the most common type of lung cancer, accounting for about 85% of all cases. It is a malignancy that arises from the epithelial cells of the lung. It tends to grow and spread more slowly than Small Cell Lung Cancer. Major subtypes include adenocarcinoma, squamous cell carcinoma, and large cell carcinoma.",
+    desc: "Non-Small Cell Lung Cancer (NSCLC) is the most common type of lung cancer, accounting for about 85% of all cases. It is a malignancy that arises from the epithelial cells of the lung. It tends to grow and spread more slowly than Small Cell Lung Cancer. Major subtypes include adenocarcinoma, squamous cell carcinoma, and large cell carcinoma.",
+    symptoms: [
       "Persistent cough.",
       "Chest pain.",
       "Shortness of breath.",
@@ -1771,20 +1831,20 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Hoarseness.",
       "Coughing up blood (hemoptysis).",
       "Recurrent infections like bronchitis and pneumonia.",
-      "Symptoms if spread (metastasized): Bone pain, headache, weakness, seizures."
+      "Symptoms if spread (metastasized): Bone pain, headache, weakness, seizures.",
     ],
-    "causes": [
-      "NSCLC is caused by mutations in the DNA of lung cells that lead to uncontrolled growth and tumor formation. These mutations are often acquired during a person's lifetime due to exposure to carcinogens."
+    causes: [
+      "NSCLC is caused by mutations in the DNA of lung cells that lead to uncontrolled growth and tumor formation. These mutations are often acquired during a person's lifetime due to exposure to carcinogens.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment depends on the cancer stage, molecular characteristics (genetic mutations), and the patient's overall health.",
       "Surgery: Lobectomy (removing a lobe of the lung) is the preferred option for early-stage NSCLC.",
       "Radiation Therapy: Often used if surgery isn't an option, or after surgery to kill remaining cells.",
       "Chemotherapy.",
       "Targeted Therapy: Drugs that target specific genetic mutations in cancer cells (e.g., EGFR, ALK, ROS1).",
-      "Immunotherapy: Drugs that help the patient's own immune system recognize and attack cancer cells."
+      "Immunotherapy: Drugs that help the patient's own immune system recognize and attack cancer cells.",
     ],
-    "selfCare": [
+    selfCare: [
       "If you smoke, quit. This is critical, even after a diagnosis.",
       "Attend all follow-up appointments and scans.",
       "Manage treatment side effects with the help of your healthcare team.",
@@ -1792,60 +1852,62 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Eat a balanced, nutritious diet.",
       "Stay as physically active as possible.",
-      "Avoid lung irritants."
+      "Avoid lung irritants.",
     ],
-    "prevention": [
+    prevention: [
       "Don't smoke. If you do, quit. Avoid secondhand smoke.",
       "Test your home for radon.",
       "Avoid carcinogens at work by using protective equipment.",
       "Eat a diet full of fruits and vegetables.",
-      "Get regular check-ups if you have a high risk."
+      "Get regular check-ups if you have a high risk.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Smoking tobacco (cigarettes, cigars, pipes). This is the most significant risk factor.",
       "Secondary: Exposure to radon gas, asbestos, other carcinogens, family history, and secondhand smoke.",
       "Non-Modifiable: Age (most common in people over 65), Family History, Personal History of Lung Disease.",
-      "Modifiable: Smoking, Exposure to Secondhand Smoke, Radon Gas, Asbestos, Air Pollution, Occupational Exposure (to arsenic, chromium, nickel)."
+      "Modifiable: Smoking, Exposure to Secondhand Smoke, Radon Gas, Asbestos, Air Pollution, Occupational Exposure (to arsenic, chromium, nickel).",
     ],
-    "warningSigns": [
+    warningSigns: [
       "A cough that doesn't go away or gets worse.",
       "Coughing up blood or rust-colored phlegm.",
       "Chest pain that is often worse with deep breathing, coughing, or laughing.",
       "Hoarseness.",
       "Unexplained weight loss and loss of appetite.",
       "Shortness of breath.",
-      "Feeling tired or weak."
-    ]
+      "Feeling tired or weak.",
+    ],
   },
   {
-    "id": "panlobular-emphysema",
-    "name": "Panlobular Emphysema",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Less common than centrilobular emphysema. • Strongly linked to the genetic condition Alpha-1 Antitrypsin Deficiency (AATD).",
-    "description": "Panlobular (or panacinar) Emphysema is a type of Chronic Obstructive Pulmonary Disease (COPD) characterized by the destruction of the entire alveoli (air sacs) in the lung lobules. This leads to a loss of the lungs' elastic recoil and hyperinflation, making it extremely difficult to exhale air. It is strongly associated with Alpha-1 Antitrypsin Deficiency.",
-    "desc": "Panlobular (or panacinar) Emphysema is a type of Chronic Obstructive Pulmonary Disease (COPD) characterized by the destruction of the entire alveoli (air sacs) in the lung lobules. This leads to a loss of the lungs' elastic recoil and hyperinflation, making it extremely difficult to exhale air. It is strongly associated with Alpha-1 Antitrypsin Deficiency.",
-    "symptoms": [
+    id: "panlobular-emphysema",
+    name: "Panlobular Emphysema",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Less common than centrilobular emphysema. • Strongly linked to the genetic condition Alpha-1 Antitrypsin Deficiency (AATD).",
+    description:
+      "Panlobular (or panacinar) Emphysema is a type of Chronic Obstructive Pulmonary Disease (COPD) characterized by the destruction of the entire alveoli (air sacs) in the lung lobules. This leads to a loss of the lungs' elastic recoil and hyperinflation, making it extremely difficult to exhale air. It is strongly associated with Alpha-1 Antitrypsin Deficiency.",
+    desc: "Panlobular (or panacinar) Emphysema is a type of Chronic Obstructive Pulmonary Disease (COPD) characterized by the destruction of the entire alveoli (air sacs) in the lung lobules. This leads to a loss of the lungs' elastic recoil and hyperinflation, making it extremely difficult to exhale air. It is strongly associated with Alpha-1 Antitrypsin Deficiency.",
+    symptoms: [
       "Symptoms are similar to other forms of COPD but may involve the lower lungs more uniformly.",
       "Progressive shortness of breath, especially with exertion.",
       "A chronic, often mild cough with little to no phlegm.",
       "Wheezing.",
       "Barrel-shaped chest due to hyperinflation.",
-      "Weight loss and muscle wasting in advanced stages."
+      "Weight loss and muscle wasting in advanced stages.",
     ],
-    "causes": [
-      "The primary cause is a deficiency in Alpha-1 Antitrypsin (A1AT), a protein that protects the lungs from inflammation caused by neutrophil elastase (an enzyme). Without this protection, the lung tissue is destroyed."
+    causes: [
+      "The primary cause is a deficiency in Alpha-1 Antitrypsin (A1AT), a protein that protects the lungs from inflammation caused by neutrophil elastase (an enzyme). Without this protection, the lung tissue is destroyed.",
     ],
-    "treatment": [
+    treatment: [
       "There is no cure, but treatment can slow progression and manage symptoms.",
       "Augmentation Therapy: Intravenous infusions of purified Alpha-1 Antitrypsin protein to slow lung damage. This is a specific treatment for the underlying cause.",
       "Smoking Cessation.",
       "Bronchodilators (e.g., tiotropium) and Inhaled Corticosteroids.",
       "Pulmonary Rehabilitation.",
       "Oxygen Therapy.",
-      "Lung Volume Reduction Surgery or Lung Transplant in very select, severe cases."
+      "Lung Volume Reduction Surgery or Lung Transplant in very select, severe cases.",
     ],
-    "selfCare": [
+    selfCare: [
       "If you have AATD, do not smoke. This is paramount.",
       "Get tested for AATD if you have emphysema at a young age or a family history.",
       "Adhere to augmentation therapy if prescribed.",
@@ -1853,53 +1915,55 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Avoid all lung irritants (dust, fumes, air pollution).",
       "Exercise regularly as part of pulmonary rehab.",
-      "Maintain good nutrition."
+      "Maintain good nutrition.",
     ],
-    "prevention": [
+    prevention: [
       "Genetic counseling and testing for families with a history of AATD or early-onset emphysema.",
-      "Absolute avoidance of smoking for individuals with AATD."
+      "Absolute avoidance of smoking for individuals with AATD.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Alpha-1 Antitrypsin Deficiency (AATD).",
       "Secondary: Smoking, which dramatically worsens the condition in people with AATD.",
       "Non-Modifiable: Genetic inheritance of AATD.",
-      "Modifiable: Smoking (the most critical modifiable risk factor that accelerates lung destruction)."
+      "Modifiable: Smoking (the most critical modifiable risk factor that accelerates lung destruction).",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe shortness of breath even at rest.",
       "Inability to speak in full sentences.",
       "Confusion or agitation.",
-      "Bluish discoloration of lips or fingernails (cyanosis)."
-    ]
+      "Bluish discoloration of lips or fingernails (cyanosis).",
+    ],
   },
   {
-    "id": "idiopathic-pulmonary-fibrosis-ipf",
-    "name": "Idiopathic Pulmonary Fibrosis (IPF)",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Rare: Affects about 1 in 200 adults over age 70. • Age Factor: Typically diagnosed in people between 50 and 70 years old.",
-    "description": "Idiopathic Pulmonary Fibrosis (IPF) is a chronic, progressive lung disease characterized by scarring (fibrosis) of the lung tissue for an unknown reason (\"idiopathic\"). The scarring thickens and stiffens the lung tissue, making it increasingly difficult to breathe and get oxygen into the bloodstream.",
-    "desc": "Idiopathic Pulmonary Fibrosis (IPF) is a chronic, progressive lung disease characterized by scarring (fibrosis) of the lung tissue for an unknown reason (\"idiopathic\"). The scarring thickens and stiffens the lung tissue, making it increasingly difficult to breathe and get oxygen into the bloodstream.",
-    "symptoms": [
+    id: "idiopathic-pulmonary-fibrosis-ipf",
+    name: "Idiopathic Pulmonary Fibrosis (IPF)",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Rare: Affects about 1 in 200 adults over age 70. • Age Factor: Typically diagnosed in people between 50 and 70 years old.",
+    description:
+      'Idiopathic Pulmonary Fibrosis (IPF) is a chronic, progressive lung disease characterized by scarring (fibrosis) of the lung tissue for an unknown reason ("idiopathic"). The scarring thickens and stiffens the lung tissue, making it increasingly difficult to breathe and get oxygen into the bloodstream.',
+    desc: 'Idiopathic Pulmonary Fibrosis (IPF) is a chronic, progressive lung disease characterized by scarring (fibrosis) of the lung tissue for an unknown reason ("idiopathic"). The scarring thickens and stiffens the lung tissue, making it increasingly difficult to breathe and get oxygen into the bloodstream.',
+    symptoms: [
       "Progressive shortness of breath (dyspnea), initially with exertion but eventually at rest.",
       "A persistent, dry, hacking cough.",
       "Fatigue and weakness.",
       "Discomfort in the chest.",
       "Unexplained weight loss.",
-      "Clubbing (widening and rounding) of the fingertips and toes."
+      "Clubbing (widening and rounding) of the fingertips and toes.",
     ],
-    "causes": [
-      "The cause is unknown (\"idiopathic\"), but it is believed to involve an abnormal healing response in the lung to repeated, microscopic injury. This leads to excessive scarring instead of normal tissue repair."
+    causes: [
+      'The cause is unknown ("idiopathic"), but it is believed to involve an abnormal healing response in the lung to repeated, microscopic injury. This leads to excessive scarring instead of normal tissue repair.',
     ],
-    "treatment": [
+    treatment: [
       "There is no cure, but treatments can slow disease progression and manage symptoms.",
       "Antifibrotic drugs: Pirfenidone and Nintedanib. These are the cornerstone of IPF treatment and have been shown to slow the decline in lung function.",
       "Oxygen Therapy to relieve shortness of breath and improve function.",
       "Pulmonary Rehabilitation.",
       "Lung Transplant: The only potential cure for eligible patients.",
-      "Managing GERD is also an important part of care."
+      "Managing GERD is also an important part of care.",
     ],
-    "selfCare": [
+    selfCare: [
       "Get vaccinated against flu and pneumonia to prevent infections.",
       "Stay as active as possible with pulmonary rehabilitation.",
       "Use oxygen as prescribed.",
@@ -1907,32 +1971,34 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Quit smoking.",
       "Avoid lung irritants.",
-      "Prioritize rest."
+      "Prioritize rest.",
     ],
-    "prevention": [
+    prevention: [
       "As the cause is unknown, there is no sure way to prevent IPF.",
-      "Not smoking and avoiding occupational lung irritants may reduce the risk."
+      "Not smoking and avoiding occupational lung irritants may reduce the risk.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Age, male sex, smoking history.",
       "Secondary: Genetic factors (family history), certain viral infections, gastroesophageal reflux disease (GERD).",
       "Non-Modifiable: Age, Male Sex, Genetic Predisposition.",
-      "Modifiable: Smoking History, Occupational Exposure (to dusts like metal, wood, silica), GERD."
+      "Modifiable: Smoking History, Occupational Exposure (to dusts like metal, wood, silica), GERD.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "A sudden, significant worsening of shortness of breath over days to weeks.",
-      "Increased need for supplemental oxygen."
-    ]
+      "Increased need for supplemental oxygen.",
+    ],
   },
   {
-    "id": "obstructive-sleep-apnea-osa",
-    "name": "Obstructive Sleep Apnea (OSA)",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Very Common: Affects an estimated 25% of men and 10% of women. • Underdiagnosed: Many people with OSA are unaware they have it.",
-    "description": "Obstructive Sleep Apnea (OSA) is a common and serious sleep disorder where breathing repeatedly stops and starts during sleep. This happens because the throat muscles intermittently relax and block the airway. Each breathing pause (apnea) can last from ten seconds to over a minute and may occur hundreds of times a night.",
-    "desc": "Obstructive Sleep Apnea (OSA) is a common and serious sleep disorder where breathing repeatedly stops and starts during sleep. This happens because the throat muscles intermittently relax and block the airway. Each breathing pause (apnea) can last from ten seconds to over a minute and may occur hundreds of times a night.",
-    "symptoms": [
+    id: "obstructive-sleep-apnea-osa",
+    name: "Obstructive Sleep Apnea (OSA)",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Very Common: Affects an estimated 25% of men and 10% of women. • Underdiagnosed: Many people with OSA are unaware they have it.",
+    description:
+      "Obstructive Sleep Apnea (OSA) is a common and serious sleep disorder where breathing repeatedly stops and starts during sleep. This happens because the throat muscles intermittently relax and block the airway. Each breathing pause (apnea) can last from ten seconds to over a minute and may occur hundreds of times a night.",
+    desc: "Obstructive Sleep Apnea (OSA) is a common and serious sleep disorder where breathing repeatedly stops and starts during sleep. This happens because the throat muscles intermittently relax and block the airway. Each breathing pause (apnea) can last from ten seconds to over a minute and may occur hundreds of times a night.",
+    symptoms: [
       "Loud snoring.",
       "Episodes of stopped breathing during sleep (observed by another person).",
       "Gasping for air during sleep.",
@@ -1940,19 +2006,19 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Morning headache.",
       "Difficulty staying asleep (insomnia).",
       "Excessive daytime sleepiness (hypersomnia).",
-      "Difficulty paying attention while awake."
+      "Difficulty paying attention while awake.",
     ],
-    "causes": [
-      "OSA occurs when the muscles in the back of your throat relax too much to allow for normal breathing. These muscles support the soft palate, uvula, tonsils, and tongue. When they relax, your airway narrows or closes as you breathe in."
+    causes: [
+      "OSA occurs when the muscles in the back of your throat relax too much to allow for normal breathing. These muscles support the soft palate, uvula, tonsils, and tongue. When they relax, your airway narrows or closes as you breathe in.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment is aimed at keeping the airway open during sleep.",
       "Positive Airway Pressure (PAP) Therapy: The primary and most effective treatment. A machine (CPAP is the most common) delivers air pressure through a mask to keep your airway open.",
       "Oral Appliances: Dental devices that reposition the jaw or tongue to keep the airway open.",
       "Lifestyle Changes: Weight loss, positional therapy (sleeping on your side).",
-      "Surgery: Only considered if other treatments fail (e.g., tissue removal, jaw repositioning, implants)."
+      "Surgery: Only considered if other treatments fail (e.g., tissue removal, jaw repositioning, implants).",
     ],
-    "selfCare": [
+    selfCare: [
       "Use your CPAP machine every night, for every sleep.",
       "Lose weight if you are overweight.",
       "Exercise regularly.",
@@ -1960,35 +2026,37 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Sleep on your side or abdomen rather than your back.",
       "Lifestyle Recommendations",
       "Treat nasal allergies or congestion.",
-      "Don't smoke."
+      "Don't smoke.",
     ],
-    "prevention": [
+    prevention: [
       "Maintain a healthy weight.",
       "Exercise regularly.",
       "Limit alcohol and avoid sedatives.",
       "Quit smoking.",
-      "Treat nasal congestion promptly."
+      "Treat nasal congestion promptly.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Obesity, large neck circumference, narrowed airway.",
       "Secondary: Being male, family history, age over 40, alcohol use, smoking, nasal congestion.",
       "Non-Modifiable: Male Gender, Family History, Age, Menopause (in women).",
-      "Modifiable: Excess Weight, Neck Circumference, Alcohol/Sedative Use, Smoking, Nasal Congestion."
+      "Modifiable: Excess Weight, Neck Circumference, Alcohol/Sedative Use, Smoking, Nasal Congestion.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Loud, persistent snoring interrupted by pauses in breathing, followed by gasps or snorts.",
-      "Excessive daytime sleepiness that causes you to fall asleep while working, driving, or watching TV."
-    ]
+      "Excessive daytime sleepiness that causes you to fall asleep while working, driving, or watching TV.",
+    ],
   },
   {
-    "id": "influenza-a",
-    "name": "Influenza A",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Seasonal Epidemic: Causes millions of illnesses, hundreds of thousands of hospitalizations, and tens of thousands of deaths in the US each year. • Affects all age groups, but complications are highest in the young, elderly, and those with chronic conditions.",
-    "description": "Influenza A is a type of virus that causes the flu, a contagious respiratory illness. It is known for its ability to cause seasonal epidemics and occasional pandemics. Influenza A viruses are categorized by subtypes based on surface proteins (e.g., H1N1, H3N2).",
-    "desc": "Influenza A is a type of virus that causes the flu, a contagious respiratory illness. It is known for its ability to cause seasonal epidemics and occasional pandemics. Influenza A viruses are categorized by subtypes based on surface proteins (e.g., H1N1, H3N2).",
-    "symptoms": [
+    id: "influenza-a",
+    name: "Influenza A",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Seasonal Epidemic: Causes millions of illnesses, hundreds of thousands of hospitalizations, and tens of thousands of deaths in the US each year. • Affects all age groups, but complications are highest in the young, elderly, and those with chronic conditions.",
+    description:
+      "Influenza A is a type of virus that causes the flu, a contagious respiratory illness. It is known for its ability to cause seasonal epidemics and occasional pandemics. Influenza A viruses are categorized by subtypes based on surface proteins (e.g., H1N1, H3N2).",
+    desc: "Influenza A is a type of virus that causes the flu, a contagious respiratory illness. It is known for its ability to cause seasonal epidemics and occasional pandemics. Influenza A viruses are categorized by subtypes based on surface proteins (e.g., H1N1, H3N2).",
+    symptoms: [
       "Symptoms are usually more severe than a common cold and come on abruptly.",
       "Fever or feeling feverish/chills (not everyone with flu will have a fever).",
       "Cough.",
@@ -1996,12 +2064,12 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Runny or stuffy nose.",
       "Muscle or body aches.",
       "Headaches.",
-      "Fatigue (tiredness)."
+      "Fatigue (tiredness).",
     ],
-    "causes": [
-      "The flu is caused by infection with the Influenza A (or B) virus. It spreads mainly by droplets made when people with flu cough, sneeze, or talk."
+    causes: [
+      "The flu is caused by infection with the Influenza A (or B) virus. It spreads mainly by droplets made when people with flu cough, sneeze, or talk.",
     ],
-    "treatment": [
+    treatment: [
       "For most people, rest and fluids are sufficient. Antiviral drugs can be used.",
       "Rest.",
       "Hydration.",
@@ -2009,47 +2077,49 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Antiviral Medications: (e.g., oseltamivir/Tamiflu, baloxavir/Xofluza).",
       "Can make illness milder and shorten duration.",
       "Work best when started within 48 hours of symptom onset.",
-      "Are especially important for high-risk individuals."
+      "Are especially important for high-risk individuals.",
     ],
-    "selfCare": [
+    selfCare: [
       "Stay home and avoid contact with others until you are fever-free for 24 hours without medication.",
       "Drink plenty of fluids (water, broth, electrolyte drinks).",
       "Wash your hands frequently to avoid spreading the virus.",
       "Cover your coughs and sneezes.",
       "Lifestyle Recommendations",
       "Get the annual influenza vaccine. This is the single best way to prevent the flu.",
-      "Maintain a healthy lifestyle to support your immune system."
+      "Maintain a healthy lifestyle to support your immune system.",
     ],
-    "prevention": [
+    prevention: [
       "Annual vaccination for everyone 6 months and older.",
       "Avoid close contact with sick people.",
       "Practice good hand hygiene.",
       "Clean and disinfect surfaces.",
-      "Stay home when you are sick."
+      "Stay home when you are sick.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Age (very young, elderly), weakened immune system.",
       "Secondary: Chronic medical conditions (asthma, heart disease, diabetes), pregnancy, obesity, living in crowded conditions.",
       "Non-Modifiable: Age, Chronic Health Conditions, Pregnancy.",
-      "Modifiable: Lack of annual flu vaccination, Weakened Immune System, Occupational Exposure (healthcare, schools)."
+      "Modifiable: Lack of annual flu vaccination, Weakened Immune System, Occupational Exposure (healthcare, schools).",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Difficulty breathing or shortness of breath.",
       "Persistent pain or pressure in the chest or abdomen.",
       "Persistent dizziness, confusion, inability to arouse.",
       "Severe vomiting.",
-      "Flu symptoms that improve but then return with fever and worse cough."
-    ]
+      "Flu symptoms that improve but then return with fever and worse cough.",
+    ],
   },
   {
-    "id": "covid-19",
-    "name": "COVID-19",
-    "category": "Respiratory",
-    "severity": "High",
-    "prevalence": "Global Pandemic: Has caused a worldwide pandemic since 2019. • Widespread: Most of the global population has been infected or vaccinated, or both.",
-    "description": "COVID-19 is a contagious disease caused by the SARS-CoV-2 virus. It primarily affects the respiratory system but can impact many other organ systems. The severity can range from asymptomatic infection to severe respiratory illness and death.",
-    "desc": "COVID-19 is a contagious disease caused by the SARS-CoV-2 virus. It primarily affects the respiratory system but can impact many other organ systems. The severity can range from asymptomatic infection to severe respiratory illness and death.",
-    "symptoms": [
+    id: "covid-19",
+    name: "COVID-19",
+    category: "Respiratory",
+    severity: "High",
+    prevalence:
+      "Global Pandemic: Has caused a worldwide pandemic since 2019. • Widespread: Most of the global population has been infected or vaccinated, or both.",
+    description:
+      "COVID-19 is a contagious disease caused by the SARS-CoV-2 virus. It primarily affects the respiratory system but can impact many other organ systems. The severity can range from asymptomatic infection to severe respiratory illness and death.",
+    desc: "COVID-19 is a contagious disease caused by the SARS-CoV-2 virus. It primarily affects the respiratory system but can impact many other organ systems. The severity can range from asymptomatic infection to severe respiratory illness and death.",
+    symptoms: [
       "Symptoms can appear 2-14 days after exposure and can vary widely.",
       "Fever or chills.",
       "Cough.",
@@ -2057,20 +2127,20 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Fatigue.",
       "Muscle or body aches.",
       "Headache.",
-      "New loss of taste or smell."
+      "New loss of taste or smell.",
     ],
-    "causes": [
-      "The disease is caused by infection with the SARS-CoV-2 virus, which spreads through respiratory droplets and aerosols when an infected person breathes, coughs, sneezes, or talks."
+    causes: [
+      "The disease is caused by infection with the SARS-CoV-2 virus, which spreads through respiratory droplets and aerosols when an infected person breathes, coughs, sneezes, or talks.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment depends on the severity of illness and the patient's risk factors.",
       "For Mild Illness at Home: Rest, hydration, and over-the-counter medications for fever.",
       "Antiviral medications (e.g., Paxlovid, Remdesivir) to prevent progression to severe disease.",
       "Monoclonal Antibodies (though their effectiveness varies with new variants).",
       "Corticosteroids (e.g., dexamethasone) to combat inflammation.",
-      "Oxygen support, mechanical ventilation."
+      "Oxygen support, mechanical ventilation.",
     ],
-    "selfCare": [
+    selfCare: [
       "Isolate from others to prevent spread.",
       "Monitor your symptoms closely, especially oxygen levels with a pulse oximeter if available.",
       "Get plenty of rest and stay hydrated.",
@@ -2078,134 +2148,140 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Stay up to date with recommended COVID-19 vaccinations and boosters.",
       "Wear a high-quality mask in crowded indoor public spaces.",
-      "Improve ventilation in indoor spaces."
+      "Improve ventilation in indoor spaces.",
     ],
-    "prevention": [
+    prevention: [
       "Vaccination is the most effective tool.",
       "Wearing a mask in high-risk settings.",
       "Testing if you have symptoms or have been exposed.",
-      "Good ventilation and avoiding crowded indoor spaces."
+      "Good ventilation and avoiding crowded indoor spaces.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Age (older adults are at highest risk for severe disease), being unvaccinated.",
       "Secondary: Underlying medical conditions (lung disease, heart conditions, diabetes, obesity, immunocompromised state).",
       "Non-Modifiable: Age, Certain Genetic Factors.",
-      "Modifiable: Vaccination Status, Presence of Comorbidities, Occupational Exposure, Attendance at Large Gatherings."
+      "Modifiable: Vaccination Status, Presence of Comorbidities, Occupational Exposure, Attendance at Large Gatherings.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Trouble breathing.",
       "Persistent pain or pressure in the chest.",
       "New confusion.",
       "Inability to wake or stay awake.",
-      "Pale, gray, or blue-colored skin, lips, or nail beds."
-    ]
+      "Pale, gray, or blue-colored skin, lips, or nail beds.",
+    ],
   },
   {
-    "id": "malignant-pleural-effusion",
-    "name": "Malignant Pleural Effusion",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "A common complication of advanced cancer. • A sign of metastatic disease and is associated with a poor prognosis.",
-    "description": "A Malignant Pleural Effusion is a buildup of fluid in the pleural space (the space between the lungs and the chest wall) that is caused by cancer. It is a common complication of advanced cancer, most often lung cancer, breast cancer, and lymphoma. It signifies that cancer cells have spread to the pleura.",
-    "desc": "A Malignant Pleural Effusion is a buildup of fluid in the pleural space (the space between the lungs and the chest wall) that is caused by cancer. It is a common complication of advanced cancer, most often lung cancer, breast cancer, and lymphoma. It signifies that cancer cells have spread to the pleura.",
-    "symptoms": [
+    id: "malignant-pleural-effusion",
+    name: "Malignant Pleural Effusion",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "A common complication of advanced cancer. • A sign of metastatic disease and is associated with a poor prognosis.",
+    description:
+      "A Malignant Pleural Effusion is a buildup of fluid in the pleural space (the space between the lungs and the chest wall) that is caused by cancer. It is a common complication of advanced cancer, most often lung cancer, breast cancer, and lymphoma. It signifies that cancer cells have spread to the pleura.",
+    desc: "A Malignant Pleural Effusion is a buildup of fluid in the pleural space (the space between the lungs and the chest wall) that is caused by cancer. It is a common complication of advanced cancer, most often lung cancer, breast cancer, and lymphoma. It signifies that cancer cells have spread to the pleura.",
+    symptoms: [
       "Shortness of breath (dyspnea), which is the most common symptom.",
       "Dry cough.",
       "Chest pain or a feeling of heaviness on the affected side.",
       "Fatigue.",
-      "Unintentional weight loss (due to the underlying cancer)."
+      "Unintentional weight loss (due to the underlying cancer).",
     ],
-    "causes": [
-      "It is caused by the invasion of cancer cells into the pleura, which disrupts the normal fluid balance, leading to excessive fluid production and/or impaired fluid reabsorption."
+    causes: [
+      "It is caused by the invasion of cancer cells into the pleura, which disrupts the normal fluid balance, leading to excessive fluid production and/or impaired fluid reabsorption.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment is palliative, aimed at relieving symptoms and improving quality of life, as it is not curable.",
       "Therapeutic Thoracentesis: A procedure to drain the fluid using a needle, which provides immediate symptom relief but is temporary, as fluid often reaccumulates.",
       "1.Chest Tube Drainage and Pleurodesis: A tube is inserted to drain the fluid, and then a chemical (e.g., talc) is instilled into the pleural space to irritate the pleura and stick the lung to the chest wall, preventing fluid from reaccumulating.",
-      "2.Indwelling Pleural Catheter (IPC): A permanent catheter is placed in the pleural space, allowing the patient or caregiver to drain the fluid at home regularly."
+      "2.Indwelling Pleural Catheter (IPC): A permanent catheter is placed in the pleural space, allowing the patient or caregiver to drain the fluid at home regularly.",
     ],
-    "selfCare": [
+    selfCare: [
       "If you have an IPC, follow care instructions meticulously to prevent infection.",
       "Manage pain with prescribed medications.",
       "Conserve energy and pace your activities due to shortness of breath.",
       "Seek palliative or supportive care to manage symptoms and improve quality of life.",
       "Lifestyle Recommendations",
       "Focus on comfort and quality of life.",
-      "Maintain good nutrition as much as possible."
+      "Maintain good nutrition as much as possible.",
     ],
-    "prevention": [
-      "There is no way to prevent a malignant pleural effusion other than preventing or effectively treating the underlying primary cancer before it metastasizes."
+    prevention: [
+      "There is no way to prevent a malignant pleural effusion other than preventing or effectively treating the underlying primary cancer before it metastasizes.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Having a known cancer, especially lung, breast, or lymphoma.",
-      "Secondary: Any cancer that can metastasize to the lungs or pleura."
+      "Secondary: Any cancer that can metastasize to the lungs or pleura.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe, acute shortness of breath.",
       "Sharp chest pain that worsens with breathing.",
-      "Symptoms of respiratory distress (rapid breathing, high heart rate, low oxygen levels)."
-    ]
+      "Symptoms of respiratory distress (rapid breathing, high heart rate, low oxygen levels).",
+    ],
   },
   {
-    "id": "spontaneous-pneumothorax",
-    "name": "Spontaneous Pneumothorax",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Primary: Most common in tall, thin, young men who smoke. • Secondary: Can occur in people with COPD, asthma, cystic fibrosis, or pneumonia.",
-    "description": "A Spontaneous Pneumothorax (collapsed lung) occurs when air leaks into the space between the lung and chest wall (pleural space). This air pushes on the outside of the lung, causing it to collapse. \"Spontaneous\" means it occurs without a clear cause like an injury. It is classified as primary (in otherwise healthy people) or secondary (in people with underlying lung disease).",
-    "desc": "A Spontaneous Pneumothorax (collapsed lung) occurs when air leaks into the space between the lung and chest wall (pleural space). This air pushes on the outside of the lung, causing it to collapse. \"Spontaneous\" means it occurs without a clear cause like an injury. It is classified as primary (in otherwise healthy people) or secondary (in people with underlying lung disease).",
-    "symptoms": [
+    id: "spontaneous-pneumothorax",
+    name: "Spontaneous Pneumothorax",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Primary: Most common in tall, thin, young men who smoke. • Secondary: Can occur in people with COPD, asthma, cystic fibrosis, or pneumonia.",
+    description:
+      'A Spontaneous Pneumothorax (collapsed lung) occurs when air leaks into the space between the lung and chest wall (pleural space). This air pushes on the outside of the lung, causing it to collapse. "Spontaneous" means it occurs without a clear cause like an injury. It is classified as primary (in otherwise healthy people) or secondary (in people with underlying lung disease).',
+    desc: 'A Spontaneous Pneumothorax (collapsed lung) occurs when air leaks into the space between the lung and chest wall (pleural space). This air pushes on the outside of the lung, causing it to collapse. "Spontaneous" means it occurs without a clear cause like an injury. It is classified as primary (in otherwise healthy people) or secondary (in people with underlying lung disease).',
+    symptoms: [
       "Sharp, stabbing chest pain on the side of the collapsed lung, which may worsen with deep breathing or coughing.",
       "Shortness of breath (dyspnea).",
       "Dry cough.",
-      "Fatigue."
+      "Fatigue.",
     ],
-    "causes": [
+    causes: [
       "Primary Spontaneous Pneumothorax: Often caused by the rupture of a small air-filled sac in the lung called a bleb or bulla.",
-      "Secondary Spontaneous Pneumothorax: Caused by underlying lung disease that damages lung tissue."
+      "Secondary Spontaneous Pneumothorax: Caused by underlying lung disease that damages lung tissue.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment depends on the size of the pneumothorax and the severity of symptoms.",
       "Small, Asymptomatic Pneumothorax: May resolve on its own with monitoring and oxygen therapy.",
       "Needle Aspiration or Chest Tube Insertion: To remove the air from the pleural space and allow the lung to re-expand.",
-      "Surgery (Pleurodesis or Wedge Resection): For recurrent pneumothoraces, a procedure is done to stick the lung to the chest wall or remove the blebs causing the problem."
+      "Surgery (Pleurodesis or Wedge Resection): For recurrent pneumothoraces, a procedure is done to stick the lung to the chest wall or remove the blebs causing the problem.",
     ],
-    "selfCare": [
+    selfCare: [
       "If you have a chest tube, follow care instructions to prevent dislodgement or infection.",
       "Avoid air travel and scuba diving until your doctor clears you.",
       "Do not smoke.",
       "Lifestyle Recommendations",
       "Quit smoking to dramatically reduce the risk of recurrence.",
-      "Be aware of the symptoms of a collapse if you have a history."
+      "Be aware of the symptoms of a collapse if you have a history.",
     ],
-    "prevention": [
+    prevention: [
       "There is no guaranteed way to prevent a first spontaneous pneumothorax.",
       "Not smoking is the most effective preventive measure.",
-      "Surgery is the primary method to prevent recurrences in high-risk individuals."
+      "Surgery is the primary method to prevent recurrences in high-risk individuals.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Smoking, tall and thin body shape in young males, family history.",
       "Secondary: Underlying lung disease (COPD is the most common cause in older adults).",
       "Non-Modifiable: Male Sex, Tall and Thin Stature, Family History, Certain Genetic Conditions (Marfan Syndrome).",
-      "Modifiable: Smoking (the most important modifiable risk factor), Drug Use (inhaled), Scuba Diving, High-Altitude Activities."
+      "Modifiable: Smoking (the most important modifiable risk factor), Drug Use (inhaled), Scuba Diving, High-Altitude Activities.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Sudden, sharp chest pain.",
       "Severe shortness of breath.",
       "Rapid heart rate.",
       "Cyanosis (bluish skin color).",
-      "Chest tightness."
-    ]
+      "Chest tightness.",
+    ],
   },
   {
-    "id": "cystic-fibrosis-cf",
-    "name": "Cystic Fibrosis (CF)",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Most common life-limiting genetic disorder in Caucasian populations. • Affects about 1 in 3,500 newborns in the United States.",
-    "description": "Cystic Fibrosis (CF) is a life-threatening genetic disorder that affects the lungs and digestive system. It causes the production of abnormally thick and sticky mucus, which clogs the airways, leading to severe breathing problems and bacterial infections. It also obstructs the pancreas, preventing digestive enzymes from reaching the intestines.",
-    "desc": "Cystic Fibrosis (CF) is a life-threatening genetic disorder that affects the lungs and digestive system. It causes the production of abnormally thick and sticky mucus, which clogs the airways, leading to severe breathing problems and bacterial infections. It also obstructs the pancreas, preventing digestive enzymes from reaching the intestines.",
-    "symptoms": [
+    id: "cystic-fibrosis-cf",
+    name: "Cystic Fibrosis (CF)",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Most common life-limiting genetic disorder in Caucasian populations. • Affects about 1 in 3,500 newborns in the United States.",
+    description:
+      "Cystic Fibrosis (CF) is a life-threatening genetic disorder that affects the lungs and digestive system. It causes the production of abnormally thick and sticky mucus, which clogs the airways, leading to severe breathing problems and bacterial infections. It also obstructs the pancreas, preventing digestive enzymes from reaching the intestines.",
+    desc: "Cystic Fibrosis (CF) is a life-threatening genetic disorder that affects the lungs and digestive system. It causes the production of abnormally thick and sticky mucus, which clogs the airways, leading to severe breathing problems and bacterial infections. It also obstructs the pancreas, preventing digestive enzymes from reaching the intestines.",
+    symptoms: [
       "Persistent cough with thick mucus (sputum).",
       "Wheezing.",
       "Shortness of breath.",
@@ -2213,21 +2289,21 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Nasal polyps.",
       "Foul-smelling, greasy stools.",
       "Poor weight gain and growth.",
-      "Intestinal blockage, especially in newborns (meconium ileus)."
+      "Intestinal blockage, especially in newborns (meconium ileus).",
     ],
-    "causes": [
-      "CF is caused by mutations in the CFTR gene, which regulates the movement of salt and water in and out of cells. A defective CFTR gene leads to thick, sticky mucus in various organs."
+    causes: [
+      "CF is caused by mutations in the CFTR gene, which regulates the movement of salt and water in and out of cells. A defective CFTR gene leads to thick, sticky mucus in various organs.",
     ],
-    "treatment": [
+    treatment: [
       "There is no cure, but treatment has advanced dramatically, especially with the advent of CFTR modulators.",
       "Airway Clearance Therapies: Chest physical therapy, vibrating vests to loosen mucus.",
       "CFTR Modulators (e.g., Trikafta): Highly effective drugs that correct the function of the defective CFTR protein. They are a breakthrough in treatment.",
       "Inhaled antibiotics to treat and prevent lung infections.",
       "Mucus-thinning drugs (e.g., dornase alfa).",
       "Pancreatic enzyme supplements to aid digestion.",
-      "Other Treatments: High-calorie, high-fat diet, lung transplant for end-stage lung disease."
+      "Other Treatments: High-calorie, high-fat diet, lung transplant for end-stage lung disease.",
     ],
-    "selfCare": [
+    selfCare: [
       "Perform airway clearance techniques daily.",
       "Take all medications and enzymes as prescribed.",
       "Follow a high-calorie, high-salt diet.",
@@ -2235,59 +2311,61 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Stay hydrated.",
       "Lifestyle Recommendations",
       "Exercise regularly to help clear mucus.",
-      "Get all recommended vaccinations."
+      "Get all recommended vaccinations.",
     ],
-    "prevention": [
+    prevention: [
       "Genetic testing and counseling for couples with a family history of CF.",
-      "Newborn screening allows for early diagnosis and treatment."
+      "Newborn screening allows for early diagnosis and treatment.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Family history of CF. A child must inherit two defective CF genes (one from each parent) to have the disease.",
-      "Non-Modifiable: The only risk factor is having two parents who are carriers of the defective CFTR gene."
+      "Non-Modifiable: The only risk factor is having two parents who are carriers of the defective CFTR gene.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "A significant increase in coughing or shortness of breath.",
       "A major decline in lung function.",
       "Fever.",
       "Lethargy.",
-      "Severe abdominal pain or bloating (could indicate distal intestinal obstruction syndrome - DIOS)."
-    ]
+      "Severe abdominal pain or bloating (could indicate distal intestinal obstruction syndrome - DIOS).",
+    ],
   },
   {
-    "id": "non-cystic-fibrosis-bronchiectasis",
-    "name": "Non-Cystic Fibrosis Bronchiectasis",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Increasingly recognized, though exact prevalence is unknown. • More common in women and older adults.",
-    "description": "Bronchiectasis is a chronic condition where the bronchial tubes in the lungs are permanently widened, scarred, and thickened. This damage disrupts the ability to clear mucus, leading to a buildup that causes recurrent infections and inflammation. \"Non-Cystic Fibrosis\" specifies it is not caused by CF.",
-    "desc": "Bronchiectasis is a chronic condition where the bronchial tubes in the lungs are permanently widened, scarred, and thickened. This damage disrupts the ability to clear mucus, leading to a buildup that causes recurrent infections and inflammation. \"Non-Cystic Fibrosis\" specifies it is not caused by CF.",
-    "symptoms": [
+    id: "non-cystic-fibrosis-bronchiectasis",
+    name: "Non-Cystic Fibrosis Bronchiectasis",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Increasingly recognized, though exact prevalence is unknown. • More common in women and older adults.",
+    description:
+      'Bronchiectasis is a chronic condition where the bronchial tubes in the lungs are permanently widened, scarred, and thickened. This damage disrupts the ability to clear mucus, leading to a buildup that causes recurrent infections and inflammation. "Non-Cystic Fibrosis" specifies it is not caused by CF.',
+    desc: 'Bronchiectasis is a chronic condition where the bronchial tubes in the lungs are permanently widened, scarred, and thickened. This damage disrupts the ability to clear mucus, leading to a buildup that causes recurrent infections and inflammation. "Non-Cystic Fibrosis" specifies it is not caused by CF.',
+    symptoms: [
       "A daily, chronic cough that produces large amounts of thick sputum.",
       "Shortness of breath.",
       "Recurrent respiratory infections.",
       "Chest pain.",
       "Fatigue.",
       "Wheezing.",
-      "Clubbing of the fingers in advanced disease."
+      "Clubbing of the fingers in advanced disease.",
     ],
-    "causes": [
+    causes: [
       "It is caused by an initial injury to the airway walls, followed by a vicious cycle of infection and inflammation that leads to permanent damage.",
       "Post-infectious (a prior severe infection).",
       "Immune deficiencies.",
       "Autoimmune or inflammatory conditions.",
       "Airway obstruction (e.g., by a tumor or foreign body).",
-      "Idiopathic (no known cause found)."
+      "Idiopathic (no known cause found).",
     ],
-    "treatment": [
+    treatment: [
       "The goal is to break the cycle of infection and inflammation, clear secretions, and prevent complications.",
       "Airway Clearance: The cornerstone of daily management. Techniques include chest physiotherapy, flutter devices, and high-frequency chest wall oscillation vests.",
       "Antibiotics: Used aggressively to treat exacerbations. Some patients may need long-term rotating or inhaled antibiotics.",
       "Mucus-thinning drugs (e.g., hypertonic saline, dornase alfa in select cases).",
       "Bronchodilators.",
       "Corticosteroids for underlying inflammatory conditions.",
-      "Surgery: Rarely, to remove a severely damaged section of the lung."
+      "Surgery: Rarely, to remove a severely damaged section of the lung.",
     ],
-    "selfCare": [
+    selfCare: [
       "Perform daily airway clearance techniques without fail.",
       "Stay well-hydrated to help thin mucus.",
       "Take medications as prescribed.",
@@ -2295,60 +2373,62 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Avoid smoking and lung irritants.",
       "Exercise regularly to help with mucus clearance.",
-      "Eat a healthy, balanced diet."
+      "Eat a healthy, balanced diet.",
     ],
-    "prevention": [
+    prevention: [
       "Prompt and complete treatment of lung infections.",
       "Childhood vaccinations against pertussis and measles.",
       "Avoiding smoking.",
-      "Identifying and treating underlying causes early."
+      "Identifying and treating underlying causes early.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Severe or recurrent lung infections (e.g., pneumonia, whooping cough, TB).",
-      "Secondary: Autoimmune diseases (e.g., RA, IBD), immunodeficiency, primary ciliary dyskinesia, allergic bronchopulmonary aspergillosis (ABPA)."
+      "Secondary: Autoimmune diseases (e.g., RA, IBD), immunodeficiency, primary ciliary dyskinesia, allergic bronchopulmonary aspergillosis (ABPA).",
     ],
-    "warningSigns": [
+    warningSigns: [
       "A noticeable increase in cough and sputum volume.",
       "Change in sputum color to yellow or green.",
       "Increased shortness of breath.",
       "Fever or chills.",
-      "Blood in the sputum (hemoptysis)."
-    ]
+      "Blood in the sputum (hemoptysis).",
+    ],
   },
   {
-    "id": "chronic-laryngitis",
-    "name": "Chronic Laryngitis",
-    "category": "Respiratory",
-    "severity": "Low",
-    "prevalence": "Common, especially among people who use their voice professionally (singers, teachers).",
-    "description": "Chronic Laryngitis is an inflammation of the voice box (larynx) that persists for more than three weeks. Unlike acute laryngitis, which is usually caused by a temporary infection, chronic laryngitis is often due to prolonged exposure to an irritant and can lead to vocal cord strain, injuries, and growths.",
-    "desc": "Chronic Laryngitis is an inflammation of the voice box (larynx) that persists for more than three weeks. Unlike acute laryngitis, which is usually caused by a temporary infection, chronic laryngitis is often due to prolonged exposure to an irritant and can lead to vocal cord strain, injuries, and growths.",
-    "symptoms": [
+    id: "chronic-laryngitis",
+    name: "Chronic Laryngitis",
+    category: "Respiratory",
+    severity: "Low",
+    prevalence:
+      "Common, especially among people who use their voice professionally (singers, teachers).",
+    description:
+      "Chronic Laryngitis is an inflammation of the voice box (larynx) that persists for more than three weeks. Unlike acute laryngitis, which is usually caused by a temporary infection, chronic laryngitis is often due to prolonged exposure to an irritant and can lead to vocal cord strain, injuries, and growths.",
+    desc: "Chronic Laryngitis is an inflammation of the voice box (larynx) that persists for more than three weeks. Unlike acute laryngitis, which is usually caused by a temporary infection, chronic laryngitis is often due to prolonged exposure to an irritant and can lead to vocal cord strain, injuries, and growths.",
+    symptoms: [
       "Hoarseness.",
       "Weak voice or voice loss.",
-      "A \"tickle\" or rawness in the throat.",
+      'A "tickle" or rawness in the throat.',
       "A sensation of a lump in the throat (globus sensation).",
       "A constant need to clear the throat.",
-      "Dry cough."
+      "Dry cough.",
     ],
-    "causes": [
+    causes: [
       "It is caused by long-term irritation or misuse of the larynx.",
       "Smoking: A major cause; irritates the vocal cords directly.",
       "Gastroesophageal Reflux Disease (GERD) / Laryngopharyngeal Reflux (LPR): Stomach acid irritating the larynx.",
       "Voice Overuse: Yelling, singing, or talking for long periods.",
       "Chronic Sinusitis: Post-nasal drip dripping onto the vocal cords.",
-      "Exposure to irritants: Chemical fumes, allergens, dust."
+      "Exposure to irritants: Chemical fumes, allergens, dust.",
     ],
-    "treatment": [
+    treatment: [
       "Treatment focuses on identifying and eliminating the underlying cause.",
       "Voice rest and working with a speech-language pathologist for proper voice technique.",
       "Smoking cessation.",
       "Managing Reflux: Dietary changes, weight loss, acid-reducing medications (PPIs).",
       "Hydration: Drinking plenty of water.",
       "Avoiding irritants like alcohol and caffeine, which can dehydrate and worsen reflux.",
-      "Medications: Antibiotics are not used unless there is a secondary bacterial infection."
+      "Medications: Antibiotics are not used unless there is a secondary bacterial infection.",
     ],
-    "selfCare": [
+    selfCare: [
       "Rest your voice when it feels tired or hoarse.",
       "Use a humidifier to add moisture to the air.",
       "Avoid whispering, as it strains the voice more than speaking softly.",
@@ -2356,60 +2436,61 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Don't smoke and avoid secondhand smoke.",
       "Limit alcohol and caffeine.",
-      "Avoid clearing your throat; instead, take a sip of water."
+      "Avoid clearing your throat; instead, take a sip of water.",
     ],
-    "prevention": [
+    prevention: [
       "Avoid smoking.",
       "Drink plenty of water.",
       "Manage acid reflux.",
-      "Practice good vocal hygiene: Don't strain your voice, use a microphone if needed."
+      "Practice good vocal hygiene: Don't strain your voice, use a microphone if needed.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Smoking, chronic acid reflux (GERD/LPR).",
-      "Secondary: Excessive alcohol use, chronic sinusitis with post-nasal drip, overuse of the voice, exposure to chemical irritants."
+      "Secondary: Excessive alcohol use, chronic sinusitis with post-nasal drip, overuse of the voice, exposure to chemical irritants.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Shortness of breath.",
       "Coughing up blood.",
       "Difficulty swallowing.",
       "A lump in the neck.",
-      "Hoarseness lasting more than 3 weeks (to rule out cancer)."
-    ]
+      "Hoarseness lasting more than 3 weeks (to rule out cancer).",
+    ],
   },
   {
-    "id": "chronic-sinusitis",
-    "name": "Chronic Sinusitis",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Very Common: Affects about 12% of adults.",
-    "description": "Chronic Sinusitis is a long-lasting inflammation of the sinuses (hollow spaces around the nasal passages) that persists for at least 12 weeks despite treatment attempts. It interferes with drainage and causes mucus buildup, leading to difficulty breathing through the nose and facial pain.",
-    "desc": "Chronic Sinusitis is a long-lasting inflammation of the sinuses (hollow spaces around the nasal passages) that persists for at least 12 weeks despite treatment attempts. It interferes with drainage and causes mucus buildup, leading to difficulty breathing through the nose and facial pain.",
-    "symptoms": [
+    id: "chronic-sinusitis",
+    name: "Chronic Sinusitis",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence: "Very Common: Affects about 12% of adults.",
+    description:
+      "Chronic Sinusitis is a long-lasting inflammation of the sinuses (hollow spaces around the nasal passages) that persists for at least 12 weeks despite treatment attempts. It interferes with drainage and causes mucus buildup, leading to difficulty breathing through the nose and facial pain.",
+    desc: "Chronic Sinusitis is a long-lasting inflammation of the sinuses (hollow spaces around the nasal passages) that persists for at least 12 weeks despite treatment attempts. It interferes with drainage and causes mucus buildup, leading to difficulty breathing through the nose and facial pain.",
+    symptoms: [
       "Thick, discolored nasal discharge or postnasal drip.",
       "Nasal obstruction or congestion, causing difficulty breathing through your nose.",
       "Pain, tenderness, and swelling around your eyes, cheeks, nose, or forehead.",
       "Reduced sense of smell and taste.",
       "Ear pain.",
       "Aching in your upper jaw and teeth.",
-      "Cough (which may be worse at night)."
+      "Cough (which may be worse at night).",
     ],
-    "causes": [
+    causes: [
       "Infections: Bacterial, viral, or fungal.",
       "Nasal Polyps: Noncancerous growths that can block sinuses.",
       "Deviated Nasal Septum.",
       "Allergies (e.g., to pollen, dust mites).",
-      "Immune System Cells: In some cases, an immune response is involved (eosinophilic rhinosinusitis)."
+      "Immune System Cells: In some cases, an immune response is involved (eosinophilic rhinosinusitis).",
     ],
-    "treatment": [
+    treatment: [
       "The goal is to reduce sinus inflammation, improve drainage, and eliminate the cause.",
       "Nasal Corticosteroid Sprays: To prevent and treat inflammation (e.g., fluticasone).",
       "Saline Nasal Irrigation: Using a neti pot or squeeze bottle to flush out sinuses.",
       "Oral or Injected Corticosteroids: For severe inflammation.",
       "Antibiotics: Only if a bacterial infection is confirmed.",
       "Immunotherapy: If allergies are a contributing factor.",
-      "Surgery (Endoscopic Sinus Surgery): For cases that don't respond to medication, to enlarge the sinus openings and remove polyps."
+      "Surgery (Endoscopic Sinus Surgery): For cases that don't respond to medication, to enlarge the sinus openings and remove polyps.",
     ],
-    "selfCare": [
+    selfCare: [
       "Use saline nasal irrigation daily.",
       "Use your nasal steroid spray consistently.",
       "Get adequate rest and stay hydrated.",
@@ -2417,33 +2498,35 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Avoid upper respiratory infections by washing hands frequently.",
       "Manage your allergies.",
-      "Avoid cigarette smoke and other pollutants."
+      "Avoid cigarette smoke and other pollutants.",
     ],
-    "prevention": [
+    prevention: [
       "Treat allergies promptly.",
       "Avoid people with colds and other infections.",
       "Use a humidifier to add moisture to dry indoor air.",
-      "Avoid smoking and air pollutants."
+      "Avoid smoking and air pollutants.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Allergies (hay fever), nasal polyps, asthma.",
-      "Secondary: Deviated nasal septum, recurrent respiratory infections, immune system disorders."
+      "Secondary: Deviated nasal septum, recurrent respiratory infections, immune system disorders.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe headache, confusion, or double vision.",
       "Swelling or redness around the eyes.",
-      "Stiff neck and high fever."
-    ]
+      "Stiff neck and high fever.",
+    ],
   },
   {
-    "id": "recurrent-tonsillitis",
-    "name": "Recurrent Tonsillitis",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Common in children, but can also affect adults. • Diagnosis for surgery is often based on frequency: 7+ episodes in 1 year, 5+/year for 2 years, or 3+/year for 3 years.",
-    "description": "Recurrent Tonsillitis is defined as multiple episodes of tonsillitis (inflammation of the tonsils, usually due to infection) in a year. The tonsils are two lymph nodes at the back of the throat that act as a first line of defense, but they can become overwhelmed and infected themselves.",
-    "desc": "Recurrent Tonsillitis is defined as multiple episodes of tonsillitis (inflammation of the tonsils, usually due to infection) in a year. The tonsils are two lymph nodes at the back of the throat that act as a first line of defense, but they can become overwhelmed and infected themselves.",
-    "symptoms": [
+    id: "recurrent-tonsillitis",
+    name: "Recurrent Tonsillitis",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Common in children, but can also affect adults. • Diagnosis for surgery is often based on frequency: 7+ episodes in 1 year, 5+/year for 2 years, or 3+/year for 3 years.",
+    description:
+      "Recurrent Tonsillitis is defined as multiple episodes of tonsillitis (inflammation of the tonsils, usually due to infection) in a year. The tonsils are two lymph nodes at the back of the throat that act as a first line of defense, but they can become overwhelmed and infected themselves.",
+    desc: "Recurrent Tonsillitis is defined as multiple episodes of tonsillitis (inflammation of the tonsils, usually due to infection) in a year. The tonsils are two lymph nodes at the back of the throat that act as a first line of defense, but they can become overwhelmed and infected themselves.",
+    symptoms: [
       "(During an Episode)",
       "Red, swollen tonsils.",
       "White or yellow coating or patches on the tonsils.",
@@ -2451,17 +2534,17 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Painful or difficult swallowing.",
       "Fever.",
       "Swollen, tender lymph nodes in the neck.",
-      "Bad breath."
+      "Bad breath.",
     ],
-    "causes": [
-      "Most cases are caused by common viruses (like the cold virus), but bacterial infections, most notably Group A Streptococcus (strep throat), can also be the cause."
+    causes: [
+      "Most cases are caused by common viruses (like the cold virus), but bacterial infections, most notably Group A Streptococcus (strep throat), can also be the cause.",
     ],
-    "treatment": [
+    treatment: [
       "Viral: Supportive care with rest, fluids, pain relievers (acetaminophen/ibuprofen).",
       "Bacterial (Strep): Treated with antibiotics (e.g., penicillin) to prevent complications like rheumatic fever.",
-      "Tonsillectomy: Surgical removal of the tonsils. This is considered when the frequency of infections meets specific criteria or causes significant complications."
+      "Tonsillectomy: Surgical removal of the tonsils. This is considered when the frequency of infections meets specific criteria or causes significant complications.",
     ],
-    "selfCare": [
+    selfCare: [
       "(During an Infection)",
       "Get plenty of rest.",
       "Drink warm or cold fluids to soothe the throat (e.g., tea with honey, ice pops).",
@@ -2469,35 +2552,37 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Use a humidifier.",
       "Avoid irritants like cigarette smoke.",
       "Lifestyle Recommendations",
-      "Practice good hygiene like frequent handwashing to prevent the spread of germs."
+      "Practice good hygiene like frequent handwashing to prevent the spread of germs.",
     ],
-    "prevention": [
+    prevention: [
       "Good hygiene is the best defense.",
       "Avoid close contact with people who are sick.",
-      "Don't share utensils, glasses, or toothbrushes."
+      "Don't share utensils, glasses, or toothbrushes.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Young age (children are most susceptible).",
       "Secondary: Frequent exposure to germs (e.g., at school).",
       "Non-Modifiable: Age (children 5-15 are at highest risk for bacterial tonsillitis).",
-      "Modifiable: Frequent exposure to viruses and bacteria."
+      "Modifiable: Frequent exposure to viruses and bacteria.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe throat pain, often worse on one side.",
       "Difficulty swallowing, opening the mouth, or speaking.",
       "Drooling.",
-      "A \"hot potato\" voice."
-    ]
+      'A "hot potato" voice.',
+    ],
   },
   {
-    "id": "streptococcal-pharyngitis",
-    "name": "Streptococcal Pharyngitis",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Common, especially in children between the ages of 5 and 15. • Most sore throats are viral, but strep is a common bacterial cause.",
-    "description": "Streptococcal Pharyngitis, commonly known as Strep Throat, is a bacterial infection of the throat and tonsils caused by Group A Streptococcus (GAS) bacteria. It is highly contagious and requires antibiotic treatment to prevent serious complications.",
-    "desc": "Streptococcal Pharyngitis, commonly known as Strep Throat, is a bacterial infection of the throat and tonsils caused by Group A Streptococcus (GAS) bacteria. It is highly contagious and requires antibiotic treatment to prevent serious complications.",
-    "symptoms": [
+    id: "streptococcal-pharyngitis",
+    name: "Streptococcal Pharyngitis",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Common, especially in children between the ages of 5 and 15. • Most sore throats are viral, but strep is a common bacterial cause.",
+    description:
+      "Streptococcal Pharyngitis, commonly known as Strep Throat, is a bacterial infection of the throat and tonsils caused by Group A Streptococcus (GAS) bacteria. It is highly contagious and requires antibiotic treatment to prevent serious complications.",
+    desc: "Streptococcal Pharyngitis, commonly known as Strep Throat, is a bacterial infection of the throat and tonsils caused by Group A Streptococcus (GAS) bacteria. It is highly contagious and requires antibiotic treatment to prevent serious complications.",
+    symptoms: [
       "Sudden, severe sore throat.",
       "Painful swallowing.",
       "Fever.",
@@ -2505,20 +2590,20 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Tiny red spots on the roof of the mouth (petechiae).",
       "Swollen, tender lymph nodes in the neck.",
       "Headache.",
-      "Nausea or vomiting (especially in children)."
+      "Nausea or vomiting (especially in children).",
     ],
-    "causes": [
-      "It is caused by the bacterium Streptococcus pyogenes (Group A Strep). It spreads through respiratory droplets from coughing, sneezing, or sharing food/drinks."
+    causes: [
+      "It is caused by the bacterium Streptococcus pyogenes (Group A Strep). It spreads through respiratory droplets from coughing, sneezing, or sharing food/drinks.",
     ],
-    "treatment": [
+    treatment: [
       "Antibiotics are essential.",
       "Penicillin or Amoxicillin are the first-choice antibiotics. It is crucial to finish the entire course.",
       "Treatment reduces symptom duration, prevents spread, and most importantly, prevents complications like rheumatic fever and post-streptococcal glomerulonephritis.",
       "Ibuprofen or acetaminophen for pain and fever.",
       "Rest and fluids.",
-      "Gargling with warm salt water."
+      "Gargling with warm salt water.",
     ],
-    "selfCare": [
+    selfCare: [
       "Finish the entire course of antibiotics, even if you feel better.",
       "Stay home until you have been on antibiotics for at least 24 hours and no longer have a fever.",
       "Get plenty of rest.",
@@ -2526,43 +2611,45 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Wash your hands frequently.",
       "Cover your mouth when you cough or sneeze.",
-      "Do not share personal items."
+      "Do not share personal items.",
     ],
-    "prevention": [
+    prevention: [
       "Good hand hygiene is the best prevention.",
       "Avoid close contact with people who have strep throat.",
-      "If you are sick, stay home."
+      "If you are sick, stay home.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Age (school-aged children), close contact with an infected person.",
       "Secondary: Time of year (late fall/early spring), crowded settings (schools, daycare).",
       "Non-Modifiable: Age.",
-      "Modifiable: Close contact with an infected person, poor hand hygiene."
+      "Modifiable: Close contact with an infected person, poor hand hygiene.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Difficulty breathing or swallowing.",
       "A fever over 101°F (38.3°C) that doesn't improve with medication.",
       "A rash (could be scarlet fever).",
-      "Joint pain or swelling (could be rheumatic fever)."
-    ]
+      "Joint pain or swelling (could be rheumatic fever).",
+    ],
   },
   {
-    "id": "acute-respiratory-distress-syndrome-ards",
-    "name": "Acute Respiratory Distress Syndrome (ARDS)",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Major Critical Illness: Affects about 200,000 people in the US each year. • High Mortality Rate, though it has improved with better ICU care.",
-    "description": "Acute Respiratory Distress Syndrome (ARDS) is a life-threatening condition where the lungs become severely inflamed and fill with fluid, leading to rapid onset of respiratory failure. It prevents the lungs from providing enough oxygen to the body's vital organs. It is not a specific disease but a syndrome that arises as a complication of a severe underlying illness or injury.",
-    "desc": "Acute Respiratory Distress Syndrome (ARDS) is a life-threatening condition where the lungs become severely inflamed and fill with fluid, leading to rapid onset of respiratory failure. It prevents the lungs from providing enough oxygen to the body's vital organs. It is not a specific disease but a syndrome that arises as a complication of a severe underlying illness or injury.",
-    "symptoms": [
+    id: "acute-respiratory-distress-syndrome-ards",
+    name: "Acute Respiratory Distress Syndrome (ARDS)",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Major Critical Illness: Affects about 200,000 people in the US each year. • High Mortality Rate, though it has improved with better ICU care.",
+    description:
+      "Acute Respiratory Distress Syndrome (ARDS) is a life-threatening condition where the lungs become severely inflamed and fill with fluid, leading to rapid onset of respiratory failure. It prevents the lungs from providing enough oxygen to the body's vital organs. It is not a specific disease but a syndrome that arises as a complication of a severe underlying illness or injury.",
+    desc: "Acute Respiratory Distress Syndrome (ARDS) is a life-threatening condition where the lungs become severely inflamed and fill with fluid, leading to rapid onset of respiratory failure. It prevents the lungs from providing enough oxygen to the body's vital organs. It is not a specific disease but a syndrome that arises as a complication of a severe underlying illness or injury.",
+    symptoms: [
       "The symptoms of ARDS typically develop within a few hours to a few days of the initial injury or illness.",
       "Severe shortness of breath.",
       "Extreme difficulty breathing (the person may be using neck and chest muscles to breathe).",
       "Rapid, shallow breathing.",
       "Low blood pressure and organ failure due to lack of oxygen.",
-      "Confusion and extreme tiredness."
+      "Confusion and extreme tiredness.",
     ],
-    "causes": [
+    causes: [
       "ARDS occurs when the lungs' tiny blood vessels (capillaries) leak fluid into the air sacs (alveoli), usually due to an underlying inflammatory trigger.",
       "Pneumonia.",
       "Aspiration of stomach contents.",
@@ -2570,57 +2657,59 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lung contusion (from trauma).",
       "Sepsis (the most common cause).",
       "Severe trauma with shock.",
-      "Multiple blood transfusions."
+      "Multiple blood transfusions.",
     ],
-    "treatment": [
+    treatment: [
       "There is no direct cure for ARDS. Treatment is supportive, aimed at providing oxygen and supporting the body while the lungs heal.",
       "Mechanical Ventilation: The primary treatment. A ventilator is used to push oxygen into the lungs and force fluid out. A protective strategy with low tidal volumes is used to prevent further lung injury.",
       "Oxygen Therapy.",
       "Treating the Underlying Cause: Crucial (e.g., antibiotics for sepsis or pneumonia).",
-      "Supportive Care: Fluids management, nutrition, and prevention of complications like blood clots and bed sores."
+      "Supportive Care: Fluids management, nutrition, and prevention of complications like blood clots and bed sores.",
     ],
-    "selfCare": [
+    selfCare: [
       "(This section is not applicable as ARDS patients are critically ill in the ICU. The focus is on family support and post-ICU recovery.)",
       "Participate in pulmonary rehabilitation.",
-      "Expect a long recovery with potential for physical and cognitive deficits (Post-Intensive Care Syndrome)."
+      "Expect a long recovery with potential for physical and cognitive deficits (Post-Intensive Care Syndrome).",
     ],
-    "prevention": [
+    prevention: [
       "Preventing ARDS involves preventing the underlying conditions that cause it.",
       "Seek prompt treatment for any serious infection (to prevent sepsis).",
       "Get vaccinated against flu and pneumonia.",
-      "Prevent aspiration by following safety guidelines if at risk."
+      "Prevent aspiration by following safety guidelines if at risk.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Severe pneumonia, sepsis (a widespread body infection), major trauma.",
-      "Secondary: Aspiration (inhaling vomit), pancreatitis, massive blood transfusions, smoke inhalation."
+      "Secondary: Aspiration (inhaling vomit), pancreatitis, massive blood transfusions, smoke inhalation.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe shortness of breath.",
       "Rapid, labored breathing.",
-      "Low blood oxygen levels that do not improve with standard oxygen therapy."
-    ]
+      "Low blood oxygen levels that do not improve with standard oxygen therapy.",
+    ],
   },
   {
-    "id": "silicosis",
-    "name": "Silicosis",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "An Occupational Disease: Most common in miners, sandblasters, stone cutters, and foundry workers. • Still occurs despite known safety measures.",
-    "description": "Silicosis is a long-term lung disease caused by inhaling large amounts of crystalline silica dust. The dust causes inflammation and scarring (fibrosis) in the lungs, which stiffens them and makes it difficult to breathe. It is an occupational lung disease with no cure.",
-    "desc": "Silicosis is a long-term lung disease caused by inhaling large amounts of crystalline silica dust. The dust causes inflammation and scarring (fibrosis) in the lungs, which stiffens them and makes it difficult to breathe. It is an occupational lung disease with no cure.",
-    "symptoms": [
+    id: "silicosis",
+    name: "Silicosis",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "An Occupational Disease: Most common in miners, sandblasters, stone cutters, and foundry workers. • Still occurs despite known safety measures.",
+    description:
+      "Silicosis is a long-term lung disease caused by inhaling large amounts of crystalline silica dust. The dust causes inflammation and scarring (fibrosis) in the lungs, which stiffens them and makes it difficult to breathe. It is an occupational lung disease with no cure.",
+    desc: "Silicosis is a long-term lung disease caused by inhaling large amounts of crystalline silica dust. The dust causes inflammation and scarring (fibrosis) in the lungs, which stiffens them and makes it difficult to breathe. It is an occupational lung disease with no cure.",
+    symptoms: [
       "Symptoms may not appear until years after exposure.",
       "Shortness of breath, initially with exertion and later at rest.",
       "Persistent, severe cough.",
       "Fatigue.",
       "Chest pain.",
       "In later stages, bluish discoloration of the lips (cyanosis).",
-      "Susceptibility to lung infections like tuberculosis."
+      "Susceptibility to lung infections like tuberculosis.",
     ],
-    "causes": [
-      "It is caused by inhalation of crystalline silica dust, which is found in sand, rock, and mineral ores like quartz."
+    causes: [
+      "It is caused by inhalation of crystalline silica dust, which is found in sand, rock, and mineral ores like quartz.",
     ],
-    "treatment": [
+    treatment: [
       "There is no cure for the lung scarring. Treatment focuses on relieving symptoms, preventing complications, and slowing progression.",
       "Stop all exposure to silica dust immediately.",
       "Smoking cessation.",
@@ -2628,9 +2717,9 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Pulmonary rehabilitation.",
       "Medications to help with breathing (bronchodilators).",
       "Vaccinations for flu and pneumonia.",
-      "Treatment for complications like TB if they arise."
+      "Treatment for complications like TB if they arise.",
     ],
-    "selfCare": [
+    selfCare: [
       "If you are diagnosed, you must avoid further silica exposure.",
       "Do not smoke.",
       "Use your oxygen as prescribed.",
@@ -2638,111 +2727,114 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Stay as active as possible with pulmonary rehab.",
       "Eat a healthy diet.",
-      "Avoid all lung irritants."
+      "Avoid all lung irritants.",
     ],
-    "prevention": [
+    prevention: [
       "Silicosis is 100% preventable with proper workplace safety.",
       "Use of engineering controls like water to suppress dust and ventilation systems.",
       "Wearing a properly fitted respirator when working with silica.",
       "Not eating or drinking in dusty areas.",
-      "Regular health screenings for at-risk workers."
+      "Regular health screenings for at-risk workers.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Occupational exposure to silica dust (construction, mining, masonry, fracking).",
       "Secondary: Lack of proper protective equipment (respirators), working in poorly ventilated areas.",
       "Non-Modifiable: Duration and intensity of exposure.",
-      "Modifiable: Lack of use of engineering controls (water suppression, ventilation) and personal protective equipment (respirators)."
+      "Modifiable: Lack of use of engineering controls (water suppression, ventilation) and personal protective equipment (respirators).",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Rapidly worsening shortness of breath.",
       "Severe cough and fatigue.",
-      "Fever."
-    ]
+      "Fever.",
+    ],
   },
   {
-    "id": "asbestosis",
-    "name": "Asbestosis",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "An Occupational Disease: Associated with industries like shipbuilding, construction, and insulation manufacturing. • Has a long latency period, often appearing 10-40 years after exposure.",
-    "description": "Asbestosis is a chronic lung disease caused by inhaling asbestos fibers. These fibers lodge in the lungs, causing scarring (fibrosis) over many years. This scarring restricts lung expansion and causes progressive shortness of breath. It is also a major risk factor for lung cancer and mesothelioma.",
-    "desc": "Asbestosis is a chronic lung disease caused by inhaling asbestos fibers. These fibers lodge in the lungs, causing scarring (fibrosis) over many years. This scarring restricts lung expansion and causes progressive shortness of breath. It is also a major risk factor for lung cancer and mesothelioma.",
-    "symptoms": [
+    id: "asbestosis",
+    name: "Asbestosis",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "An Occupational Disease: Associated with industries like shipbuilding, construction, and insulation manufacturing. • Has a long latency period, often appearing 10-40 years after exposure.",
+    description:
+      "Asbestosis is a chronic lung disease caused by inhaling asbestos fibers. These fibers lodge in the lungs, causing scarring (fibrosis) over many years. This scarring restricts lung expansion and causes progressive shortness of breath. It is also a major risk factor for lung cancer and mesothelioma.",
+    desc: "Asbestosis is a chronic lung disease caused by inhaling asbestos fibers. These fibers lodge in the lungs, causing scarring (fibrosis) over many years. This scarring restricts lung expansion and causes progressive shortness of breath. It is also a major risk factor for lung cancer and mesothelioma.",
+    symptoms: [
       "Gradual onset of shortness of breath, especially with physical activity.",
       "A persistent, dry cough.",
       "Chest tightness or pain.",
       "Loss of appetite with weight loss.",
-      "Clubbing (widening and rounding) of the fingertips and toes in advanced cases."
+      "Clubbing (widening and rounding) of the fingertips and toes in advanced cases.",
     ],
-    "causes": [
-      "It is caused by the inhalation of microscopic asbestos fibers, which cause inflammation and scarring in the lung tissue."
+    causes: [
+      "It is caused by the inhalation of microscopic asbestos fibers, which cause inflammation and scarring in the lung tissue.",
     ],
-    "treatment": [
+    treatment: [
       "There is no cure or treatment to reverse the lung damage. The goal is to slow progression, relieve symptoms, and prevent complications.",
       "Oxygen therapy to make breathing easier and ensure adequate blood oxygen.",
       "Pulmonary rehabilitation to improve daily functioning.",
       "Vaccinations against flu and pneumonia.",
       "Smoking cessation is absolutely critical.",
-      "Treating respiratory infections promptly."
+      "Treating respiratory infections promptly.",
     ],
-    "selfCare": [
+    selfCare: [
       "Avoid all further exposure to asbestos.",
       "Do not smoke.",
       "Use oxygen as prescribed.",
       "Get regular follow-up care with a pulmonologist, including imaging to screen for lung cancer and mesothelioma.",
       "Lifestyle Recommendations",
       "Stay as active as possible.",
-      "Eat a healthy diet."
+      "Eat a healthy diet.",
     ],
-    "prevention": [
+    prevention: [
       "Asbestosis is preventable by minimizing exposure to airborne asbestos fibers.",
       "Strictly following OSHA safety guidelines in workplaces where asbestos is present.",
       "Using protective equipment (respirators).",
-      "Proper asbestos abatement procedures performed by trained professionals."
+      "Proper asbestos abatement procedures performed by trained professionals.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Long-term occupational exposure to asbestos.",
       "Secondary: Living with someone who works with asbestos (fibers can be carried home on clothing).",
       "Non-Modifiable: Duration and intensity of asbestos exposure.",
-      "Modifiable: Smoking dramatically increases the risk of lung cancer in people exposed to asbestos."
+      "Modifiable: Smoking dramatically increases the risk of lung cancer in people exposed to asbestos.",
     ],
-    "warningSigns": [
-      "Seek prompt evaluation for any new or worsening respiratory symptoms if you have a history of exposure, as it could indicate progression or a related cancer."
-    ]
+    warningSigns: [
+      "Seek prompt evaluation for any new or worsening respiratory symptoms if you have a history of exposure, as it could indicate progression or a related cancer.",
+    ],
   },
   {
-    "id": "cardiogenic-pulmonary-edema",
-    "name": "Cardiogenic Pulmonary Edema",
-    "category": "Respiratory",
-    "severity": "High",
-    "prevalence": "A common manifestation of acute decompensated heart failure.",
-    "description": "Cardiogenic Pulmonary Edema is a condition caused by severe heart failure, where the heart's left ventricle is unable to pump blood effectively. This causes pressure to back up in the pulmonary veins (the blood vessels that return blood from the lungs to the heart), forcing fluid to leak into the lung's air sacs (alveoli). This fluid accumulation in the lungs causes severe shortness of breath.",
-    "desc": "Cardiogenic Pulmonary Edema is a condition caused by severe heart failure, where the heart's left ventricle is unable to pump blood effectively. This causes pressure to back up in the pulmonary veins (the blood vessels that return blood from the lungs to the heart), forcing fluid to leak into the lung's air sacs (alveoli). This fluid accumulation in the lungs causes severe shortness of breath.",
-    "symptoms": [
+    id: "cardiogenic-pulmonary-edema",
+    name: "Cardiogenic Pulmonary Edema",
+    category: "Respiratory",
+    severity: "High",
+    prevalence: "A common manifestation of acute decompensated heart failure.",
+    description:
+      "Cardiogenic Pulmonary Edema is a condition caused by severe heart failure, where the heart's left ventricle is unable to pump blood effectively. This causes pressure to back up in the pulmonary veins (the blood vessels that return blood from the lungs to the heart), forcing fluid to leak into the lung's air sacs (alveoli). This fluid accumulation in the lungs causes severe shortness of breath.",
+    desc: "Cardiogenic Pulmonary Edema is a condition caused by severe heart failure, where the heart's left ventricle is unable to pump blood effectively. This causes pressure to back up in the pulmonary veins (the blood vessels that return blood from the lungs to the heart), forcing fluid to leak into the lung's air sacs (alveoli). This fluid accumulation in the lungs causes severe shortness of breath.",
+    symptoms: [
       "Severe shortness of breath that worsens with lying down (orthopnea). Patients often need to sit up to breathe.",
       "Paroxysmal nocturnal dyspnea (waking up at night gasping for air).",
-      "A feeling of \"air hunger.\"",
+      'A feeling of "air hunger."',
       "Rapid, irregular heartbeat.",
       "Excessive sweating.",
-      "Cyanosis (bluish skin color)."
+      "Cyanosis (bluish skin color).",
     ],
-    "causes": [
+    causes: [
       "It is a consequence of left-sided heart failure. The failing left ventricle cannot handle the blood coming from the lungs, leading to increased pressure that pushes fluid into the alveoli.",
       "Acute Myocardial Infarction (Heart Attack).",
       "Ischemic Heart Disease.",
       "Hypertensive Crisis.",
       "Acute worsening of Chronic Heart Failure.",
-      "Severe Heart Valve Dysfunction (e.g., mitral regurgitation)."
+      "Severe Heart Valve Dysfunction (e.g., mitral regurgitation).",
     ],
-    "treatment": [
+    treatment: [
       "Emergency treatment is aimed at improving heart function and removing excess fluid from the lungs.",
       "High-flow oxygen. In severe cases, non-invasive ventilation (CPAP/BiPAP) or intubation with mechanical ventilation is needed.",
       "Diuretics (e.g., Furosemide): Given IV to rapidly remove fluid from the body via urine.",
       "Vasodilators (e.g., Nitroglycerin): To dilate blood vessels, reducing the workload on the heart and the pressure in the lungs.",
       "Morphine: Can be used to reduce anxiety and shortness of breath.",
-      "Treating the Underlying Cause: Crucial (e.g., opening a blocked artery in a heart attack)."
+      "Treating the Underlying Cause: Crucial (e.g., opening a blocked artery in a heart attack).",
     ],
-    "selfCare": [
+    selfCare: [
       "(For those with known heart failure to prevent episodes)",
       "Weigh yourself daily and report sudden weight gains to your doctor.",
       "Take all heart medications as prescribed.",
@@ -2750,49 +2842,51 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Limit fluid intake as directed.",
       "Lifestyle Recommendations",
       "Manage underlying heart disease.",
-      "Attend all cardiology appointments."
+      "Attend all cardiology appointments.",
     ],
-    "prevention": [
+    prevention: [
       "The best prevention is the effective long-term management of underlying heart conditions.",
       "Strict adherence to heart failure medication and lifestyle regimens.",
       "Controlling blood pressure.",
-      "Managing coronary artery disease."
+      "Managing coronary artery disease.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Underlying heart conditions like Coronary Artery Disease, Heart Attack, Cardiomyopathy, Heart Valve Problems.",
-      "Secondary: Uncontrolled high blood pressure, arrhythmias (like atrial fibrillation), non-adherence to heart failure medications."
+      "Secondary: Uncontrolled high blood pressure, arrhythmias (like atrial fibrillation), non-adherence to heart failure medications.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Extreme shortness of breath or difficulty breathing.",
       "A feeling of suffocating or drowning.",
       "Wheezing or gasping for air.",
       "Anxiety, restlessness.",
       "Coughing up pink, frothy sputum.",
       "Chest pain if it is caused by a heart attack.",
-      "Cold, clammy skin."
-    ]
+      "Cold, clammy skin.",
+    ],
   },
   {
-    "id": "rhinovirus-infection",
-    "name": "Rhinovirus Infection",
-    "category": "Respiratory",
-    "severity": "Medium",
-    "prevalence": "Ubiquitous: The average adult gets 2-3 colds per year; children get even more. • Seasonal: Most common in the fall and spring.",
-    "description": "A Rhinovirus Infection is the most common viral infectious agent in humans and is the primary cause of the common cold. There are over 100 serotypes of rhinovirus, which is why people can get colds repeatedly. It primarily affects the upper respiratory system.",
-    "desc": "A Rhinovirus Infection is the most common viral infectious agent in humans and is the primary cause of the common cold. There are over 100 serotypes of rhinovirus, which is why people can get colds repeatedly. It primarily affects the upper respiratory system.",
-    "symptoms": [
+    id: "rhinovirus-infection",
+    name: "Rhinovirus Infection",
+    category: "Respiratory",
+    severity: "Medium",
+    prevalence:
+      "Ubiquitous: The average adult gets 2-3 colds per year; children get even more. • Seasonal: Most common in the fall and spring.",
+    description:
+      "A Rhinovirus Infection is the most common viral infectious agent in humans and is the primary cause of the common cold. There are over 100 serotypes of rhinovirus, which is why people can get colds repeatedly. It primarily affects the upper respiratory system.",
+    desc: "A Rhinovirus Infection is the most common viral infectious agent in humans and is the primary cause of the common cold. There are over 100 serotypes of rhinovirus, which is why people can get colds repeatedly. It primarily affects the upper respiratory system.",
+    symptoms: [
       "Runny or stuffy nose.",
       "Sneezing.",
       "Sore throat.",
       "Cough.",
       "Mild headache.",
       "Mild body aches.",
-      "Low-grade fever (more common in children)."
+      "Low-grade fever (more common in children).",
     ],
-    "causes": [
-      "It is caused by the rhinovirus, which spreads through airborne droplets from a cough or sneeze, or by touching a surface contaminated with the virus and then touching your eyes, nose, or mouth."
+    causes: [
+      "It is caused by the rhinovirus, which spreads through airborne droplets from a cough or sneeze, or by touching a surface contaminated with the virus and then touching your eyes, nose, or mouth.",
     ],
-    "treatment": [
+    treatment: [
       "There is no cure for the common cold. Treatment is focused on symptom relief.",
       "Rest and hydration.",
       "Over-the-counter pain relievers/fever reducers (acetaminophen, ibuprofen).",
@@ -2800,9 +2894,9 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Saline nasal sprays or irrigation.",
       "Cough suppressants or expectorants.",
       "Throat lozenges.",
-      "Note: Antibiotics are not effective against viruses."
+      "Note: Antibiotics are not effective against viruses.",
     ],
-    "selfCare": [
+    selfCare: [
       "Get plenty of rest.",
       "Drink lots of fluids (water, juice, clear broth).",
       "Use a humidifier or take a steamy shower to ease congestion.",
@@ -2810,158 +2904,164 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Wash your hands frequently with soap and water.",
       "Avoid touching your face with unwashed hands.",
-      "Disinfect frequently touched surfaces."
+      "Disinfect frequently touched surfaces.",
     ],
-    "prevention": [
+    prevention: [
       "Good hand hygiene is the most effective method.",
       "Avoid close contact with people who have a cold.",
-      "Don't share utensils or personal items with someone who is sick."
+      "Don't share utensils or personal items with someone who is sick.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Close contact with an infected person, touching contaminated surfaces.",
       "Secondary: Age (young children), weakened immune system, time spent in daycare or schools.",
       "Non-Modifiable: Age (young children), Season.",
-      "Modifiable: Hand Hygiene, Smoking (increases susceptibility), Stress, Lack of Sleep."
+      "Modifiable: Hand Hygiene, Smoking (increases susceptibility), Stress, Lack of Sleep.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Symptoms lasting more than 10 days.",
       "High fever (>101.3°F / 38.5°C).",
-      "Severe symptoms like sinus pain, shortness of breath, or wheezing (could indicate a secondary bacterial infection or exacerbation of asthma)."
-    ]
+      "Severe symptoms like sinus pain, shortness of breath, or wheezing (could indicate a secondary bacterial infection or exacerbation of asthma).",
+    ],
   },
   {
-    "id": "pertussis-whooping-cough",
-    "name": "Pertussis (Whooping Cough)",
-    "category": "Respiratory",
-    "severity": "High",
-    "prevalence": "Cyclical outbreaks occur every 3-5 years. • Vaccination has reduced incidence, but it remains a concern, especially for unvaccinated infants.",
-    "description": "Pertussis, also known as Whooping Cough, is a highly contagious respiratory tract infection caused by the bacterium Bordetella pertussis. It is characterized by severe, uncontrollable coughing fits that can end with a \"whooping\" sound as the person gasps for air. It is particularly dangerous and can be fatal for infants.",
-    "desc": "Pertussis, also known as Whooping Cough, is a highly contagious respiratory tract infection caused by the bacterium Bordetella pertussis. It is characterized by severe, uncontrollable coughing fits that can end with a \"whooping\" sound as the person gasps for air. It is particularly dangerous and can be fatal for infants.",
-    "symptoms": [
+    id: "pertussis-whooping-cough",
+    name: "Pertussis (Whooping Cough)",
+    category: "Respiratory",
+    severity: "High",
+    prevalence:
+      "Cyclical outbreaks occur every 3-5 years. • Vaccination has reduced incidence, but it remains a concern, especially for unvaccinated infants.",
+    description:
+      'Pertussis, also known as Whooping Cough, is a highly contagious respiratory tract infection caused by the bacterium Bordetella pertussis. It is characterized by severe, uncontrollable coughing fits that can end with a "whooping" sound as the person gasps for air. It is particularly dangerous and can be fatal for infants.',
+    desc: 'Pertussis, also known as Whooping Cough, is a highly contagious respiratory tract infection caused by the bacterium Bordetella pertussis. It is characterized by severe, uncontrollable coughing fits that can end with a "whooping" sound as the person gasps for air. It is particularly dangerous and can be fatal for infants.',
+    symptoms: [
       "1.Catarrhal Stage (1-2 weeks): Symptoms resemble a common cold (runny nose, mild cough, low-grade fever).",
-      "2.Paroxysmal Stage (1-6 weeks): Severe, rapid coughing fits. The \"whoop\" occurs as the patient inhales forcefully after a fit. Vomiting and exhaustion often follow the fits.",
-      "3.Convalescent Stage (weeks to months): A gradual recovery, though coughing spells can return with subsequent respiratory infections."
+      '2.Paroxysmal Stage (1-6 weeks): Severe, rapid coughing fits. The "whoop" occurs as the patient inhales forcefully after a fit. Vomiting and exhaustion often follow the fits.',
+      "3.Convalescent Stage (weeks to months): A gradual recovery, though coughing spells can return with subsequent respiratory infections.",
     ],
-    "causes": [
-      "It is caused by the bacterium Bordetella pertussis, which attaches to the cilia in the respiratory tract and releases toxins that damage the cilia and cause airway swelling."
+    causes: [
+      "It is caused by the bacterium Bordetella pertussis, which attaches to the cilia in the respiratory tract and releases toxins that damage the cilia and cause airway swelling.",
     ],
-    "treatment": [
+    treatment: [
       "Antibiotics: (e.g., azithromycin, erythromycin). They are most effective when started early, in the catarrhal stage. If started later, they may not shorten the illness but can reduce contagiousness.",
       "Supportive Care: This is the mainstay of treatment, especially after the paroxysmal stage has begun.",
       "Rest and hydration.",
       "Small, frequent meals to prevent vomiting.",
       "A cool-mist humidifier to soothe the airways.",
-      "Hospitalization is often required for infants for oxygen, IV fluids, and suctioning of secretions."
+      "Hospitalization is often required for infants for oxygen, IV fluids, and suctioning of secretions.",
     ],
-    "selfCare": [
+    selfCare: [
       "If prescribed antibiotics, finish the entire course.",
       "Practice good hand hygiene.",
       "Isolate the infected person until they have been on antibiotics for at least 5 days.",
       "Use a humidifier.",
       "Lifestyle Recommendations",
-      "Ensure you and your family are up-to-date on vaccinations."
+      "Ensure you and your family are up-to-date on vaccinations.",
     ],
-    "prevention": [
+    prevention: [
       "Vaccination is the best prevention.",
-      "The DTaP vaccine protects children. Booster shots (Tdap) are recommended for preteens, teens, and adults (especially pregnant women during each pregnancy to protect the newborn)."
+      "The DTaP vaccine protects children. Booster shots (Tdap) are recommended for preteens, teens, and adults (especially pregnant women during each pregnancy to protect the newborn).",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Being unvaccinated or under-vaccinated.",
       "Secondary: Age (infants under 1 year are at highest risk for severe disease), weakened immune system, pregnancy.",
       "Non-Modifiable: Infant Age.",
-      "Modifiable: Lack of vaccination, Waning immunity in adolescents and adults (the vaccine protection fades over time)."
+      "Modifiable: Lack of vaccination, Waning immunity in adolescents and adults (the vaccine protection fades over time).",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Difficulty breathing or pauses in breathing (apnea).",
       "Cyanosis (turning blue or purple).",
       "Dehydration (fewer wet diapers, no tears when crying).",
-      "Seizures or violent, persistent vomiting."
-    ]
+      "Seizures or violent, persistent vomiting.",
+    ],
   },
   {
-    "id": "plasmodium-falciparum-malaria",
-    "name": "Plasmodium Falciparum Malaria",
-    "category": "Infectious",
-    "severity": "Medium",
-    "prevalence": "A major global health problem: Primarily found in tropical and subtropical climates, especially in sub-Saharan Africa. • Leading cause of death: Causes hundreds of thousands of deaths annually, with children under 5 being the most vulnerable.",
-    "description": "Malaria caused by the Plasmodium falciparum parasite is the most severe and life-threatening form of the disease. It is transmitted through the bite of an infected female Anopheles mosquito. This parasite infects and destroys red blood cells and can cause severe complications by clogging small blood vessels in vital organs.",
-    "desc": "Malaria caused by the Plasmodium falciparum parasite is the most severe and life-threatening form of the disease. It is transmitted through the bite of an infected female Anopheles mosquito. This parasite infects and destroys red blood cells and can cause severe complications by clogging small blood vessels in vital organs.",
-    "symptoms": [
+    id: "plasmodium-falciparum-malaria",
+    name: "Plasmodium Falciparum Malaria",
+    category: "Infectious",
+    severity: "Medium",
+    prevalence:
+      "A major global health problem: Primarily found in tropical and subtropical climates, especially in sub-Saharan Africa. • Leading cause of death: Causes hundreds of thousands of deaths annually, with children under 5 being the most vulnerable.",
+    description:
+      "Malaria caused by the Plasmodium falciparum parasite is the most severe and life-threatening form of the disease. It is transmitted through the bite of an infected female Anopheles mosquito. This parasite infects and destroys red blood cells and can cause severe complications by clogging small blood vessels in vital organs.",
+    desc: "Malaria caused by the Plasmodium falciparum parasite is the most severe and life-threatening form of the disease. It is transmitted through the bite of an infected female Anopheles mosquito. This parasite infects and destroys red blood cells and can cause severe complications by clogging small blood vessels in vital organs.",
+    symptoms: [
       "Symptoms typically appear 10-15 days after the infective mosquito bite and occur in cyclical waves.",
       "High fever, chills, and rigors (violent shivering).",
       "Profuse sweating as the fever breaks.",
       "Severe headache.",
       "Nausea and vomiting.",
       "Muscle aches and fatigue.",
-      "Diarrhea."
+      "Diarrhea.",
     ],
-    "causes": [
-      "The disease is caused by the Plasmodium falciparum parasite, which is transmitted through mosquito bites. The parasite travels to the liver, matures, and then enters the bloodstream to infect red blood cells."
+    causes: [
+      "The disease is caused by the Plasmodium falciparum parasite, which is transmitted through mosquito bites. The parasite travels to the liver, matures, and then enters the bloodstream to infect red blood cells.",
     ],
-    "treatment": [
+    treatment: [
       "Prompt and effective treatment is critical. The choice of drug depends on the severity and drug resistance in the region.",
       "Artemisinin-based Combination Therapies (ACTs): The first-line treatment worldwide (e.g., artemether-lumefantrine).",
       "Intravenous Artesunate: The treatment of choice.",
       "Followed by a complete course of an oral ACT once the patient can tolerate it.",
-      "Note: Drug resistance is a major problem, guiding treatment protocols."
+      "Note: Drug resistance is a major problem, guiding treatment protocols.",
     ],
-    "selfCare": [
+    selfCare: [
       "(For travelers in endemic areas)",
       "Strictly adhere to malaria prophylaxis as prescribed.",
       "Use insect repellent containing DEET, picaridin, or IR3535.",
       "Sleep under an insecticide-treated bed net (ITN).",
       "Wear long-sleeved shirts and long pants, especially from dusk to dawn.",
       "Lifestyle Recommendations",
-      "Be aware of the symptoms and seek medical attention immediately if they appear, even after returning from travel."
+      "Be aware of the symptoms and seek medical attention immediately if they appear, even after returning from travel.",
     ],
-    "prevention": [
+    prevention: [
       "Prevention focuses on avoiding mosquito bites and using preventive medications.",
       "Vector Control: Insecticide-treated bed nets, indoor residual spraying.",
       "Chemoprophylaxis: For travelers, drugs like atovaquone-proguanil, doxycycline, or mefloquine.",
-      "Community Education and access to healthcare."
+      "Community Education and access to healthcare.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Living in or traveling to a region where malaria is endemic.",
       "Secondary: Lack of immunity (e.g., travelers, young children), pregnancy, lack of access to prevention and treatment.",
       "Non-Modifiable: Geographic location, Lack of acquired immunity.",
-      "Modifiable: Not using prophylactic medications, Lack of mosquito bite prevention (bed nets, repellents)."
+      "Modifiable: Not using prophylactic medications, Lack of mosquito bite prevention (bed nets, repellents).",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Impaired consciousness or coma (cerebral malaria).",
       "Severe anemia due to destruction of red blood cells.",
       "Acute kidney failure.",
       "Respiratory distress due to metabolic acidosis.",
       "Low blood sugar (hypoglycemia).",
-      "Shock and circulatory collapse."
-    ]
+      "Shock and circulatory collapse.",
+    ],
   },
   {
-    "id": "symptomatic-hiv-infection",
-    "name": "Symptomatic HIV Infection",
-    "category": "Infectious",
-    "severity": "High",
-    "prevalence": "Global Pandemic: An estimated 39 million people live with HIV globally. • Without treatment, symptomatic HIV will progress to AIDS.",
-    "description": "Symptomatic HIV Infection refers to the stage of HIV disease where a person's immune system is significantly damaged by the virus, leading to the appearance of clinical symptoms. This stage occurs after the asymptomatic stage and before the development of AIDS. It is characterized by persistent, but not yet AIDS-defining, symptoms and infections.",
-    "desc": "Symptomatic HIV Infection refers to the stage of HIV disease where a person's immune system is significantly damaged by the virus, leading to the appearance of clinical symptoms. This stage occurs after the asymptomatic stage and before the development of AIDS. It is characterized by persistent, but not yet AIDS-defining, symptoms and infections.",
-    "symptoms": [
+    id: "symptomatic-hiv-infection",
+    name: "Symptomatic HIV Infection",
+    category: "Infectious",
+    severity: "High",
+    prevalence:
+      "Global Pandemic: An estimated 39 million people live with HIV globally. • Without treatment, symptomatic HIV will progress to AIDS.",
+    description:
+      "Symptomatic HIV Infection refers to the stage of HIV disease where a person's immune system is significantly damaged by the virus, leading to the appearance of clinical symptoms. This stage occurs after the asymptomatic stage and before the development of AIDS. It is characterized by persistent, but not yet AIDS-defining, symptoms and infections.",
+    desc: "Symptomatic HIV Infection refers to the stage of HIV disease where a person's immune system is significantly damaged by the virus, leading to the appearance of clinical symptoms. This stage occurs after the asymptomatic stage and before the development of AIDS. It is characterized by persistent, but not yet AIDS-defining, symptoms and infections.",
+    symptoms: [
       "Persistent fevers and night sweats.",
       "Chronic diarrhea.",
       "Persistent, unexplained fatigue.",
       "Swollen lymph nodes.",
       "Unexplained weight loss.",
       "Skin rashes or flaky skin.",
-      "Oral infections like thrush (candidiasis) or hairy leukoplakia."
+      "Oral infections like thrush (candidiasis) or hairy leukoplakia.",
     ],
-    "causes": [
-      "The cause is infection with the Human Immunodeficiency Virus (HIV), which attacks and destroys CD4 cells (T-cells), a type of white blood cell crucial for the immune system."
+    causes: [
+      "The cause is infection with the Human Immunodeficiency Virus (HIV), which attacks and destroys CD4 cells (T-cells), a type of white blood cell crucial for the immune system.",
     ],
-    "treatment": [
+    treatment: [
       "The standard treatment is Antiretroviral Therapy (ART).",
       "ART: A combination of several antiretroviral drugs taken daily.",
       "Goal: To suppress the viral load (amount of HIV in the blood) to an undetectable level. This halts disease progression, allows immune system recovery, and prevents transmission to others.",
-      "Treatment is lifelong."
+      "Treatment is lifelong.",
     ],
-    "selfCare": [
+    selfCare: [
       "Take ART consistently and exactly as prescribed. This is the most important action.",
       "Attend all medical appointments for viral load and CD4 count monitoring.",
       "Practice safe sex to prevent transmission of HIV and other STIs.",
@@ -2969,37 +3069,39 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Lifestyle Recommendations",
       "Avoid raw or undercooked foods to prevent foodborne illness.",
       "Get vaccinated as recommended by your doctor.",
-      "Don't smoke and limit alcohol."
+      "Don't smoke and limit alcohol.",
     ],
-    "prevention": [
+    prevention: [
       "Pre-Exposure Prophylaxis (PrEP): Daily medication for HIV-negative people at high risk.",
       "Post-Exposure Prophylaxis (PEP): Emergency medication taken after potential exposure.",
       "Use condoms correctly every time you have sex.",
       "Never share needles or other drug injection equipment.",
-      "Treatment as Prevention: People with an undetectable viral load cannot sexually transmit HIV."
+      "Treatment as Prevention: People with an undetectable viral load cannot sexually transmit HIV.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Unprotected sexual contact, sharing needles/syringes.",
       "Secondary: Mother-to-child transmission during childbirth or breastfeeding, receiving contaminated blood products.",
       "Non-Modifiable: Being born to an HIV-positive mother not on treatment.",
-      "Modifiable: Unprotected sex, multiple sexual partners, intravenous drug use with shared equipment, having another sexually transmitted infection (STI)."
+      "Modifiable: Unprotected sex, multiple sexual partners, intravenous drug use with shared equipment, having another sexually transmitted infection (STI).",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Fever lasting more than a month.",
       "Unexplained, profound fatigue.",
       "Severe, persistent diarrhea.",
-      "Signs of opportunistic infections (e.g., oral thrush, shingles, pneumonia)."
-    ]
+      "Signs of opportunistic infections (e.g., oral thrush, shingles, pneumonia).",
+    ],
   },
   {
-    "id": "acute-hepatitis-b",
-    "name": "Acute Hepatitis B",
-    "category": "Infectious",
-    "severity": "Low",
-    "prevalence": "A vaccine-preventable disease. Incidence has dropped dramatically in vaccinated populations. • High prevalence in parts of Asia and Africa.",
-    "description": "Acute Hepatitis B is a short-term infection with the Hepatitis B virus (HBV) that causes inflammation of the liver. The infection can range from a mild illness lasting a few weeks to a severe, life-threatening condition. Most healthy adults clear the virus and recover completely, but some develop a chronic infection.",
-    "desc": "Acute Hepatitis B is a short-term infection with the Hepatitis B virus (HBV) that causes inflammation of the liver. The infection can range from a mild illness lasting a few weeks to a severe, life-threatening condition. Most healthy adults clear the virus and recover completely, but some develop a chronic infection.",
-    "symptoms": [
+    id: "acute-hepatitis-b",
+    name: "Acute Hepatitis B",
+    category: "Infectious",
+    severity: "Low",
+    prevalence:
+      "A vaccine-preventable disease. Incidence has dropped dramatically in vaccinated populations. • High prevalence in parts of Asia and Africa.",
+    description:
+      "Acute Hepatitis B is a short-term infection with the Hepatitis B virus (HBV) that causes inflammation of the liver. The infection can range from a mild illness lasting a few weeks to a severe, life-threatening condition. Most healthy adults clear the virus and recover completely, but some develop a chronic infection.",
+    desc: "Acute Hepatitis B is a short-term infection with the Hepatitis B virus (HBV) that causes inflammation of the liver. The infection can range from a mild illness lasting a few weeks to a severe, life-threatening condition. Most healthy adults clear the virus and recover completely, but some develop a chronic infection.",
+    symptoms: [
       "Jaundice (yellowing of the skin and eyes).",
       "Dark urine.",
       "Extreme fatigue.",
@@ -3007,110 +3109,114 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Abdominal pain, especially in the upper right side.",
       "Clay-colored stools.",
       "Loss of appetite.",
-      "Joint pain."
+      "Joint pain.",
     ],
-    "causes": [
-      "The cause is infection with the Hepatitis B virus (HBV). It is spread through contact with infectious blood, semen, or other body fluids."
+    causes: [
+      "The cause is infection with the Hepatitis B virus (HBV). It is spread through contact with infectious blood, semen, or other body fluids.",
     ],
-    "treatment": [
+    treatment: [
       "There is no specific medication to treat acute Hepatitis B.",
       "Supportive Care: The mainstay of treatment. This includes rest, adequate nutrition, and fluids to help the body fight the infection.",
       "Monitoring: Regular blood tests to check liver function and ensure the infection is resolving.",
       "Hospitalization may be needed for severe cases with vomiting or signs of liver failure.",
-      "Note: Antiviral drugs are used for chronic Hepatitis B, not typically for acute infection."
+      "Note: Antiviral drugs are used for chronic Hepatitis B, not typically for acute infection.",
     ],
-    "selfCare": [
+    selfCare: [
       "Get plenty of rest.",
       "Drink plenty of fluids to prevent dehydration.",
       "Eat a healthy, balanced diet.",
       "Avoid alcohol and any medications that can be hard on the liver (like acetaminophen/Tylenol) unless approved by a doctor.",
       "Prevent spreading the virus to others by avoiding sexual contact and not sharing personal items until your doctor confirms you are no longer contagious.",
       "Lifestyle Recommendations",
-      "Get vaccinated if you are not already immune."
+      "Get vaccinated if you are not already immune.",
     ],
-    "prevention": [
+    prevention: [
       "Vaccination: The Hepatitis B vaccine is safe and highly effective.",
       "Post-exposure prophylaxis: If exposed, a dose of the vaccine and Hepatitis B Immune Globulin (HBIG) can prevent infection.",
       "Practice safe sex by using condoms.",
       "Never share needles, syringes, or other drug paraphernalia.",
-      "Ensure safe blood products and sterile medical equipment."
+      "Ensure safe blood products and sterile medical equipment.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Unprotected sexual contact with an infected person, sharing needles.",
       "Secondary: Birth to an infected mother, occupational exposure to blood, travel to endemic regions.",
       "Non-Modifiable: Being born to an infected mother.",
-      "Modifiable: Unprotected sex, IV drug use, sharing personal items like razors or toothbrushes with an infected person, occupational needle-stick injuries."
+      "Modifiable: Unprotected sex, IV drug use, sharing personal items like razors or toothbrushes with an infected person, occupational needle-stick injuries.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Sudden, severe liver damage.",
       "Jaundice.",
       "Coagulopathy (bleeding tendency).",
-      "Hepatic encephalopathy (confusion, drowsiness, coma)."
-    ]
+      "Hepatic encephalopathy (confusion, drowsiness, coma).",
+    ],
   },
   {
-    "id": "chronic-hepatitis-c",
-    "name": "Chronic Hepatitis C",
-    "category": "Infectious",
-    "severity": "High",
-    "prevalence": "A common cause of chronic liver disease and the leading reason for liver transplantation. • Many people are unaware they are infected, as symptoms can take decades to appear.",
-    "description": "Chronic Hepatitis C is a long-term infection with the Hepatitis C virus (HCV) that persists for more than six months. For most people, the acute infection becomes chronic. Over many years, chronic inflammation can lead to serious liver damage, including cirrhosis, liver cancer, and liver failure.",
-    "desc": "Chronic Hepatitis C is a long-term infection with the Hepatitis C virus (HCV) that persists for more than six months. For most people, the acute infection becomes chronic. Over many years, chronic inflammation can lead to serious liver damage, including cirrhosis, liver cancer, and liver failure.",
-    "symptoms": [
+    id: "chronic-hepatitis-c",
+    name: "Chronic Hepatitis C",
+    category: "Infectious",
+    severity: "High",
+    prevalence:
+      "A common cause of chronic liver disease and the leading reason for liver transplantation. • Many people are unaware they are infected, as symptoms can take decades to appear.",
+    description:
+      "Chronic Hepatitis C is a long-term infection with the Hepatitis C virus (HCV) that persists for more than six months. For most people, the acute infection becomes chronic. Over many years, chronic inflammation can lead to serious liver damage, including cirrhosis, liver cancer, and liver failure.",
+    desc: "Chronic Hepatitis C is a long-term infection with the Hepatitis C virus (HCV) that persists for more than six months. For most people, the acute infection becomes chronic. Over many years, chronic inflammation can lead to serious liver damage, including cirrhosis, liver cancer, and liver failure.",
+    symptoms: [
       "Fatigue.",
       "Nausea or poor appetite.",
       "Muscle and joint aches.",
       "Tenderness in the upper right abdomen.",
       "Jaundice.",
       "Dark urine.",
-      "Itchy skin."
+      "Itchy skin.",
     ],
-    "causes": [
-      "The cause is persistent infection with the Hepatitis C virus (HCV), which is primarily spread through contact with contaminated blood."
+    causes: [
+      "The cause is persistent infection with the Hepatitis C virus (HCV), which is primarily spread through contact with contaminated blood.",
     ],
-    "treatment": [
+    treatment: [
       "Modern treatments can cure over 95% of people with Chronic Hepatitis C.",
       "Direct-Acting Antivirals (DAAs): These are oral medications taken for 8-12 weeks.",
       "They are highly effective, have few side effects, and can be used in nearly all patients, including those with advanced cirrhosis.",
-      "Cure is defined as a sustained virologic response (SVR), meaning the virus is not detected in the blood 12 weeks after completing therapy."
+      "Cure is defined as a sustained virologic response (SVR), meaning the virus is not detected in the blood 12 weeks after completing therapy.",
     ],
-    "selfCare": [
+    selfCare: [
       "Do not drink alcohol, as it accelerates liver damage.",
       "Talk to your doctor before taking any new medications, herbs, or supplements.",
       "Get vaccinated against Hepatitis A and B to protect your liver from other viruses.",
       "Eat a healthy, balanced diet.",
       "Lifestyle Recommendations",
-      "Help prevent the spread by not donating blood, semen, or organs and by covering cuts and sores."
+      "Help prevent the spread by not donating blood, semen, or organs and by covering cuts and sores.",
     ],
-    "prevention": [
+    prevention: [
       "There is no vaccine for Hepatitis C. Prevention relies on reducing exposure.",
       "Never share needles or other equipment for injecting drugs.",
       "Healthcare settings should follow standard precautions.",
       "Use condoms during sex, especially with multiple partners.",
-      "Get tested if you are in a high-risk group."
+      "Get tested if you are in a high-risk group.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: History of IV drug use (even once in the past).",
       "Secondary: Receipt of donated blood or organs before 1992, long-term hemodialysis, birth to an HCV-infected mother, unprotected sex with an infected partner.",
       "Non-Modifiable: Receiving a blood transfusion or organ transplant before widespread screening (1992).",
-      "Modifiable: IV drug use (sharing needles), unsterile medical or tattoo equipment, occupational needle-stick injuries."
+      "Modifiable: IV drug use (sharing needles), unsterile medical or tattoo equipment, occupational needle-stick injuries.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Jaundice.",
       "Ascites (fluid buildup in the abdomen).",
       "Easy bruising or bleeding.",
-      "Confusion, slurred speech (hepatic encephalopathy)."
-    ]
+      "Confusion, slurred speech (hepatic encephalopathy).",
+    ],
   },
   {
-    "id": "typhoid-fever",
-    "name": "Typhoid Fever",
-    "category": "Infectious",
-    "severity": "Medium",
-    "prevalence": "A significant public health problem in areas with poor sanitation and lack of clean water. • Rare in industrialized countries, but occurs in travelers returning from endemic regions.",
-    "description": "Typhoid Fever is a life-threatening illness caused by the bacterium Salmonella Typhi. It is spread through contaminated food and water or close contact with an infected person. The bacteria invade the small intestine and then enter the bloodstream, causing a systemic illness.",
-    "desc": "Typhoid Fever is a life-threatening illness caused by the bacterium Salmonella Typhi. It is spread through contaminated food and water or close contact with an infected person. The bacteria invade the small intestine and then enter the bloodstream, causing a systemic illness.",
-    "symptoms": [
+    id: "typhoid-fever",
+    name: "Typhoid Fever",
+    category: "Infectious",
+    severity: "Medium",
+    prevalence:
+      "A significant public health problem in areas with poor sanitation and lack of clean water. • Rare in industrialized countries, but occurs in travelers returning from endemic regions.",
+    description:
+      "Typhoid Fever is a life-threatening illness caused by the bacterium Salmonella Typhi. It is spread through contaminated food and water or close contact with an infected person. The bacteria invade the small intestine and then enter the bloodstream, causing a systemic illness.",
+    desc: "Typhoid Fever is a life-threatening illness caused by the bacterium Salmonella Typhi. It is spread through contaminated food and water or close contact with an infected person. The bacteria invade the small intestine and then enter the bloodstream, causing a systemic illness.",
+    symptoms: [
       "High fever that gradually increases and can reach 104°F (40°C).",
       "Headache.",
       "Weakness and fatigue.",
@@ -3118,250 +3224,260 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Sweating.",
       "Dry cough.",
       "Loss of appetite and weight loss.",
-      "Abdominal pain, diarrhea or constipation."
+      "Abdominal pain, diarrhea or constipation.",
     ],
-    "causes": [
-      "The cause is infection with Salmonella Typhi bacteria. Humans are the only carriers. Infected people shed the bacteria in their stool and, less commonly, in their urine."
+    causes: [
+      "The cause is infection with Salmonella Typhi bacteria. Humans are the only carriers. Infected people shed the bacteria in their stool and, less commonly, in their urine.",
     ],
-    "treatment": [
+    treatment: [
       "Antibiotic therapy is essential.",
       "Antibiotics: The drug of choice depends on local resistance patterns. Commonly used drugs include fluoroquinolones (e.g., ciprofloxacin), azithromycin, or third-generation cephalosporins (e.g., ceftriaxone).",
       "Hydration: Oral or intravenous fluids to prevent dehydration.",
-      "Surgery may be required if intestinal perforation occurs."
+      "Surgery may be required if intestinal perforation occurs.",
     ],
-    "selfCare": [
+    selfCare: [
       "(For travelers)",
       "Get vaccinated before traveling to high-risk areas.",
-      "Follow safe food and water practices: \"Boil it, cook it, peel it, or forget it.\"",
+      'Follow safe food and water practices: "Boil it, cook it, peel it, or forget it."',
       "Wash hands frequently with soap and water, especially before eating.",
       "Drink only bottled or boiled water.",
-      "Avoid raw vegetables and unpeeled fruits."
+      "Avoid raw vegetables and unpeeled fruits.",
     ],
-    "prevention": [
+    prevention: [
       "Vaccination: Two types of vaccines are available (oral and injectable).",
       "Improved sanitation and clean water supplies are the long-term solutions.",
-      "Safe food handling and handwashing."
+      "Safe food handling and handwashing.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Travel to or living in an area where typhoid fever is common (e.g., South Asia).",
       "Secondary: Consuming contaminated food or water, working as a clinical microbiologist handling S. Typhi.",
       "Non-Modifiable: Travel to endemic areas.",
-      "Modifiable: Drinking untreated water, eating food handled by someone who is shedding the bacteria, eating raw produce washed in contaminated water."
+      "Modifiable: Drinking untreated water, eating food handled by someone who is shedding the bacteria, eating raw produce washed in contaminated water.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Intestinal perforation (severe abdominal pain, rigidity).",
       "Intestinal hemorrhage (blood in stool).",
       "Severe confusion or delirium.",
-      "Shock."
-    ]
+      "Shock.",
+    ],
   },
   {
-    "id": "cholera",
-    "name": "Cholera",
-    "category": "Infectious",
-    "severity": "High",
-    "prevalence": "A disease of poverty and conflict, occurring in areas with inadequate water treatment, poor sanitation, and poor hygiene. • Endemic in many parts of Africa and Asia. Can cause large outbreaks and epidemics.",
-    "description": "Cholera is an acute diarrheal illness caused by infection of the intestine with the bacterium Vibrio cholerae. It produces a toxin that causes the intestines to secrete enormous amounts of water and electrolytes, leading to profuse, watery diarrhea and rapid dehydration, which can be fatal within hours if untreated.",
-    "desc": "Cholera is an acute diarrheal illness caused by infection of the intestine with the bacterium Vibrio cholerae. It produces a toxin that causes the intestines to secrete enormous amounts of water and electrolytes, leading to profuse, watery diarrhea and rapid dehydration, which can be fatal within hours if untreated.",
-    "symptoms": [
+    id: "cholera",
+    name: "Cholera",
+    category: "Infectious",
+    severity: "High",
+    prevalence:
+      "A disease of poverty and conflict, occurring in areas with inadequate water treatment, poor sanitation, and poor hygiene. • Endemic in many parts of Africa and Asia. Can cause large outbreaks and epidemics.",
+    description:
+      "Cholera is an acute diarrheal illness caused by infection of the intestine with the bacterium Vibrio cholerae. It produces a toxin that causes the intestines to secrete enormous amounts of water and electrolytes, leading to profuse, watery diarrhea and rapid dehydration, which can be fatal within hours if untreated.",
+    desc: "Cholera is an acute diarrheal illness caused by infection of the intestine with the bacterium Vibrio cholerae. It produces a toxin that causes the intestines to secrete enormous amounts of water and electrolytes, leading to profuse, watery diarrhea and rapid dehydration, which can be fatal within hours if untreated.",
+    symptoms: [
       "Profuse, painless, watery diarrhea.",
       "Vomiting.",
       "Leg cramps due to electrolyte loss.",
-      "Restlessness or irritability."
+      "Restlessness or irritability.",
     ],
-    "causes": [
-      "The cause is ingestion of food or water contaminated with the Vibrio cholerae bacterium. The source of contamination is typically the feces of an infected person."
+    causes: [
+      "The cause is ingestion of food or water contaminated with the Vibrio cholerae bacterium. The source of contamination is typically the feces of an infected person.",
     ],
-    "treatment": [
+    treatment: [
       "The cornerstone of treatment is rapid rehydration.",
       "Oral Rehydration Salts (ORS): A prepacketed mixture of sugar and salts mixed with clean water. This is highly effective and can be life-saving.",
       "Intravenous Fluids: For severely dehydrated patients who cannot drink.",
       "Antibiotics: Can reduce the duration and volume of diarrhea but are secondary to rehydration.",
-      "Zinc Supplements: For children, to reduce the duration of diarrhea."
+      "Zinc Supplements: For children, to reduce the duration of diarrhea.",
     ],
-    "selfCare": [
+    selfCare: [
       "(For prevention)",
       "Drink only safe water (bottled, boiled, or chemically treated).",
       "Wash hands with soap and safe water.",
       "Use toilets; do not defecate in open areas.",
       "Cook food thoroughly and eat it while hot.",
-      "Peel fruits and vegetables yourself."
+      "Peel fruits and vegetables yourself.",
     ],
-    "prevention": [
+    prevention: [
       "Access to clean water and proper sanitation is the definitive solution.",
       "Cholera Vaccines: Oral vaccines are available for travelers to and people living in endemic areas.",
-      "Health education on safe water and food practices."
+      "Health education on safe water and food practices.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Living in or traveling to areas with active cholera transmission.",
       "Secondary: Poor sanitation, lack of clean water, poverty, crowded refugee camps.",
       "Non-Modifiable: Living in an endemic area.",
-      "Modifiable: Drinking untreated water, eating raw or undercooked shellfish from contaminated waters, poor personal hygiene."
+      "Modifiable: Drinking untreated water, eating raw or undercooked shellfish from contaminated waters, poor personal hygiene.",
     ],
-    "warningSigns": [
-      "Profuse, watery diarrhea (\"rice-water stools\").",
+    warningSigns: [
+      'Profuse, watery diarrhea ("rice-water stools").',
       "Vomiting.",
       "Rapid heart rate, loss of skin elasticity, dry mucous membranes, low blood pressure.",
-      "Lethargy or loss of consciousness."
-    ]
+      "Lethargy or loss of consciousness.",
+    ],
   },
   {
-    "id": "dengue-hemorrhagic-fever",
-    "name": "Dengue Hemorrhagic Fever",
-    "category": "Infectious",
-    "severity": "High",
-    "prevalence": "A leading cause of hospitalization and death in tropical and subtropical regions of Asia and Latin America. • Incidence has grown dramatically in recent decades.",
-    "description": "Dengue Hemorrhagic Fever (DHF) is a severe, potentially fatal complication of Dengue virus infection. It is characterized by plasma leakage, fluid accumulation, respiratory distress, severe bleeding, and organ impairment. It typically occurs during a second infection with a different Dengue virus serotype.",
-    "desc": "Dengue Hemorrhagic Fever (DHF) is a severe, potentially fatal complication of Dengue virus infection. It is characterized by plasma leakage, fluid accumulation, respiratory distress, severe bleeding, and organ impairment. It typically occurs during a second infection with a different Dengue virus serotype.",
-    "symptoms": [
+    id: "dengue-hemorrhagic-fever",
+    name: "Dengue Hemorrhagic Fever",
+    category: "Infectious",
+    severity: "High",
+    prevalence:
+      "A leading cause of hospitalization and death in tropical and subtropical regions of Asia and Latin America. • Incidence has grown dramatically in recent decades.",
+    description:
+      "Dengue Hemorrhagic Fever (DHF) is a severe, potentially fatal complication of Dengue virus infection. It is characterized by plasma leakage, fluid accumulation, respiratory distress, severe bleeding, and organ impairment. It typically occurs during a second infection with a different Dengue virus serotype.",
+    desc: "Dengue Hemorrhagic Fever (DHF) is a severe, potentially fatal complication of Dengue virus infection. It is characterized by plasma leakage, fluid accumulation, respiratory distress, severe bleeding, and organ impairment. It typically occurs during a second infection with a different Dengue virus serotype.",
+    symptoms: [
       "Signs of plasma leakage (ascites, pleural effusion).",
       "Severe bleeding manifestations.",
-      "Shock (Dengue Shock Syndrome)."
+      "Shock (Dengue Shock Syndrome).",
     ],
-    "causes": [
-      "It is caused by any one of four related Dengue virus serotypes (DENV-1, -2, -3, -4), transmitted by the bite of an infected Aedes aegypti mosquito. The severe form is thought to be due to an antibody-dependent enhancement (ADE) mechanism, where a previous infection primes the immune system for a more severe reaction."
+    causes: [
+      "It is caused by any one of four related Dengue virus serotypes (DENV-1, -2, -3, -4), transmitted by the bite of an infected Aedes aegypti mosquito. The severe form is thought to be due to an antibody-dependent enhancement (ADE) mechanism, where a previous infection primes the immune system for a more severe reaction.",
     ],
-    "treatment": [
+    treatment: [
       "There is no specific antiviral treatment for DHF.",
       "Supportive Care is critical: Early recognition and prompt, aggressive fluid management.",
       "Careful fluid replacement with intravenous fluids and electrolytes to prevent shock.",
       "Blood transfusions may be necessary in cases of severe bleeding.",
-      "Close monitoring of vital signs, hematocrit, and platelet count is essential."
+      "Close monitoring of vital signs, hematocrit, and platelet count is essential.",
     ],
-    "selfCare": [
+    selfCare: [
       "(For suspected dengue)",
       "Use acetaminophen (paracetamol) for pain and fever. Avoid NSAIDs like ibuprofen and aspirin, as they increase the risk of bleeding.",
       "Stay hydrated with oral fluids.",
       "Seek medical care immediately if any warning signs appear.",
       "Lifestyle Recommendations (For prevention)",
       "Prevent mosquito bites using repellent, wearing protective clothing, and using window screens.",
-      "Eliminate mosquito breeding sites by removing standing water."
+      "Eliminate mosquito breeding sites by removing standing water.",
     ],
-    "prevention": [
+    prevention: [
       "Mosquito Control: The primary method.",
-      "Dengue Vaccine: A vaccine is available but its use is targeted to specific age groups and regions, often for those with a prior documented infection."
+      "Dengue Vaccine: A vaccine is available but its use is targeted to specific age groups and regions, often for those with a prior documented infection.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Previous infection with a Dengue virus serotype.",
-      "Secondary: Living in or traveling to endemic areas, age (children are especially vulnerable)."
+      "Secondary: Living in or traveling to endemic areas, age (children are especially vulnerable).",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Severe abdominal pain.",
       "Persistent vomiting.",
       "Rapid breathing or difficulty breathing.",
       "Bleeding gums or nose, blood in vomit or stool.",
-      "Fatigue, restlessness, or irritability."
-    ]
+      "Fatigue, restlessness, or irritability.",
+    ],
   },
   {
-    "id": "measles",
-    "name": "Measles",
-    "category": "Infectious",
-    "severity": "Medium",
-    "prevalence": "Vaccine-preventable. Outbreaks still occur in communities with low vaccination rates. • Remains a leading cause of death among young children globally, despite the availability of a safe vaccine.",
-    "description": "Measles is a highly contagious, serious viral disease that is spread through coughing and sneezing. Before the widespread use of the vaccine, it was a common childhood illness. It can lead to severe complications, especially in young children and adults.",
-    "desc": "Measles is a highly contagious, serious viral disease that is spread through coughing and sneezing. Before the widespread use of the vaccine, it was a common childhood illness. It can lead to severe complications, especially in young children and adults.",
-    "symptoms": [
+    id: "measles",
+    name: "Measles",
+    category: "Infectious",
+    severity: "Medium",
+    prevalence:
+      "Vaccine-preventable. Outbreaks still occur in communities with low vaccination rates. • Remains a leading cause of death among young children globally, despite the availability of a safe vaccine.",
+    description:
+      "Measles is a highly contagious, serious viral disease that is spread through coughing and sneezing. Before the widespread use of the vaccine, it was a common childhood illness. It can lead to severe complications, especially in young children and adults.",
+    desc: "Measles is a highly contagious, serious viral disease that is spread through coughing and sneezing. Before the widespread use of the vaccine, it was a common childhood illness. It can lead to severe complications, especially in young children and adults.",
+    symptoms: [
       "High fever.",
       "Cough, runny nose, and red, watery eyes (conjunctivitis).",
       "Tiny white spots with bluish-white centers on a red background (Koplik spots) inside the mouth.",
-      "A red, blotchy rash that appears 3-5 days after the first symptoms, starting on the face and spreading downward."
+      "A red, blotchy rash that appears 3-5 days after the first symptoms, starting on the face and spreading downward.",
     ],
-    "causes": [
-      "The cause is infection with the rubeola virus. It is one of the most contagious viruses; an infected person can spread it to 90% of the non-immune people close to them."
+    causes: [
+      "The cause is infection with the rubeola virus. It is one of the most contagious viruses; an infected person can spread it to 90% of the non-immune people close to them.",
     ],
-    "treatment": [
+    treatment: [
       "There is no specific antiviral treatment for measles.",
       "Supportive Care: Ensures good nutrition and adequate fluid intake.",
       "Vitamin A supplementation: Shown to reduce measles deaths. Given to all children diagnosed with measles in areas where deficiency is common.",
-      "Treatment of complications (e.g., antibiotics for bacterial pneumonia)."
+      "Treatment of complications (e.g., antibiotics for bacterial pneumonia).",
     ],
-    "selfCare": [
+    selfCare: [
       "Isolate to prevent spread (from 4 days before to 4 days after the rash appears).",
       "Rest and drink plenty of fluids.",
       "Use a humidifier to relieve cough and sore throat.",
       "Use acetaminophen or ibuprofen for fever (do not give aspirin to children).",
       "Lifestyle Recommendations",
-      "Get vaccinated with the MMR (measles, mumps, rubella) vaccine."
+      "Get vaccinated with the MMR (measles, mumps, rubella) vaccine.",
     ],
-    "prevention": [
+    prevention: [
       "Routine childhood vaccination with two doses of the MMR vaccine is highly effective.",
-      "Post-exposure prophylaxis with the MMR vaccine or immune globulin can be given to susceptible contacts."
+      "Post-exposure prophylaxis with the MMR vaccine or immune globulin can be given to susceptible contacts.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Being unvaccinated.",
       "Secondary: Travel to areas where measles is common, vitamin A deficiency, compromised immune system.",
       "Non-Modifiable: Infants too young to be vaccinated.",
-      "Modifiable: Lack of vaccination, international travel, vitamin A deficiency."
+      "Modifiable: Lack of vaccination, international travel, vitamin A deficiency.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Encephalitis (inflammation of the brain): headache, convulsions, confusion.",
       "Severe pneumonia: difficulty breathing.",
-      "Croup: a barking cough."
-    ]
+      "Croup: a barking cough.",
+    ],
   },
   {
-    "id": "mumps",
-    "name": "Mumps",
-    "category": "Infectious",
-    "severity": "Low",
-    "prevalence": "Outbreaks can occur in close-contact settings like schools and colleges, particularly among unvaccinated individuals. • Became uncommon after the introduction of the MMR vaccine.",
-    "description": "Mumps is a contagious viral disease caused by the paramyxovirus. It is characterized by the painful swelling of the salivary glands, particularly the parotid glands located below and in front of the ears. While usually a mild childhood disease, it can cause serious complications in adults.",
-    "desc": "Mumps is a contagious viral disease caused by the paramyxovirus. It is characterized by the painful swelling of the salivary glands, particularly the parotid glands located below and in front of the ears. While usually a mild childhood disease, it can cause serious complications in adults.",
-    "symptoms": [
+    id: "mumps",
+    name: "Mumps",
+    category: "Infectious",
+    severity: "Low",
+    prevalence:
+      "Outbreaks can occur in close-contact settings like schools and colleges, particularly among unvaccinated individuals. • Became uncommon after the introduction of the MMR vaccine.",
+    description:
+      "Mumps is a contagious viral disease caused by the paramyxovirus. It is characterized by the painful swelling of the salivary glands, particularly the parotid glands located below and in front of the ears. While usually a mild childhood disease, it can cause serious complications in adults.",
+    desc: "Mumps is a contagious viral disease caused by the paramyxovirus. It is characterized by the painful swelling of the salivary glands, particularly the parotid glands located below and in front of the ears. While usually a mild childhood disease, it can cause serious complications in adults.",
+    symptoms: [
       "Painful, swollen salivary glands on one or both sides of the face (parotitis).",
       "Fever.",
       "Headache.",
       "Muscle aches.",
       "Fatigue and weakness.",
       "Loss of appetite.",
-      "Pain while chewing or swallowing."
+      "Pain while chewing or swallowing.",
     ],
-    "causes": [
-      "The cause is infection with the mumps virus. It spreads through saliva or respiratory droplets from the mouth, nose, or throat of an infected person."
+    causes: [
+      "The cause is infection with the mumps virus. It spreads through saliva or respiratory droplets from the mouth, nose, or throat of an infected person.",
     ],
-    "treatment": [
+    treatment: [
       "There is no specific antiviral treatment for mumps.",
       "Supportive Care is the mainstay of treatment.",
       "Rest.",
       "Fluids.",
       "Pain relievers like acetaminophen or ibuprofen for fever and discomfort.",
       "Application of warm or cold compresses to swollen glands.",
-      "A soft diet to minimize chewing pain."
+      "A soft diet to minimize chewing pain.",
     ],
-    "selfCare": [
+    selfCare: [
       "Isolate yourself for 5 days after the onset of parotitis to avoid spreading the virus.",
       "Get plenty of rest.",
       "Suck on ice pops or ice chips and drink plenty of fluids.",
       "Avoid acidic foods and drinks that can stimulate saliva and cause pain.",
       "Lifestyle Recommendations",
-      "Get vaccinated with the MMR vaccine."
+      "Get vaccinated with the MMR vaccine.",
     ],
-    "prevention": [
-      "Vaccination with the MMR vaccine is the best way to prevent mumps. Two doses are recommended."
+    prevention: [
+      "Vaccination with the MMR vaccine is the best way to prevent mumps. Two doses are recommended.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Being unvaccinated.",
       "Secondary: Age (older adolescents and adults are at higher risk for complications), international travel, having a compromised immune system.",
       "Non-Modifiable: Age (unvaccinated school-aged children are at highest risk).",
-      "Modifiable: Lack of vaccination, spending time in crowded environments."
+      "Modifiable: Lack of vaccination, spending time in crowded environments.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Stiff neck, headache, vomiting (may indicate meningitis or encephalitis).",
       "Severe abdominal pain and nausea (may indicate pancreatitis or, in females, oophoritis).",
       "Testicular pain and swelling (orchitis) in post-pubertal males.",
-      "Hearing loss."
-    ]
+      "Hearing loss.",
+    ],
   },
   {
-    "id": "congenital-rubella-syndrome",
-    "name": "Congenital Rubella Syndrome",
-    "category": "Infectious",
-    "severity": "Medium",
-    "prevalence": "Rare in countries with robust rubella vaccination programs. • Still a risk in parts of the world where vaccination is not widespread.",
-    "description": "Congenital Rubella Syndrome (CRS) is a condition that occurs in a developing fetus when the mother is infected with the rubella virus (German measles) during pregnancy, especially in the first trimester. The virus can cause miscarriages, stillbirths, and severe birth defects.",
-    "desc": "Congenital Rubella Syndrome (CRS) is a condition that occurs in a developing fetus when the mother is infected with the rubella virus (German measles) during pregnancy, especially in the first trimester. The virus can cause miscarriages, stillbirths, and severe birth defects.",
-    "symptoms": [
+    id: "congenital-rubella-syndrome",
+    name: "Congenital Rubella Syndrome",
+    category: "Infectious",
+    severity: "Medium",
+    prevalence:
+      "Rare in countries with robust rubella vaccination programs. • Still a risk in parts of the world where vaccination is not widespread.",
+    description:
+      "Congenital Rubella Syndrome (CRS) is a condition that occurs in a developing fetus when the mother is infected with the rubella virus (German measles) during pregnancy, especially in the first trimester. The virus can cause miscarriages, stillbirths, and severe birth defects.",
+    desc: "Congenital Rubella Syndrome (CRS) is a condition that occurs in a developing fetus when the mother is infected with the rubella virus (German measles) during pregnancy, especially in the first trimester. The virus can cause miscarriages, stillbirths, and severe birth defects.",
+    symptoms: [
       "in the Infant",
       "Sensorineural hearing loss: The most common single defect.",
       "Eye defects: Such as cataracts, glaucoma, and retinopathy.",
@@ -3369,142 +3485,148 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Low birth weight.",
       "Developmental delay.",
       "Intellectual disability.",
-      "Liver and spleen damage."
+      "Liver and spleen damage.",
     ],
-    "causes": [
-      "The cause is the transmission of the rubella virus from an infected pregnant person to their fetus through the placenta."
+    causes: [
+      "The cause is the transmission of the rubella virus from an infected pregnant person to their fetus through the placenta.",
     ],
-    "treatment": [
+    treatment: [
       "There is no cure for CRS.",
       "Management is supportive and focuses on the specific complications present.",
       "Surgery for heart defects or cataracts.",
       "Hearing aids and early auditory rehabilitation.",
-      "Special education and therapy for developmental delays."
+      "Special education and therapy for developmental delays.",
     ],
-    "selfCare": [
+    selfCare: [
       "(Preconception and Prenatal)",
       "Check your immunity status before becoming pregnant. A blood test can confirm if you are immune.",
       "If you are not immune, get vaccinated with the MMR vaccine at least one month before trying to get pregnant.",
-      "During pregnancy, avoid contact with anyone who has a rash or is known to have rubella."
+      "During pregnancy, avoid contact with anyone who has a rash or is known to have rubella.",
     ],
-    "prevention": [
+    prevention: [
       "CRS is entirely preventable through vaccination.",
       "Routine childhood vaccination with the MMR vaccine.",
       "Vaccination of non-immune women of childbearing age before pregnancy.",
-      "Surveillance and outbreak control to protect pregnant people."
+      "Surveillance and outbreak control to protect pregnant people.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: A pregnant person contracting rubella, especially during the first 12 weeks of pregnancy.",
       "Secondary: Lack of immunity to rubella (not being vaccinated or having had the disease).",
       "Non-Modifiable: Pregnancy.",
-      "Modifiable: Lack of immunity to rubella (not being vaccinated)."
+      "Modifiable: Lack of immunity to rubella (not being vaccinated).",
     ],
-    "warningSigns": [
-      "For a pregnant person: If you suspect you have been exposed to rubella or develop a rash and fever, contact your healthcare provider immediately for testing and counseling."
-    ]
+    warningSigns: [
+      "For a pregnant person: If you suspect you have been exposed to rubella or develop a rash and fever, contact your healthcare provider immediately for testing and counseling.",
+    ],
   },
   {
-    "id": "chickenpox-varicella",
-    "name": "Chickenpox (Varicella)",
-    "category": "Infectious",
-    "severity": "Low",
-    "prevalence": "Was very common before the vaccine was introduced. • Incidence has dramatically decreased in countries with routine vaccination programs.",
-    "description": "Chickenpox is a highly contagious disease caused by the initial infection with the varicella-zoster virus (VZV). It is characterized by an itchy, blister-like rash that appears all over the body. While usually a mild disease in children, it can be more severe in adults, infants, and people with weakened immune systems.",
-    "desc": "Chickenpox is a highly contagious disease caused by the initial infection with the varicella-zoster virus (VZV). It is characterized by an itchy, blister-like rash that appears all over the body. While usually a mild disease in children, it can be more severe in adults, infants, and people with weakened immune systems.",
-    "symptoms": [
+    id: "chickenpox-varicella",
+    name: "Chickenpox (Varicella)",
+    category: "Infectious",
+    severity: "Low",
+    prevalence:
+      "Was very common before the vaccine was introduced. • Incidence has dramatically decreased in countries with routine vaccination programs.",
+    description:
+      "Chickenpox is a highly contagious disease caused by the initial infection with the varicella-zoster virus (VZV). It is characterized by an itchy, blister-like rash that appears all over the body. While usually a mild disease in children, it can be more severe in adults, infants, and people with weakened immune systems.",
+    desc: "Chickenpox is a highly contagious disease caused by the initial infection with the varicella-zoster virus (VZV). It is characterized by an itchy, blister-like rash that appears all over the body. While usually a mild disease in children, it can be more severe in adults, infants, and people with weakened immune systems.",
+    symptoms: [
       "Fever.",
       "Fatigue.",
       "Loss of appetite.",
       "Headache.",
-      "The rash goes through three phases: raised pink or red bumps (papules), small fluid-filled blisters (vesicles), and crusts and scabs."
+      "The rash goes through three phases: raised pink or red bumps (papules), small fluid-filled blisters (vesicles), and crusts and scabs.",
     ],
-    "causes": [
-      "The cause is the varicella-zoster virus. It spreads easily through the air when an infected person coughs or sneezes, or through direct contact with the fluid from the blisters."
+    causes: [
+      "The cause is the varicella-zoster virus. It spreads easily through the air when an infected person coughs or sneezes, or through direct contact with the fluid from the blisters.",
     ],
-    "treatment": [
+    treatment: [
       "For most healthy children, treatment focuses on relieving symptoms.",
       "Supportive Care: Calamine lotion and colloidal oatmeal baths for itching. Acetaminophen for fever (do not use aspirin due to the risk of Reye's syndrome).",
-      "Antiviral Medication (e.g., acyclovir): May be prescribed for people at high risk of complications if started within the first 24 hours of the rash."
+      "Antiviral Medication (e.g., acyclovir): May be prescribed for people at high risk of complications if started within the first 24 hours of the rash.",
     ],
-    "selfCare": [
+    selfCare: [
       "Stay home until all blisters have crusted over to avoid spreading the virus.",
       "Avoid scratching to prevent skin infections and scarring.",
       "Keep fingernails trimmed.",
       "Use cool compresses to soothe itching.",
       "Lifestyle Recommendations",
-      "Get vaccinated with the varicella vaccine."
+      "Get vaccinated with the varicella vaccine.",
     ],
-    "prevention": [
-      "Vaccination with the two-dose varicella vaccine is the best way to prevent chickenpox."
+    prevention: [
+      "Vaccination with the two-dose varicella vaccine is the best way to prevent chickenpox.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Not being vaccinated against chickenpox.",
       "Secondary: Close contact with an infected person, attending school or childcare, having a weakened immune system.",
       "Non-Modifiable: Age (children under 12 are most commonly affected, but it's more severe in adults).",
-      "Modifiable: Lack of vaccination."
+      "Modifiable: Lack of vaccination.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Rash that involves one or both eyes.",
       "Rash that becomes very red, warm, or tender (signs of bacterial skin infection).",
       "Dizziness, rapid heartbeat, shortness of breath, tremors, loss of coordination.",
-      "Stiff neck or severe vomiting."
-    ]
+      "Stiff neck or severe vomiting.",
+    ],
   },
   {
-    "id": "herpes-zoster-ophthalmicus",
-    "name": "Herpes Zoster Ophthalmicus",
-    "category": "Infectious",
-    "severity": "Medium",
-    "prevalence": "About 10-25% of shingles cases involve the eye. • Risk increases with age.",
-    "description": "Herpes Zoster Ophthalmicus (HZO) is a reactivation of the varicella-zoster virus (which causes chickenpox) in the ophthalmic division of the trigeminal nerve, which supplies sensation to the eye and surrounding structures. It is a serious condition that can threaten vision.",
-    "desc": "Herpes Zoster Ophthalmicus (HZO) is a reactivation of the varicella-zoster virus (which causes chickenpox) in the ophthalmic division of the trigeminal nerve, which supplies sensation to the eye and surrounding structures. It is a serious condition that can threaten vision.",
-    "symptoms": [
+    id: "herpes-zoster-ophthalmicus",
+    name: "Herpes Zoster Ophthalmicus",
+    category: "Infectious",
+    severity: "Medium",
+    prevalence:
+      "About 10-25% of shingles cases involve the eye. • Risk increases with age.",
+    description:
+      "Herpes Zoster Ophthalmicus (HZO) is a reactivation of the varicella-zoster virus (which causes chickenpox) in the ophthalmic division of the trigeminal nerve, which supplies sensation to the eye and surrounding structures. It is a serious condition that can threaten vision.",
+    desc: "Herpes Zoster Ophthalmicus (HZO) is a reactivation of the varicella-zoster virus (which causes chickenpox) in the ophthalmic division of the trigeminal nerve, which supplies sensation to the eye and surrounding structures. It is a serious condition that can threaten vision.",
+    symptoms: [
       "Symptoms often start before the rash appears.",
       "Fever, headache, malaise.",
       "A painful, blistering rash on one side of the forehead, upper eyelid, and sometimes the tip of the nose.",
       "Eye pain, redness, tearing.",
       "Blurred vision.",
-      "Sensitivity to light (photophobia)."
+      "Sensitivity to light (photophobia).",
     ],
-    "causes": [
-      "After a person recovers from chickenpox, the virus lies dormant in nerve tissue. Years later, it can reactivate as shingles. When it reactivates in the nerve that serves the eye, it is HZO."
+    causes: [
+      "After a person recovers from chickenpox, the virus lies dormant in nerve tissue. Years later, it can reactivate as shingles. When it reactivates in the nerve that serves the eye, it is HZO.",
     ],
-    "treatment": [
+    treatment: [
       "Prompt treatment is crucial to prevent permanent vision damage.",
       "Oral Antiviral Medications (e.g., acyclovir, valacyclovir, famciclovir): Started within 72 hours of rash onset to reduce severity and complication risk.",
       "Topical Eye Drops: Corticosteroid drops to reduce inflammation and antiviral drops.",
-      "Pain Management."
+      "Pain Management.",
     ],
-    "selfCare": [
+    selfCare: [
       "Start antiviral medication as soon as possible.",
       "Keep the rash clean and covered to prevent spreading the virus to others.",
       "Use cool compresses for comfort.",
       "Do not use steroid eye drops unless prescribed by an ophthalmologist.",
       "Lifestyle Recommendations",
-      "Get vaccinated with the shingles vaccine (Shingrix) if you are 50 or older."
+      "Get vaccinated with the shingles vaccine (Shingrix) if you are 50 or older.",
     ],
-    "prevention": [
-      "Shingles vaccination is the most effective way to prevent shingles and its complications, including HZO."
+    prevention: [
+      "Shingles vaccination is the most effective way to prevent shingles and its complications, including HZO.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Older age (over 50), a history of chickenpox.",
-      "Secondary: Weakened immune system, stress, certain illnesses."
+      "Secondary: Weakened immune system, stress, certain illnesses.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Eye redness, pain, or swelling.",
       "Blurred vision or sensitivity to light.",
-      "A rash on the tip of the nose (Hutchinson's sign), which is highly associated with eye involvement."
-    ]
+      "A rash on the tip of the nose (Hutchinson's sign), which is highly associated with eye involvement.",
+    ],
   },
   {
-    "id": "ebola-virus-disease",
-    "name": "Ebola Virus Disease",
-    "category": "Infectious",
-    "severity": "High",
-    "prevalence": "Rare, but causes severe outbreaks with high mortality rates (average ~50%). • Occurs primarily in remote villages in Central and West Africa, near tropical rainforests.",
-    "description": "Ebola Virus Disease (EVD) is a severe, often fatal illness in humans caused by the Ebola virus. It is a viral hemorrhagic fever that can cause organ failure and severe bleeding. The virus is transmitted to people from wild animals and spreads in the human population through human-to-human transmission.",
-    "desc": "Ebola Virus Disease (EVD) is a severe, often fatal illness in humans caused by the Ebola virus. It is a viral hemorrhagic fever that can cause organ failure and severe bleeding. The virus is transmitted to people from wild animals and spreads in the human population through human-to-human transmission.",
-    "symptoms": [
+    id: "ebola-virus-disease",
+    name: "Ebola Virus Disease",
+    category: "Infectious",
+    severity: "High",
+    prevalence:
+      "Rare, but causes severe outbreaks with high mortality rates (average ~50%). • Occurs primarily in remote villages in Central and West Africa, near tropical rainforests.",
+    description:
+      "Ebola Virus Disease (EVD) is a severe, often fatal illness in humans caused by the Ebola virus. It is a viral hemorrhagic fever that can cause organ failure and severe bleeding. The virus is transmitted to people from wild animals and spreads in the human population through human-to-human transmission.",
+    desc: "Ebola Virus Disease (EVD) is a severe, often fatal illness in humans caused by the Ebola virus. It is a viral hemorrhagic fever that can cause organ failure and severe bleeding. The virus is transmitted to people from wild animals and spreads in the human population through human-to-human transmission.",
+    symptoms: [
       "Symptoms appear 2-21 days after exposure.",
       "Fever.",
       "Severe headache.",
@@ -3512,96 +3634,100 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Weakness and fatigue.",
       "Diarrhea and vomiting.",
       "Abdominal pain.",
-      "Unexplained hemorrhage (bleeding or bruising)."
+      "Unexplained hemorrhage (bleeding or bruising).",
     ],
-    "causes": [
+    causes: [
       "Blood or body fluids of a person who is sick with or has died from EVD.",
       "Objects contaminated with the virus (e.g., needles, syringes).",
-      "Infected fruit bats or nonhuman primates."
+      "Infected fruit bats or nonhuman primates.",
     ],
-    "treatment": [
+    treatment: [
       "There is no proven cure for EVD.",
       "Supportive Care in a hospital setting is critical: This includes providing fluids and electrolytes orally or intravenously, maintaining oxygen status and blood pressure, and treating other infections if they occur.",
       "Rehydration is a primary focus.",
-      "Investigational treatments like monoclonal antibodies (e.g., Inmazeb, Ebanga) have been approved and shown to improve survival."
+      "Investigational treatments like monoclonal antibodies (e.g., Inmazeb, Ebanga) have been approved and shown to improve survival.",
     ],
-    "selfCare": [
+    selfCare: [
       "(For prevention in outbreak areas)",
       "Practice careful hygiene. Avoid contact with blood and body fluids.",
       "Do not handle items that may have come in contact with an infected person's blood or body fluids.",
       "Avoid funeral or burial rituals that require handling the body of someone who died from EVD.",
-      "Avoid contact with bats and nonhuman primates and do not eat raw meat from these animals."
+      "Avoid contact with bats and nonhuman primates and do not eat raw meat from these animals.",
     ],
-    "prevention": [
+    prevention: [
       "Vaccination: The Ervebo vaccine is highly effective and used in outbreak settings.",
-      "Infection Control: Strict isolation of patients, use of personal protective equipment (PPE) by healthcare workers, and safe burial practices."
+      "Infection Control: Strict isolation of patients, use of personal protective equipment (PPE) by healthcare workers, and safe burial practices.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Travel to areas with active Ebola outbreaks.",
-      "Secondary: Providing care for infected individuals, handling bushmeat, participating in burial rituals that involve direct contact with the body of a deceased patient."
+      "Secondary: Providing care for infected individuals, handling bushmeat, participating in burial rituals that involve direct contact with the body of a deceased patient.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "EVD is a medical emergency. Any symptoms in a person with possible exposure require immediate isolation and testing.",
       "Sudden onset of fever, intense weakness, muscle pain.",
       "Followed by vomiting, diarrhea, rash, and impaired organ function.",
-      "Internal and external bleeding."
-    ]
+      "Internal and external bleeding.",
+    ],
   },
   {
-    "id": "zika-virus",
-    "name": "Zika Virus",
-    "category": "Infectious",
-    "severity": "Low",
-    "prevalence": "Caused major outbreaks in the Americas, Pacific, and Asia in 2015-2016. • Transmission is currently low, but the virus continues to circulate.",
-    "description": "Zika virus disease is a mosquito-borne illness caused by the Zika virus. For most people, it is a mild infection. However, infection during pregnancy can cause serious birth defects, including microcephaly (a significantly smaller head and brain), and is linked to other pregnancy problems.",
-    "desc": "Zika virus disease is a mosquito-borne illness caused by the Zika virus. For most people, it is a mild infection. However, infection during pregnancy can cause serious birth defects, including microcephaly (a significantly smaller head and brain), and is linked to other pregnancy problems.",
-    "symptoms": [
+    id: "zika-virus",
+    name: "Zika Virus",
+    category: "Infectious",
+    severity: "Low",
+    prevalence:
+      "Caused major outbreaks in the Americas, Pacific, and Asia in 2015-2016. • Transmission is currently low, but the virus continues to circulate.",
+    description:
+      "Zika virus disease is a mosquito-borne illness caused by the Zika virus. For most people, it is a mild infection. However, infection during pregnancy can cause serious birth defects, including microcephaly (a significantly smaller head and brain), and is linked to other pregnancy problems.",
+    desc: "Zika virus disease is a mosquito-borne illness caused by the Zika virus. For most people, it is a mild infection. However, infection during pregnancy can cause serious birth defects, including microcephaly (a significantly smaller head and brain), and is linked to other pregnancy problems.",
+    symptoms: [
       "Most people (80%) have no symptoms. When present, symptoms are mild and last for several days to a week.",
       "Fever.",
       "Rash.",
       "Headache.",
       "Joint pain.",
       "Conjunctivitis (red eyes).",
-      "Muscle pain."
+      "Muscle pain.",
     ],
-    "causes": [
-      "The virus is primarily spread through the bite of an infected Aedes mosquito. It can also be transmitted through sex, from a pregnant person to their fetus, and through blood transfusion."
+    causes: [
+      "The virus is primarily spread through the bite of an infected Aedes mosquito. It can also be transmitted through sex, from a pregnant person to their fetus, and through blood transfusion.",
     ],
-    "treatment": [
+    treatment: [
       "There is no specific medicine or vaccine for Zika.",
       "Supportive Care: Get plenty of rest, drink fluids, and take acetaminophen to reduce fever and pain.",
-      "Avoid aspirin and other NSAIDs until dengue can be ruled out to reduce the risk of bleeding."
+      "Avoid aspirin and other NSAIDs until dengue can be ruled out to reduce the risk of bleeding.",
     ],
-    "selfCare": [
+    selfCare: [
       "Prevent mosquito bites for at least the first week of illness to avoid spreading the virus to other mosquitoes.",
       "If you have Zika, use condoms or abstain from sex for at least 3 months (men) or 2 months (women) after symptoms begin to prevent sexual transmission.",
       "Lifestyle Recommendations (For pregnant people)",
       "Postpone travel to areas with Zika outbreaks.",
-      "If your partner has traveled to an area with Zika, use condoms for the duration of the pregnancy."
+      "If your partner has traveled to an area with Zika, use condoms for the duration of the pregnancy.",
     ],
-    "prevention": [
+    prevention: [
       "Prevent mosquito bites using EPA-registered repellent, wearing long sleeves/pants, and using window screens.",
       "Mosquito control.",
-      "Preventing sexual transmission through condom use."
+      "Preventing sexual transmission through condom use.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: Travel to or living in an area with active Zika transmission.",
-      "Secondary: Pregnancy, unprotected sexual contact with a person who has traveled to an area with Zika."
+      "Secondary: Pregnancy, unprotected sexual contact with a person who has traveled to an area with Zika.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "For pregnant people: Seek immediate medical advice if you have traveled to an area with Zika or have symptoms. For all: See a doctor if symptoms worsen.",
-      "Guillain-Barré syndrome (GBS) is a rare but serious complication causing muscle weakness and paralysis."
-    ]
+      "Guillain-Barré syndrome (GBS) is a rare but serious complication causing muscle weakness and paralysis.",
+    ],
   },
   {
-    "id": "generalized-tetanus",
-    "name": "Generalized Tetanus",
-    "category": "Infectious",
-    "severity": "High",
-    "prevalence": "Rare in developed countries due to widespread vaccination. • Still common in developing countries with low vaccination rates.",
-    "description": "Tetanus, also called lockjaw, is a serious bacterial infection caused by Clostridium tetani. The bacterium produces a toxin that affects the nervous system, leading to painful muscle contractions, especially of the jaw and neck muscles. It can interfere with breathing and is often fatal.",
-    "desc": "Tetanus, also called lockjaw, is a serious bacterial infection caused by Clostridium tetani. The bacterium produces a toxin that affects the nervous system, leading to painful muscle contractions, especially of the jaw and neck muscles. It can interfere with breathing and is often fatal.",
-    "symptoms": [
+    id: "generalized-tetanus",
+    name: "Generalized Tetanus",
+    category: "Infectious",
+    severity: "High",
+    prevalence:
+      "Rare in developed countries due to widespread vaccination. • Still common in developing countries with low vaccination rates.",
+    description:
+      "Tetanus, also called lockjaw, is a serious bacterial infection caused by Clostridium tetani. The bacterium produces a toxin that affects the nervous system, leading to painful muscle contractions, especially of the jaw and neck muscles. It can interfere with breathing and is often fatal.",
+    desc: "Tetanus, also called lockjaw, is a serious bacterial infection caused by Clostridium tetani. The bacterium produces a toxin that affects the nervous system, leading to painful muscle contractions, especially of the jaw and neck muscles. It can interfere with breathing and is often fatal.",
+    symptoms: [
       "Symptoms appear about 7-10 days after infection but can range from 3 days to 3 weeks.",
       "Jaw cramping or the inability to open the mouth (lockjaw).",
       "Sudden, involuntary muscle spasms often triggered by minor stimuli.",
@@ -3609,37 +3735,37 @@ export const DISEASES_DATA_1: DiseaseItem[] = [
       "Seizures.",
       "Headache.",
       "Fever and sweating.",
-      "High blood pressure and fast heart rate."
+      "High blood pressure and fast heart rate.",
     ],
-    "causes": [
-      "The bacterium C. tetani is found in soil, dust, and animal feces. It enters the body through breaks in the skin, typically puncture wounds, burns, or crush injuries."
+    causes: [
+      "The bacterium C. tetani is found in soil, dust, and animal feces. It enters the body through breaks in the skin, typically puncture wounds, burns, or crush injuries.",
     ],
-    "treatment": [
+    treatment: [
       "There is no cure for tetanus. Treatment focuses on managing complications until the effects of the toxin wear off.",
       "Wound Care: Cleaning the wound to remove the bacteria.",
       "Medications: Tetanus immune globulin (TIG) to neutralize the toxin, antibiotics to kill the bacteria, and sedatives to control muscle spasms.",
-      "Supportive Care: Often in an intensive care unit (ICU), with a ventilator to assist breathing."
+      "Supportive Care: Often in an intensive care unit (ICU), with a ventilator to assist breathing.",
     ],
-    "selfCare": [
+    selfCare: [
       "For any wound, clean it thoroughly with soap and water.",
       "Know your vaccination status.",
       "Lifestyle Recommendations",
-      "Get vaccinated and keep up with booster shots."
+      "Get vaccinated and keep up with booster shots.",
     ],
-    "prevention": [
+    prevention: [
       "Vaccination with the DTaP (children) and Tdap/Td (adolescents and adults) vaccines is extremely effective.",
-      "A booster shot is recommended after a dirty wound if it has been more than 5 years since the last dose."
+      "A booster shot is recommended after a dirty wound if it has been more than 5 years since the last dose.",
     ],
-    "riskFactors": [
+    riskFactors: [
       "Primary: A wound or cut contaminated with dirt, feces, or saliva.",
-      "Secondary: Not being vaccinated or being behind on booster shots."
+      "Secondary: Not being vaccinated or being behind on booster shots.",
     ],
-    "warningSigns": [
+    warningSigns: [
       "Tetanus is a medical emergency. Seek immediate care for any wound, especially a deep or dirty one, if you are not up-to-date on your tetanus vaccine.",
       "Stiffness of the jaw (lockjaw).",
       "Stiffness of the neck and abdominal muscles.",
       "Difficulty swallowing.",
-      "Painful, generalized muscle spasms."
-    ]
-  }
-];
+      "Painful, generalized muscle spasms.",
+    ],
+  },
+]

@@ -1,68 +1,102 @@
-import { useState, useMemo } from 'react';
-import { IconHeart, IconPhone, IconAlertTriangle } from '../components/Icons';
-import { FIRST_AID_TOPICS, FirstAidTopic, SeverityLevel } from '../data/firstAidData';
-import { TopicIcon, TopicVisualDiagram, TOPIC_IMAGES } from '../components/FirstAidVisuals';
-import { TOPIC_VISUAL_PHASES } from '../data/topicVisualPhases';
+import { useState, useMemo } from "react"
+import { IconHeart, IconPhone, IconAlertTriangle } from "../components/Icons"
+import {
+  FIRST_AID_TOPICS,
+  FirstAidTopic,
+  SeverityLevel,
+} from "../data/firstAidData"
+import {
+  TopicIcon,
+  TopicVisualDiagram,
+  TOPIC_IMAGES,
+} from "../components/FirstAidVisuals"
+import { TOPIC_VISUAL_PHASES } from "../data/topicVisualPhases"
 
-const SEVERITY_BADGE: Record<SeverityLevel, { bg: string; text: string; dot: string }> = {
-  Critical: { bg: 'bg-red-50 text-red-600 border-red-200', text: 'text-red-600', dot: 'bg-red-500' },
-  High: { bg: 'bg-orange-50 text-orange-600 border-orange-200', text: 'text-orange-600', dot: 'bg-orange-500' },
-  Moderate: { bg: 'bg-amber-50 text-amber-700 border-amber-200', text: 'text-amber-700', dot: 'bg-amber-500' },
-};
+const SEVERITY_BADGE: Record<SeverityLevel, {
+  bg: string
+  text: string
+  dot: string
+}> = {
+  Critical: {
+    bg: "bg-red-50 text-red-600 border-red-200",
+    text: "text-red-600",
+    dot: "bg-red-500",
+  },
+  High: {
+    bg: "bg-orange-50 text-orange-600 border-orange-200",
+    text: "text-orange-600",
+    dot: "bg-orange-500",
+  },
+  Moderate: {
+    bg: "bg-amber-50 text-amber-700 border-amber-200",
+    text: "text-amber-700",
+    dot: "bg-amber-500",
+  },
+}
 
 export function FirstAid() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [tab, setTab] = useState<'steps' | 'facts' | 'avoid' | 'visual'>('steps');
-  const [stepMode, setStepMode] = useState<'visual_phases' | 'age_groups'>('visual_phases');
-  const [ageGroup, setAgeGroup] = useState<'adults' | 'children' | 'infants'>('adults');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSeverity, setSelectedSeverity] = useState<'All' | SeverityLevel>('All');
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [tab, setTab] = useState<"steps" | "facts" | "avoid" | "visual">(
+    "steps",
+  )
+  const [stepMode, setStepMode] = useState<"visual_phases" | "age_groups">(
+    "visual_phases",
+  )
+  const [ageGroup, setAgeGroup] = useState<"adults" | "children" | "infants">(
+    "adults",
+  )
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedSeverity, setSelectedSeverity] =
+    useState<"All" | SeverityLevel>("All")
 
   const selectedTopic = useMemo<FirstAidTopic | null>(() => {
-    if (!selectedId) return null;
-    return FIRST_AID_TOPICS.find((t) => t.id === selectedId) || null;
-  }, [selectedId]);
+    if (!selectedId) return null
+    return FIRST_AID_TOPICS.find((t) => t.id === selectedId) || null
+  }, [selectedId])
 
   const visualPhases = useMemo(() => {
-    if (!selectedId) return null;
-    return TOPIC_VISUAL_PHASES[selectedId] || null;
-  }, [selectedId]);
+    if (!selectedId) return null
+    return TOPIC_VISUAL_PHASES[selectedId] || null
+  }, [selectedId])
 
   // Filtered topics based on search & severity
   const filteredTopics = useMemo(() => {
     return FIRST_AID_TOPICS.filter((topic) => {
-      const matchesSeverity = selectedSeverity === 'All' || topic.severity === selectedSeverity;
-      if (!matchesSeverity) return false;
+      const matchesSeverity =
+        selectedSeverity === "All" || topic.severity === selectedSeverity
+      if (!matchesSeverity) return false
 
-      if (!searchQuery.trim()) return true;
-      const q = searchQuery.toLowerCase();
+      if (!searchQuery.trim()) return true
+      const q = searchQuery.toLowerCase()
       return (
         topic.title.toLowerCase().includes(q) ||
         topic.shortTitle.toLowerCase().includes(q) ||
         topic.amharic.toLowerCase().includes(q) ||
         topic.overview.toLowerCase().includes(q) ||
         topic.keyFacts.some((f) => f.toLowerCase().includes(q))
-      );
-    });
-  }, [searchQuery, selectedSeverity]);
+      )
+    })
+  }, [searchQuery, selectedSeverity])
 
   // Counts for filters
   const counts = useMemo(() => {
     return {
       all: FIRST_AID_TOPICS.length,
-      critical: FIRST_AID_TOPICS.filter((t) => t.severity === 'Critical').length,
-      high: FIRST_AID_TOPICS.filter((t) => t.severity === 'High').length,
-      moderate: FIRST_AID_TOPICS.filter((t) => t.severity === 'Moderate').length,
-    };
-  }, []);
+      critical: FIRST_AID_TOPICS.filter((t) => t.severity === "Critical")
+        .length,
+      high: FIRST_AID_TOPICS.filter((t) => t.severity === "High").length,
+      moderate: FIRST_AID_TOPICS.filter((t) => t.severity === "Moderate")
+        .length,
+    }
+  }, [])
 
   const handleSelectTopic = (id: string) => {
-    setSelectedId(id);
-    setTab('steps');
-    setStepMode(TOPIC_VISUAL_PHASES[id] ? 'visual_phases' : 'age_groups');
-    setAgeGroup('adults');
-    window.scrollTo({ top: 120, behavior: 'smooth' });
-  };
+    setSelectedId(id)
+    setTab("steps")
+    setStepMode(TOPIC_VISUAL_PHASES[id] ? "visual_phases" : "age_groups")
+    setAgeGroup("adults")
+    window.scrollTo({ top: 120, behavior: "smooth" })
+  }
 
   return (
     <main className="pt-16 bg-gray-50 min-h-screen">
@@ -90,8 +124,18 @@ export function FirstAid() {
                 {/* Search input with SVG Icon */}
                 <div className="relative flex-1">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
                     </svg>
                   </div>
                   <input
@@ -103,7 +147,7 @@ export function FirstAid() {
                   />
                   {searchQuery && (
                     <button
-                      onClick={() => setSearchQuery('')}
+                      onClick={() => setSearchQuery("")}
                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
                       Clear
@@ -114,43 +158,43 @@ export function FirstAid() {
                 {/* Severity Filter Buttons with International Web SVG Icons */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
                   <button
-                    onClick={() => setSelectedSeverity('All')}
+                    onClick={() => setSelectedSeverity("All")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                      selectedSeverity === 'All'
-                        ? 'bg-[#119197] text-white shadow-xs'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      selectedSeverity === "All"
+                        ? "bg-[#119197] text-white shadow-xs"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
                     All ({counts.all})
                   </button>
                   <button
-                    onClick={() => setSelectedSeverity('Critical')}
+                    onClick={() => setSelectedSeverity("Critical")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
-                      selectedSeverity === 'Critical'
-                        ? 'bg-red-600 text-white shadow-xs'
-                        : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                      selectedSeverity === "Critical"
+                        ? "bg-red-600 text-white shadow-xs"
+                        : "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
                     }`}
                   >
                     <span className="w-2 h-2 rounded-full bg-red-500" />
                     Critical ({counts.critical})
                   </button>
                   <button
-                    onClick={() => setSelectedSeverity('High')}
+                    onClick={() => setSelectedSeverity("High")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
-                      selectedSeverity === 'High'
-                        ? 'bg-orange-600 text-white shadow-xs'
-                        : 'bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200'
+                      selectedSeverity === "High"
+                        ? "bg-orange-600 text-white shadow-xs"
+                        : "bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200"
                     }`}
                   >
                     <span className="w-2 h-2 rounded-full bg-orange-500" />
                     High ({counts.high})
                   </button>
                   <button
-                    onClick={() => setSelectedSeverity('Moderate')}
+                    onClick={() => setSelectedSeverity("Moderate")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
-                      selectedSeverity === 'Moderate'
-                        ? 'bg-amber-600 text-white shadow-xs'
-                        : 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
+                      selectedSeverity === "Moderate"
+                        ? "bg-amber-600 text-white shadow-xs"
+                        : "bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
                     }`}
                   >
                     <span className="w-2 h-2 rounded-full bg-amber-500" />
@@ -164,16 +208,30 @@ export function FirstAid() {
             {filteredTopics.length === 0 ? (
               <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
                 <div className="w-12 h-12 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-3">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
-                <h3 className="text-base font-bold text-gray-900 mb-1">No emergency guides found</h3>
-                <p className="text-xs text-gray-500 mb-4">Try adjusting your search terms or filter selection.</p>
+                <h3 className="text-base font-bold text-gray-900 mb-1">
+                  No emergency guides found
+                </h3>
+                <p className="text-xs text-gray-500 mb-4">
+                  Try adjusting your search terms or filter selection.
+                </p>
                 <button
                   onClick={() => {
-                    setSearchQuery('');
-                    setSelectedSeverity('All');
+                    setSearchQuery("")
+                    setSelectedSeverity("All")
                   }}
                   className="px-4 py-2 bg-[#119197] text-white text-xs font-bold rounded-xl hover:bg-[#0c6e73] transition-colors cursor-pointer"
                 >
@@ -183,7 +241,7 @@ export function FirstAid() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filteredTopics.map((topic) => {
-                  const badge = SEVERITY_BADGE[topic.severity];
+                  const badge = SEVERITY_BADGE[topic.severity]
                   return (
                     <button
                       key={topic.id}
@@ -194,12 +252,17 @@ export function FirstAid() {
                         {/* Top row: Icon in soft rounded teal box + Severity badge */}
                         <div className="flex items-start justify-between gap-3 mb-4">
                           <div className="w-12 h-12 rounded-2xl bg-teal-50/80 text-[#119197] group-hover:bg-[#119197] group-hover:text-white flex items-center justify-center transition-colors shrink-0 p-2.5 border border-teal-100/60 shadow-2xs">
-                            <TopicIcon id={topic.iconType} className="w-6 h-6" />
+                            <TopicIcon
+                              id={topic.iconType}
+                              className="w-6 h-6"
+                            />
                           </div>
                           <span
                             className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border shadow-2xs ${badge.bg}`}
                           >
-                            <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${badge.dot}`}
+                            />
                             {topic.severity}
                           </span>
                         </div>
@@ -208,7 +271,9 @@ export function FirstAid() {
                         <h3 className="font-display font-extrabold text-gray-900 text-lg mb-1 group-hover:text-[#119197] transition-colors leading-snug">
                           {topic.shortTitle}
                         </h3>
-                        <p className="text-xs text-[#0f766e] font-semibold mb-3">{topic.amharic}</p>
+                        <p className="text-xs text-[#0f766e] font-semibold mb-3">
+                          {topic.amharic}
+                        </p>
 
                         {/* Overview snippet */}
                         <p className="text-gray-500 text-xs leading-relaxed line-clamp-3 mb-5">
@@ -219,20 +284,40 @@ export function FirstAid() {
                       {/* Card Footer with divider line */}
                       <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs">
                         <span className="text-teal-800 font-semibold text-xs flex items-center gap-2">
-                          <svg className="w-4 h-4 text-[#119197]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          <svg
+                            className="w-4 h-4 text-[#119197]"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                            />
                           </svg>
                           3 Age Protocols
                         </span>
                         <span className="text-[#119197] font-bold group-hover:translate-x-1 transition-transform flex items-center gap-1">
                           View Protocol
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2.5"
+                              d="M9 5l7 7-7 7"
+                            />
                           </svg>
                         </span>
                       </div>
                     </button>
-                  );
+                  )
                 })}
               </div>
             )}
@@ -244,9 +329,13 @@ export function FirstAid() {
                   <IconAlertTriangle size={22} className="text-white" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-base">Always Call Emergency Services First</h4>
+                  <h4 className="font-bold text-base">
+                    Always Call Emergency Services First
+                  </h4>
                   <p className="text-red-100 text-xs sm:text-sm">
-                    In any life-threatening emergency, dispatch emergency personnel immediately before or while administering first aid.
+                    In any life-threatening emergency, dispatch emergency
+                    personnel immediately before or while administering first
+                    aid.
                   </p>
                 </div>
               </div>
@@ -268,7 +357,13 @@ export function FirstAid() {
               onClick={() => setSelectedId(null)}
               className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors mb-6 px-3 py-1.5 rounded-lg hover:bg-gray-100 cursor-pointer"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-4 h-4">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                className="w-4 h-4"
+              >
                 <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
               Back to All Guides ({FIRST_AID_TOPICS.length})
@@ -278,7 +373,10 @@ export function FirstAid() {
               {/* Header Banner */}
               <div className="bg-gradient-to-r from-[#0c6e73] via-[#0f7d82] to-[#119197] text-white p-6 sm:p-8 flex flex-col sm:flex-row items-start gap-6">
                 <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xs flex items-center justify-center text-white shrink-0 p-3 shadow-inner">
-                  <TopicIcon id={selectedTopic.iconType} className="w-10 h-10" />
+                  <TopicIcon
+                    id={selectedTopic.iconType}
+                    className="w-10 h-10"
+                  />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1.5 flex-wrap">
@@ -287,17 +385,19 @@ export function FirstAid() {
                     </h2>
                     <span
                       className={`text-xs font-bold px-3 py-1 rounded-full border ${
-                        selectedTopic.severity === 'Critical'
-                          ? 'bg-red-500/20 border-red-300 text-red-100'
-                          : selectedTopic.severity === 'High'
-                          ? 'bg-orange-500/20 border-orange-300 text-orange-100'
-                          : 'bg-amber-500/20 border-amber-300 text-amber-100'
+                        selectedTopic.severity === "Critical"
+                          ? "bg-red-500/20 border-red-300 text-red-100"
+                          : selectedTopic.severity === "High"
+                            ? "bg-orange-500/20 border-orange-300 text-orange-100"
+                            : "bg-amber-500/20 border-amber-300 text-amber-100"
                       }`}
                     >
                       {selectedTopic.severity} Priority
                     </span>
                   </div>
-                  <p className="text-teal-200 font-medium text-sm mb-3">{selectedTopic.amharic}</p>
+                  <p className="text-teal-200 font-medium text-sm mb-3">
+                    {selectedTopic.amharic}
+                  </p>
                   <p className="text-white/95 text-xs sm:text-sm leading-relaxed max-w-4xl bg-white/5 p-3.5 rounded-xl border border-white/10">
                     {selectedTopic.overview}
                   </p>
@@ -307,58 +407,97 @@ export function FirstAid() {
               {/* 4 Tabs Bar */}
               <div className="flex border-b border-gray-200 bg-gray-50/80 overflow-x-auto">
                 <button
-                  onClick={() => setTab('steps')}
+                  onClick={() => setTab("steps")}
                   className={`flex-1 min-w-[130px] py-3.5 px-4 text-xs font-bold text-center transition-all cursor-pointer border-b-2 flex items-center justify-center gap-2 ${
-                    tab === 'steps'
-                      ? 'text-[#119197] border-[#119197] bg-white shadow-2xs'
-                      : 'text-gray-500 border-transparent hover:text-gray-800 hover:bg-gray-100/50'
+                    tab === "steps"
+                      ? "text-[#119197] border-[#119197] bg-white shadow-2xs"
+                      : "text-gray-500 border-transparent hover:text-gray-800 hover:bg-gray-100/50"
                   }`}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
                   </svg>
                   Step-by-Step
                 </button>
 
                 <button
-                  onClick={() => setTab('facts')}
+                  onClick={() => setTab("facts")}
                   className={`flex-1 min-w-[120px] py-3.5 px-4 text-xs font-bold text-center transition-all cursor-pointer border-b-2 flex items-center justify-center gap-2 ${
-                    tab === 'facts'
-                      ? 'text-[#119197] border-[#119197] bg-white shadow-2xs'
-                      : 'text-gray-500 border-transparent hover:text-gray-800 hover:bg-gray-100/50'
+                    tab === "facts"
+                      ? "text-[#119197] border-[#119197] bg-white shadow-2xs"
+                      : "text-gray-500 border-transparent hover:text-gray-800 hover:bg-gray-100/50"
                   }`}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   Key Facts ({selectedTopic.keyFacts.length})
                 </button>
 
                 <button
-                  onClick={() => setTab('avoid')}
+                  onClick={() => setTab("avoid")}
                   className={`flex-1 min-w-[120px] py-3.5 px-4 text-xs font-bold text-center transition-all cursor-pointer border-b-2 flex items-center justify-center gap-2 ${
-                    tab === 'avoid'
-                      ? 'text-red-600 border-red-600 bg-white shadow-2xs'
-                      : 'text-gray-500 border-transparent hover:text-gray-800 hover:bg-gray-100/50'
+                    tab === "avoid"
+                      ? "text-red-600 border-red-600 bg-white shadow-2xs"
+                      : "text-gray-500 border-transparent hover:text-gray-800 hover:bg-gray-100/50"
                   }`}
                 >
-                  <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-4 h-4 text-red-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                    <path strokeLinecap="round" strokeWidth="2.5" d="M15 9l-6 6M9 9l6 6" />
+                    <path
+                      strokeLinecap="round"
+                      strokeWidth="2.5"
+                      d="M15 9l-6 6M9 9l6 6"
+                    />
                   </svg>
                   Do NOT Do ({selectedTopic.doNot.length})
                 </button>
 
                 <button
-                  onClick={() => setTab('visual')}
+                  onClick={() => setTab("visual")}
                   className={`flex-1 min-w-[130px] py-3.5 px-4 text-xs font-bold text-center transition-all cursor-pointer border-b-2 flex items-center justify-center gap-2 ${
-                    tab === 'visual'
-                      ? 'text-[#119197] border-[#119197] bg-white shadow-2xs'
-                      : 'text-gray-500 border-transparent hover:text-gray-800 hover:bg-gray-100/50'
+                    tab === "visual"
+                      ? "text-[#119197] border-[#119197] bg-white shadow-2xs"
+                      : "text-gray-500 border-transparent hover:text-gray-800 hover:bg-gray-100/50"
                   }`}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                   Visual Guide
                 </button>
@@ -368,34 +507,54 @@ export function FirstAid() {
               <div className="p-6 sm:p-8 grid lg:grid-cols-[1fr_300px] gap-8 items-start">
                 <div>
                   {/* TAB 1: Step-by-Step with Inlined Visual Action Stages */}
-                  {tab === 'steps' && (
+                  {tab === "steps" && (
                     <div>
                       {/* If topic has dedicated Visual Action Phases, offer view mode toggle */}
                       {visualPhases && (
                         <div className="mb-6 p-1.5 bg-gray-100 rounded-2xl flex items-center gap-1 max-w-md">
                           <button
-                            onClick={() => setStepMode('visual_phases')}
+                            onClick={() => setStepMode("visual_phases")}
                             className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                              stepMode === 'visual_phases'
-                                ? 'bg-white text-[#119197] shadow-xs'
-                                : 'text-gray-600 hover:text-gray-900'
+                              stepMode === "visual_phases"
+                                ? "bg-white text-[#119197] shadow-xs"
+                                : "text-gray-600 hover:text-gray-900"
                             }`}
                           >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            <svg
+                              className="w-3.5 h-3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
                             </svg>
                             Visual Action Stages ({visualPhases.length})
                           </button>
                           <button
-                            onClick={() => setStepMode('age_groups')}
+                            onClick={() => setStepMode("age_groups")}
                             className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                              stepMode === 'age_groups'
-                                ? 'bg-white text-[#119197] shadow-xs'
-                                : 'text-gray-600 hover:text-gray-900'
+                              stepMode === "age_groups"
+                                ? "bg-white text-[#119197] shadow-xs"
+                                : "text-gray-600 hover:text-gray-900"
                             }`}
                           >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            <svg
+                              className="w-3.5 h-3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                              />
                             </svg>
                             Age Protocols
                           </button>
@@ -403,7 +562,7 @@ export function FirstAid() {
                       )}
 
                       {/* MODE A: Inlined Visual Action Stages (Matching user's reference screenshots) */}
-                      {visualPhases && stepMode === 'visual_phases' ? (
+                      {visualPhases && stepMode === "visual_phases" ? (
                         <div className="flex flex-col gap-6">
                           {visualPhases.map((phase) => (
                             <div
@@ -430,10 +589,23 @@ export function FirstAid() {
                               {/* Action Checklist Bullets with Checkmark Badges */}
                               <div className="space-y-2.5 my-4">
                                 {phase.bullets.map((b, bi) => (
-                                  <div key={bi} className="flex items-start gap-3">
+                                  <div
+                                    key={bi}
+                                    className="flex items-start gap-3"
+                                  >
                                     <span className="w-5 h-5 rounded-full bg-teal-100 text-[#119197] flex items-center justify-center shrink-0 mt-0.5">
-                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                                      <svg
+                                        className="w-3.5 h-3.5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2.5"
+                                          d="M5 13l4 4L19 7"
+                                        />
                                       </svg>
                                     </span>
                                     <p className="text-xs sm:text-sm text-gray-700 leading-relaxed font-medium">
@@ -466,45 +638,77 @@ export function FirstAid() {
                           {/* Age Group Switcher Bar */}
                           <div className="mb-6 p-1.5 bg-gray-100 rounded-2xl flex items-center gap-1 max-w-xl">
                             <button
-                              onClick={() => setAgeGroup('adults')}
+                              onClick={() => setAgeGroup("adults")}
                               className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                                ageGroup === 'adults'
-                                  ? 'bg-white text-[#119197] shadow-xs'
-                                  : 'text-gray-600 hover:text-gray-900'
+                                ageGroup === "adults"
+                                  ? "bg-white text-[#119197] shadow-xs"
+                                  : "text-gray-600 hover:text-gray-900"
                               }`}
                             >
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              <svg
+                                className="w-3.5 h-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
                               </svg>
                               Adults ({selectedTopic.steps.adults.length} Steps)
                             </button>
 
                             <button
-                              onClick={() => setAgeGroup('children')}
+                              onClick={() => setAgeGroup("children")}
                               className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                                ageGroup === 'children'
-                                  ? 'bg-white text-[#119197] shadow-xs'
-                                  : 'text-gray-600 hover:text-gray-900'
+                                ageGroup === "children"
+                                  ? "bg-white text-[#119197] shadow-xs"
+                                  : "text-gray-600 hover:text-gray-900"
                               }`}
                             >
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              <svg
+                                className="w-3.5 h-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
                               </svg>
-                              Children 1–8y ({selectedTopic.steps.children.length} Steps)
+                              Children 1–8y (
+                              {selectedTopic.steps.children.length} Steps)
                             </button>
 
                             <button
-                              onClick={() => setAgeGroup('infants')}
+                              onClick={() => setAgeGroup("infants")}
                               className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                                ageGroup === 'infants'
-                                  ? 'bg-white text-[#119197] shadow-xs'
-                                  : 'text-gray-600 hover:text-gray-900'
+                                ageGroup === "infants"
+                                  ? "bg-white text-[#119197] shadow-xs"
+                                  : "text-gray-600 hover:text-gray-900"
                               }`}
                             >
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              <svg
+                                className="w-3.5 h-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
                               </svg>
-                              Infants &lt;1y ({selectedTopic.steps.infants.length} Steps)
+                              Infants &lt;1y (
+                              {selectedTopic.steps.infants.length} Steps)
                             </button>
                           </div>
 
@@ -535,14 +739,15 @@ export function FirstAid() {
                   )}
 
                   {/* TAB 2: Key Facts */}
-                  {tab === 'facts' && (
+                  {tab === "facts" && (
                     <div>
                       <div className="mb-4">
                         <h4 className="font-display font-bold text-gray-900 text-base mb-1">
                           Crucial Clinical & Survival Facts
                         </h4>
                         <p className="text-xs text-gray-500">
-                          Critical physiological timelines, survival probabilities, and emergency medical facts.
+                          Critical physiological timelines, survival
+                          probabilities, and emergency medical facts.
                         </p>
                       </div>
                       <div className="grid sm:grid-cols-2 gap-3.5">
@@ -564,14 +769,15 @@ export function FirstAid() {
                   )}
 
                   {/* TAB 3: Do NOT Do */}
-                  {tab === 'avoid' && (
+                  {tab === "avoid" && (
                     <div>
                       <div className="mb-4">
                         <h4 className="font-display font-bold text-red-900 text-base mb-1">
                           Strict Medical Prohibitions (Never Do)
                         </h4>
                         <p className="text-xs text-red-600/80">
-                          Common dangerous mistakes, folklore remedies, or contraindicated actions that cause further harm.
+                          Common dangerous mistakes, folklore remedies, or
+                          contraindicated actions that cause further harm.
                         </p>
                       </div>
                       <div className="flex flex-col gap-3">
@@ -581,9 +787,18 @@ export function FirstAid() {
                             className="flex items-start gap-3.5 p-4 bg-red-50/70 border border-red-200 rounded-2xl"
                           >
                             <span className="text-red-600 shrink-0 mt-0.5">
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2.5}
+                                viewBox="0 0 24 24"
+                              >
                                 <circle cx="12" cy="12" r="10" />
-                                <path strokeLinecap="round" d="M15 9l-6 6M9 9l6 6" />
+                                <path
+                                  strokeLinecap="round"
+                                  d="M15 9l-6 6M9 9l6 6"
+                                />
                               </svg>
                             </span>
                             <p className="text-xs sm:text-sm text-red-950 font-semibold leading-relaxed">
@@ -596,7 +811,7 @@ export function FirstAid() {
                   )}
 
                   {/* TAB 4: Visual Guide Specifications */}
-                  {tab === 'visual' && (
+                  {tab === "visual" && (
                     <div className="space-y-6">
                       <div className="bg-gray-50 border border-gray-200 rounded-3xl p-6 sm:p-7 flex flex-col items-center">
                         <div className="flex items-center justify-between w-full mb-4">
@@ -606,8 +821,8 @@ export function FirstAid() {
                             </h4>
                             <p className="text-xs text-gray-500 mt-0.5">
                               {visualPhases
-                                ? 'Tenaye clinical action guide and biomechanical illustrations'
-                                : 'Medical protocol illustration & biomechanical positioning'}
+                                ? "Tenaye clinical action guide and biomechanical illustrations"
+                                : "Medical protocol illustration & biomechanical positioning"}
                             </p>
                           </div>
                           <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-teal-50 text-[#119197] border border-teal-200">
@@ -660,8 +875,18 @@ export function FirstAid() {
 
                       <div className="bg-teal-50/50 border border-teal-200/80 rounded-2xl p-5 sm:p-6">
                         <div className="flex items-center gap-2 mb-2 text-teal-900 font-bold text-sm">
-                          <svg className="w-5 h-5 text-[#119197] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          <svg
+                            className="w-5 h-5 text-[#119197] shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
                           </svg>
                           Visual Guide Specifications & Biomechanics
                         </div>
@@ -690,7 +915,7 @@ export function FirstAid() {
                     </div>
 
                     <button
-                      onClick={() => setTab('visual')}
+                      onClick={() => setTab("visual")}
                       className="w-full py-2.5 px-4 bg-white border border-[#cceef0] hover:border-[#119197] hover:bg-teal-50/50 text-[#119197] font-bold text-xs rounded-xl transition-all cursor-pointer text-center"
                     >
                       Inspect Full Visual Specs →
@@ -698,7 +923,8 @@ export function FirstAid() {
                   </div>
 
                   <p className="text-[11px] text-gray-400 text-center mt-3 max-w-[240px]">
-                    Standardized first aid protocol guidelines. Always defer to certified emergency responders.
+                    Standardized first aid protocol guidelines. Always defer to
+                    certified emergency responders.
                   </p>
                 </div>
               </div>
@@ -711,7 +937,8 @@ export function FirstAid() {
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm text-red-800 font-bold">
-                      Is the victim unresponsive or in life-threatening condition?
+                      Is the victim unresponsive or in life-threatening
+                      condition?
                     </p>
                     <p className="text-[11px] text-red-600">
                       Do not delay calling national emergency medical services.
@@ -732,5 +959,5 @@ export function FirstAid() {
 
       <div className="py-8" />
     </main>
-  );
+  )
 }

@@ -389,4 +389,10 @@ body {
   animation-delay: 0.4s;
 }
 
+/* ── Voxide Chat Bubble Word Wrapping ── */
+.vx-scroll div {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
 

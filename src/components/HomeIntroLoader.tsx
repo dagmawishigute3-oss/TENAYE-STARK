@@ -1,74 +1,89 @@
-import React, { useState, useEffect, useRef } from 'react';
-import logoImg from '../imports/image-removebg-preview.png';
+import React, { useState, useEffect, useRef } from "react"
+import logoImg from "../imports/image-removebg-preview.png"
 
 interface HomeIntroLoaderProps {
-  onComplete?: () => void;
+  onComplete?: () => void
 }
 
-export const HomeIntroLoader: React.FC<HomeIntroLoaderProps> = ({ onComplete }) => {
+export const HomeIntroLoader: React.FC<HomeIntroLoaderProps> = ({
+  onComplete,
+}) => {
   // Stages: 'pulse' (center heartbeat) -> 'glide' (flying to navbar) -> 'done' (hidden)
-  const [stage, setStage] = useState<'pulse' | 'glide' | 'done'>('pulse');
-  const [transformStyle, setTransformStyle] = useState<React.CSSProperties>({});
-  const [overlayOpacity, setOverlayOpacity] = useState(1);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [stage, setStage] = useState<"pulse" | "glide" | "done">("pulse")
+  const [transformStyle, setTransformStyle] = useState<React.CSSProperties>({})
+  const [overlayOpacity, setOverlayOpacity] = useState(1)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     // Notify Navbar to hide static logo while intro is running
-    window.dispatchEvent(new CustomEvent('tenaye-intro-loading', { detail: { active: true } }));
+    window.dispatchEvent(
+      new CustomEvent("tenaye-intro-loading", { detail: { active: true } }),
+    )
 
     // Phase 1: Logo pulses in center for 1.1s
     const glideTimer = setTimeout(() => {
       // Calculate target destination (Navbar logo position)
-      const targetEl = document.getElementById('navbar-logo-img');
+      const targetEl = document.getElementById("navbar-logo-img")
       const targetRect = targetEl?.getBoundingClientRect() || {
         left: 24,
         top: 14,
         width: 36,
         height: 36,
-      };
+      }
 
-      const logoSize = 96; // Center logo dimensions (px)
-      const centerLeft = (window.innerWidth - logoSize) / 2;
-      const centerTop = (window.innerHeight - logoSize) / 2;
+      const logoSize = 96 // Center logo dimensions (px)
+      const centerLeft = (window.innerWidth - logoSize) / 2
+      const centerTop = (window.innerHeight - logoSize) / 2
 
-      const targetCenterLeft = targetRect.left + (targetRect.width - logoSize) / 2;
-      const targetCenterTop = targetRect.top + (targetRect.height - logoSize) / 2;
+      const targetCenterLeft =
+        targetRect.left + (targetRect.width - logoSize) / 2
+      const targetCenterTop =
+        targetRect.top + (targetRect.height - logoSize) / 2
 
-      const deltaX = targetCenterLeft - centerLeft;
-      const deltaY = targetCenterTop - centerTop;
-      const scale = targetRect.width / logoSize;
+      const deltaX = targetCenterLeft - centerLeft
+      const deltaY = targetCenterTop - centerTop
+      const scale = targetRect.width / logoSize
 
       // Begin flight to navbar with smooth spring ease
       setTransformStyle({
         transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scale})`,
-        transition: 'transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease 450ms',
-      });
+        transition:
+          "transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease 450ms",
+      })
 
-      setOverlayOpacity(0);
-      setStage('glide');
+      setOverlayOpacity(0)
+      setStage("glide")
 
       // Reveal Navbar logo right as it lands
       setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('tenaye-intro-loading', { detail: { active: false } }));
-      }, 550);
-    }, 1150);
+        window.dispatchEvent(
+          new CustomEvent("tenaye-intro-loading", {
+            detail: { active: false },
+          }),
+        )
+      }, 550)
+    }, 1150)
 
     // Phase 3: Transition finished (1.8s) -> clean unmount
     const doneTimer = setTimeout(() => {
-      setStage('done');
-      window.dispatchEvent(new CustomEvent('tenaye-intro-loading', { detail: { active: false } }));
-      if (onComplete) onComplete();
-    }, 1850);
+      setStage("done")
+      window.dispatchEvent(
+        new CustomEvent("tenaye-intro-loading", { detail: { active: false } }),
+      )
+      if (onComplete) onComplete()
+    }, 1850)
 
     return () => {
-      clearTimeout(glideTimer);
-      clearTimeout(doneTimer);
-      window.dispatchEvent(new CustomEvent('tenaye-intro-loading', { detail: { active: false } }));
-    };
-  }, [onComplete]);
+      clearTimeout(glideTimer)
+      clearTimeout(doneTimer)
+      window.dispatchEvent(
+        new CustomEvent("tenaye-intro-loading", { detail: { active: false } }),
+      )
+    }
+  }, [onComplete])
 
-  if (stage === 'done') {
-    return null;
+  if (stage === "done") {
+    return null
   }
 
   return (
@@ -83,7 +98,7 @@ export const HomeIntroLoader: React.FC<HomeIntroLoaderProps> = ({ onComplete }) 
       />
 
       {/* Center Vital Rings (fades out as flight starts) */}
-      {stage === 'pulse' && (
+      {stage === "pulse" && (
         <div className="absolute flex items-center justify-center pointer-events-none animate-in fade-in duration-300">
           {/* Outer Radar Glow */}
           <div className="absolute w-44 h-44 rounded-full bg-teal-400/15 blur-2xl animate-pulse" />
@@ -98,8 +113,8 @@ export const HomeIntroLoader: React.FC<HomeIntroLoaderProps> = ({ onComplete }) 
       <div
         className="relative z-10 flex flex-col items-center justify-center pointer-events-none"
         style={{
-          width: '96px',
-          height: '96px',
+          width: "96px",
+          height: "96px",
           ...transformStyle,
         }}
       >
@@ -107,7 +122,7 @@ export const HomeIntroLoader: React.FC<HomeIntroLoaderProps> = ({ onComplete }) 
           src={logoImg}
           alt="Tenaye Health Pin"
           className={`w-24 h-24 object-contain filter drop-shadow-lg transition-transform duration-300 ${
-            stage === 'pulse' ? 'animate-heartbeat' : ''
+            stage === "pulse" ? "animate-heartbeat" : ""
           }`}
         />
       </div>
@@ -117,11 +132,14 @@ export const HomeIntroLoader: React.FC<HomeIntroLoaderProps> = ({ onComplete }) 
         className="absolute bottom-28 sm:bottom-32 flex flex-col items-center gap-2.5 transition-all duration-400 ease-out"
         style={{
           opacity: overlayOpacity,
-          transform: `translateY(${stage === 'glide' ? '12px' : '0'})`,
+          transform: `translateY(${stage === "glide" ? "12px" : "0"})`,
         }}
       >
         {/* Brand Text */}
-        <div className="flex items-center gap-1.5 leading-none notranslate" translate="no">
+        <div
+          className="flex items-center gap-1.5 leading-none notranslate"
+          translate="no"
+        >
           <span className="font-logo text-base sm:text-lg font-bold text-white bg-gradient-to-r from-[#0c6e73] to-[#119197] px-3 py-1 rounded-full shadow-sm">
             Ten
           </span>
@@ -143,5 +161,5 @@ export const HomeIntroLoader: React.FC<HomeIntroLoaderProps> = ({ onComplete }) 
         </p>
       </div>
     </div>
-  );
-};
+  )
+}

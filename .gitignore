@@ -1,8 +1,10 @@
 node_modules/
 dist/
 build/
-.env*
-!.env
+.env
+.env.*
+.env.local
+!.env.example
 .vite/
 vite.config.*.timestamp-*
 *.tsbuildinfo
@@ -41,3 +43,13 @@ package-lock.json
 *.osm
 *.geojson
 scratch_*
+
+# Databases & local state
+data/
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+
+# Scratch scripts
+*.py

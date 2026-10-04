@@ -1,528 +1,438 @@
-"use client";
+"use client"
 
-import { VoxideClient, VoxideWidget } from "@voxide/react";
-import { devanagariToEnglish } from "./textSanitizer";
+// Official publishable key for Tenaye project — safe to ship in the browser
 
-// Official publishable key for Tenaye project
-const PUBLIC_KEY = "vox_pub_aedf303988896de856aa0ae4ce1b0867d4cf96bc3206586d";
+// Configure adaptive multilingual mode for Amharic and English
+
+// Self-healing: if tenaye_lang was polluted with 'am' from previous assistant sessions,
+// revert the website to default English so the UI is not auto-translated.
+// Isolate assistant language so the main website stays in its default language (English)
+
+/**
+ * Automatically adjusts active language mode based on incoming user text / speech.
+ */
+
+// ── Bulletproof Message & Transcript Sanitizer Interceptors ──
+// 1. Intercept internal snapshot message updates to strip <ctrl95> and STT artifacts
+
+// 2. Intercept client events (message, transcript)
+// ── Fast Turn Endpointing & PCM Utilities for Gemini Live ──
+
+// 3. Fast Turn Endpointing Interceptor: Accelerates Gemini Live speech completion without lag
+
+// Pre-compute 4096 zero bytes (2048 samples of 16-bit PCM silence)
+
+// 0.008 catches soft whisper and Amharic consonants without clipping
+// Preserve trailing consonant decay (300ms buffer)
+// Inject digital silence to immediately trigger Gemini Live's VAD endpointing
+// Pre-speech ambient room audio
+
+// Persistent Shared AudioContext for zero-latency audio playback
+// fallback
+
+// Safe navigation helper wired cleanly to React Router
+
+// Canonical application routes (Note: /first-aid is intentionally excluded so voice queries execute getFirstAidGuide directly)
+
+// Register official Voxide navigation tool with constrained valid paths
+
+// Register REAL capabilities for Tenaye health platform
+// 1. Search Diseases & Conditions
+
+// 2. Get Disease Details (Overview, Symptoms, Causes, Treatment, Prevention)
+
+// 3. Symptom Checker & Urgency Triage (Non-emergency illness symptoms and feelings)
+
+// If no catalog match, query Gemini API clinical intelligence
+
+// Graceful clinical advice fallback
+
+// 4. Emergency First Aid Protocols (Pure Physical Step-by-Step Procedures)
+
+// Query Gemini API / verified clinical emergency intelligence and save to temporary database
+
+// 5. Emergency Services & Closest Hospital Locator (Live GPS Proximity)
+
+// Clinical Consultation & Symptom Inquiries (Gemini AI + Temporary Storage)
+
+// 6. Daily Health Tips & Preventive Advice
+
+// 7. Contact Inquiry Form with Sensitive Data Protection
+
+// 8. Platform Founders & Team
+
+// Bind live UI state dynamically every turn
+
+/**
+ * Strict, regex-grounded multilingual page resolver for speech triggers.
+ */
+
+// If the user reports an emergency, injury, or first aid question, NEVER navigate away!
+// The physical first aid steps must be recited immediately.
+// About page triggers (including STT mishearings like "apple picture", "about picture", "up picture")
+// Explicit hospital search / ambulance triggers
+// Only navigate to /first-aid if user explicitly asks for the catalog page
+
+/**
+ * Global Assistant Component — Mounts Tenaye Assistance authentic custom chatbot UI.
+ */
+
+import { VoxideClient, VoxideWidget } from "@voxide/react"
+import { ALL_DISEASES } from "../data/diseasesIndex"
+import { FIRST_AID_TOPICS } from "../data/firstAidData"
+import { ALL_HEALTH_TIPS } from "../data/healthTipsData"
+import { matchSymptomsToDiseases } from "../services/symptomMatcherService"
+import { getInstantDatabaseHospitals } from "../services/hospitalLocatorService"
+import {
+  devanagariToEnglish,
+  sanitizeAiOutput,
+  sanitizeUserSpeech,
+} from "./textSanitizer"
+import {
+  getClinicalFirstAidSteps,
+  getGeneralMedicalAdvice,
+  getLatestFirstAidFromStorage,
+} from "../services/geminiMedicalService"
+import { isEmergencyOrFirstAidQuery } from "../services/firstAidHospitalService"
+import { queryGeminiClinical } from "../services/geminiService"
+
+export {
+  getClinicalResponse,
+  filterClinicalSections,
+} from "./clinicalKnowledge"
+
+export function resetVoxideSession() {
+  try {
+    ;(ai as any)._voiceStopPlayback?.(true)
+    ;(ai as any)._voiceDisconnect?.()
+    ;(ai as any).disconnect?.()
+    ;(ai as any)._voicePendingAiText = ""
+    ;(ai as any)._voicePendingUserText = ""
+    ;(ai as any)._setVoiceSnapshot?.({
+      messages: [],
+      currentAction: null,
+      sessionId: null,
+    })
+    ;(ai as any)._setVoiceStatus?.("idle")
+  } catch {}
+}
+const PUBLIC_KEY = "vox_pub_aedf303988896de856aa0ae4ce1b0867d4cf96bc3206586d"
 
 export const ai = new VoxideClient({
   publicKey: PUBLIC_KEY,
-  language: "en-US",
-});
+  ui: {
+    accentColor: "#059669",
+    title: "Tenaye Health Assistant",
+    subtitle: "Always available • Emergency 907",
+    placeholder:
+      "Ask anything in Amharic or English (e.g. 907, first aid, hospitals)...",
+  },
+})
+try {
+  ;(ai as any).languageMode = "adaptive"
+  ;(ai as any).supportedLanguages = ["am", "en-US"]
+  ai.enableMultilingual?.({
+    mode: "adaptive",
+    supported: ["am", "en-US"],
+  })
+  // Permanently disable automatic wake-word background listening so the browser microphone
+  // is NEVER accessed or requested on page load without explicit user interaction.
+  ;(ai as any)._wakeConfig = () => null
+  ;(ai as any)._wakeArm = () => {}
+  ;(ai as any).armWakeWord = () => {}
+  ;(ai as any).isWakeWordAvailable = () => false
+  if (typeof (ai as any).disarmWakeWord === "function") {
+    ;(ai as any).disarmWakeWord(false)
+  }
+} catch {}
 
-let currentActiveLanguage: "en" | "am" = "en";
+let currentActiveLanguage: "am" | "en" = "en"
+if (
+  typeof window !==
+  "undefined"
+) {
+  try {
+    const rawLang = localStorage.getItem("tenaye_lang")
+    if (
+      rawLang ===
+        "am" &&
+      !sessionStorage.getItem("tenaye_user_explicitly_chose_am")
+    ) {
+      localStorage.removeItem("tenaye_lang")
+      document.cookie =
+        "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+    }
+  } catch {}
+}
 
 export function setCurrentLanguage(lang: "en" | "am") {
-  currentActiveLanguage = lang;
+  currentActiveLanguage = lang
   try {
-    (ai as any).setLanguage?.(lang === "am" ? "am" : "en-US");
-  } catch {}
-  try {
-    const ws = (ai as any)._voiceWs;
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      const currentState = (ai as any)._getCurrentStateSnapshot?.();
-      if (currentState) {
-        ws.send(JSON.stringify({ type: "state", state: currentState }));
-      }
+    const targetLang =
+      lang ===
+      "am"
+        ? "am"
+        : "en-US"
+    ;(ai as any).language = targetLang
+    ;(ai as any).setLanguage?.(targetLang)
+    if (
+      typeof localStorage !==
+      "undefined"
+    ) {
+      localStorage.setItem("tenaye_assistant_lang", lang)
     }
   } catch {}
 }
 
 export function getCurrentLanguage(): "en" | "am" {
-  return currentActiveLanguage;
+  return currentActiveLanguage
+}
+function detectAndApplyLanguage(text: string) {
+  if (!text) return
+  const hasEthiopic = /[\u1200-\u137F]/.test(text)
+  const hasLatin = /[a-zA-Z]/.test(text)
+  if (hasEthiopic && !hasLatin) {
+    if (
+      currentActiveLanguage !==
+      "am"
+    ) {
+      setCurrentLanguage("am")
+    }
+  } else if (hasLatin && !hasEthiopic) {
+    if (
+      currentActiveLanguage !==
+      "en"
+    ) {
+      setCurrentLanguage("en")
+    }
+  }
+}
+const originalSetVoiceSnapshot = (ai as any)._setVoiceSnapshot?.bind(ai)
+if (
+  typeof originalSetVoiceSnapshot ===
+  "function"
+) {
+  ;(ai as any)._setVoiceSnapshot = function (patch: any) {
+    if (patch && patch.messages && Array.isArray(patch.messages)) {
+      patch.messages = patch.messages.map((m: any) => ({
+        ...m,
+        text:
+          m.role ===
+          "ai"
+            ? sanitizeAiOutput(
+                m.text ||
+                  "",
+              )
+            : sanitizeUserSpeech(
+                m.text ||
+                  "",
+              ),
+      }))
+    }
+    return originalSetVoiceSnapshot(patch)
+  }
+}
+const originalEmit = (ai as any)._emit?.bind(ai)
+if (
+  typeof originalEmit ===
+  "function"
+) {
+  ;(ai as any)._emit = function (event: string, payload: any) {
+    if (
+      payload &&
+      typeof payload.text ===
+        "string"
+    ) {
+      if (
+        payload.role ===
+        "ai"
+      ) {
+        payload.text = sanitizeAiOutput(payload.text)
+      } else if (
+        payload.role ===
+        "user"
+      ) {
+        payload.text = sanitizeUserSpeech(payload.text)
+        detectAndApplyLanguage(payload.text)
+      }
+    }
+    return originalEmit(event, payload)
+  }
+}
+const originalVoiceStartMic = (ai as any)._voiceStartMic?.bind(ai)
+if (typeof originalVoiceStartMic === "function") {
+  ;(ai as any)._voiceStartMic = async function () {
+    if (
+      typeof window !== "undefined" &&
+      !(window as any).__tenayeVoiceUserRequested
+    ) {
+      return
+    }
+    return originalVoiceStartMic()
+  }
 }
 
-try {
-  (ai as any).setLanguage?.("en-US");
-} catch {}
+const originalSendText = (ai as any).sendText?.bind(ai)
+if (
+  typeof originalSendText ===
+  "function"
+) {
+  ;(ai as any).sendText = function (text: string) {
+    const clean = sanitizeUserSpeech(text)
+    detectAndApplyLanguage(clean)
+    const target = resolveSpokenPage(clean)
+    if (
+      target &&
+      typeof window !==
+        "undefined"
+    ) {
+      const currentPath = window.location.pathname
+      const targetBase = target.split("?")[0]
+      if (
+        currentPath !==
+        targetBase
+      ) {
+        navigateTo(target)
+      }
+    }
+    return originalSendText(clean)
+  }
+}
 
-// Persistent Shared AudioContext for zero-latency audio playback
-let sharedAudioOutCtx: AudioContext | null = null;
+const originalVoiceSendText = (ai as any)._voiceSendText?.bind(ai)
+if (
+  typeof originalVoiceSendText ===
+  "function"
+) {
+  ;(ai as any)._voiceSendText = function (text: string) {
+    const clean = sanitizeUserSpeech(text)
+    detectAndApplyLanguage(clean)
+    const target = resolveSpokenPage(clean)
+    if (
+      target &&
+      typeof window !==
+        "undefined"
+    ) {
+      const currentPath = window.location.pathname
+      const targetBase = target.split("?")[0]
+      if (
+        currentPath !==
+        targetBase
+      ) {
+        navigateTo(target)
+      }
+    }
+    return originalVoiceSendText(clean)
+  }
+}
+let sharedAudioOutCtx: AudioContext | null = null
+let masterVoiceGainNode: GainNode | null = null
 
 export function getSharedAudioContext(): AudioContext | null {
-  if (typeof window === "undefined") return null;
-  const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-  if (!AudioCtx) return null;
+  if (
+    typeof window ===
+    "undefined"
+  )
+    return null
+  const AudioCtx =
+    window.AudioContext ||
+    (window as any).webkitAudioContext
+  if (!AudioCtx) return null
   try {
-    if (!sharedAudioOutCtx || sharedAudioOutCtx.state === "closed") {
-      sharedAudioOutCtx = new AudioCtx({ sampleRate: 24000 });
+    if (
+      !sharedAudioOutCtx ||
+      sharedAudioOutCtx.state ===
+        "closed"
+    ) {
+      sharedAudioOutCtx = new AudioCtx({ sampleRate: 24000 })
+      masterVoiceGainNode = null
     }
-    if (sharedAudioOutCtx.state === "suspended") {
-      sharedAudioOutCtx.resume().catch(() => {});
+    if (
+      sharedAudioOutCtx.state ===
+      "suspended"
+    ) {
+      sharedAudioOutCtx.resume().catch(() => {})
     }
-  } catch {
-    // fallback
-  }
-  return sharedAudioOutCtx;
-}
-
-// Guard microphone, audio playback, status, and turn management
-if (typeof window !== "undefined") {
-  (window as any).__tenayeVoiceActive = false;
-  (window as any).__tenayeIsAiTurnActive = false;
-  (window as any).__tenayeLastAudioChunkTime = 0;
-  (window as any).__tenayeTurnGeneration = 0;
-  (window as any).__tenayeSuppressAudioUntil = 0;
-  (window as any).__tenayeSuppressServerAudio = false;
-  (window as any).__tenayeIsCleared = false;
-
-  // Pre-unlock AudioContext on any user gesture across the document
-  const unlockAudioGesture = () => {
-    getSharedAudioContext();
-  };
-  window.addEventListener("click", unlockAudioGesture, { passive: true });
-  window.addEventListener("keydown", unlockAudioGesture, { passive: true });
-  window.addEventListener("touchstart", unlockAudioGesture, { passive: true });
-  window.addEventListener("pointerdown", unlockAudioGesture, { passive: true });
-
-  // 1. Guard _voicePlayAudioChunk: ensure audio context is active and play audio chunks immediately
-  const origVoicePlayAudioChunk = (ai as any)._voicePlayAudioChunk?.bind(ai);
-  if (origVoicePlayAudioChunk) {
-    (ai as any)._voicePlayAudioChunk = function (base64Data: string) {
-      if (!base64Data) return;
-      if (
-        (window as any).__tenayeIsCleared ||
-        (window as any).__tenayeSoundMuted ||
-        Date.now() < ((window as any).__tenayeSuppressAudioUntil || 0)
-      ) {
-        return;
-      }
-
-      // Guarantee hardware AudioContext is unlocked and assigned
-      const outCtx = getSharedAudioContext();
-      if (outCtx) {
-        (ai as any)._voiceAudioOut = outCtx;
-        if (outCtx.state === "suspended") {
-          outCtx.resume().catch(() => {});
-        }
-      }
-
-      (window as any).__tenayeLastAudioChunkTime = Date.now();
-      (window as any).__tenayeIsAiTurnActive = true;
-      const res = origVoicePlayAudioChunk(base64Data);
-
-      // Hook the newly scheduled buffer source to guarantee listening is restored on ended
-      const sources = (ai as any)._voiceActiveSources || [];
-      const newSource = sources[sources.length - 1];
-      if (newSource && !newSource.__tenayeAttached) {
-        newSource.__tenayeAttached = true;
-        const origOnEnded = newSource.onended;
-        newSource.onended = function () {
-          try {
-            if (origOnEnded) origOnEnded.call(newSource);
-          } catch {}
-          const active = (ai as any)._voiceActiveSources || [];
-          const currentOut = (ai as any)._voiceAudioOut;
-          const nextPlay = (ai as any)._voiceNextPlay || 0;
-          if (active.length === 0 && (!currentOut || currentOut.currentTime >= nextPlay - 0.05)) {
-            (window as any).__tenayeIsAiTurnActive = false;
-            if ((window as any).__tenayeVoiceActive) {
-              (ai as any)._setVoiceStatus?.("listening");
-            }
-          }
-        };
-      }
-      return res;
-    };
-  }
-
-  // 2. SetVoiceStatus: immediately mark turn inactive when returning to listening
-  const origSetVoiceStatus = (ai as any)._setVoiceStatus?.bind(ai);
-  if (origSetVoiceStatus) {
-    (ai as any)._setVoiceStatus = function (next: string) {
-      if (next === "listening" || next === "idle") {
-        (window as any).__tenayeIsAiTurnActive = false;
-      } else if (next === "speaking" || next === "thinking" || next === "processing") {
-        (window as any).__tenayeIsAiTurnActive = true;
-      }
-      return origSetVoiceStatus(next);
-    };
-  }
-
-  // 3. Guard _voiceStopPlayback: cleanly stop audio sources WITHOUT destroying AudioContext
-  const origVoiceStopPlayback = (ai as any)._voiceStopPlayback?.bind(ai);
-  if (origVoiceStopPlayback) {
-    (ai as any)._voiceStopPlayback = function () {
-      (window as any).__tenayeTurnGeneration = ((window as any).__tenayeTurnGeneration || 0) + 1;
-      (window as any).__tenayeIsAiTurnActive = false;
-
-      const sources = (ai as any)._voiceActiveSources || [];
-      for (const src of sources) {
-        try { src.stop(); } catch {}
-      }
-      (ai as any)._voiceActiveSources = [];
-      (ai as any)._voiceNextPlay = 0;
-
-      // KEEP _voiceAudioOut ALIVE!
-      // Destroying or nullifying AudioContext causes Chrome to block all subsequent audio playback!
-
-      if ((window as any).__tenayeVoiceActive) {
-        (ai as any)._setVoiceStatus?.("listening");
-      }
-    };
-  }
-
-  // Hook explicit interrupt capability
-  (ai as any)._voiceInterrupt = function () {
-    try {
-      (ai as any)._voiceStopPlayback?.();
-      const ws = (ai as any)._voiceWs;
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "interrupt" }));
-      }
-      if ((window as any).__tenayeVoiceActive) {
-        (ai as any)._setVoiceStatus?.("listening");
-      }
-    } catch {}
-  };
-
-  // 4. Guard _voiceStartMic: Never start microphone during text mode, pre-warm audio context, and enforce half-duplex turn taking
-  const origVoiceStartMic = (ai as any)._voiceStartMic?.bind(ai);
-  if (origVoiceStartMic) {
-    (ai as any)._voiceStartMic = async function () {
-      if (!(window as any).__tenayeVoiceActive) {
-        console.log("[Tenaye Voxide] Mic suppressed: text mode active");
-        return;
-      }
-      try {
-        const outCtx = getSharedAudioContext();
-        if (outCtx) {
-          (ai as any)._voiceAudioOut = outCtx;
-          if (outCtx.state === "suspended") {
-            outCtx.resume().catch(() => {});
-          }
-        }
-      } catch {}
-
-      const res = await origVoiceStartMic();
-
-      // Half-Duplex Acoustic Gate: strictly drop mic audio frames whenever AI is thinking, speaking, or playing audio
-      try {
-        const proc = (ai as any)._voiceProcessor;
-        if (proc && proc.onaudioprocess) {
-          const origProcess = proc.onaudioprocess;
-          proc.onaudioprocess = function (e: any) {
-            // Drop mic if voice mode is inactive
-            if (!(window as any).__tenayeVoiceActive) {
-              return;
-            }
-
-            // Drop mic if AI turn is in progress (thinking, processing, speaking)
-            if ((window as any).__tenayeIsAiTurnActive) {
-              return;
-            }
-
-            // Drop mic if speakers are still playing audio buffer
-            const outCtx = (ai as any)._voiceAudioOut;
-            const nextPlay = (ai as any)._voiceNextPlay || 0;
-            if (outCtx && outCtx.currentTime < nextPlay) {
-              return;
-            }
-
-            // Drop mic if active sound sources are still playing
-            const activeSources = (ai as any)._voiceActiveSources;
-            if (activeSources && activeSources.length > 0) {
-              return;
-            }
-
-            // Mic is completely clear to stream user speech cleanly!
-            return origProcess.call(proc, e);
-          };
-        }
-      } catch {}
-
-      return res;
-    };
-  }
-
-  // 5. Track turn completion to gracefully re-enable listening once ALL audio playback completes
-  ai.on("message", ({ role }: { role: string }) => {
-    if (role === "ai") {
-      let checks = 0;
-      const interval = setInterval(() => {
-        checks++;
-        const activeSources = (ai as any)._voiceActiveSources || [];
-        const outCtx = (ai as any)._voiceAudioOut;
-        const nextPlay = (ai as any)._voiceNextPlay || 0;
-        const finished = activeSources.length === 0 && (!outCtx || outCtx.currentTime >= nextPlay - 0.05);
-        if (finished || checks > 80 || !(window as any).__tenayeVoiceActive) {
-          clearInterval(interval);
-          if ((window as any).__tenayeVoiceActive) {
-            (window as any).__tenayeIsAiTurnActive = false;
-            (ai as any)._setVoiceStatus?.("listening");
-          }
-        }
-      }, 100);
-    }
-  });
-
-  // 6. Track status transitions to mark AI turn active on thinking/speaking and inactive on listening
-  ai.on("status", (status: string) => {
-    const s = (status || "").toLowerCase();
-    if (s === "listening" || s === "idle") {
-      (window as any).__tenayeIsAiTurnActive = false;
-    } else if (s === "thinking" || s === "processing" || s === "speaking") {
-      (window as any).__tenayeIsAiTurnActive = true;
-    }
-  });
-}
-
-/**
- * Completely resets and wipes the Voxide session, stopping all audio hardware,
- * terminating WebSockets, rotating the visitor ID, and canceling synthesis.
- */
-export function resetVoxideSession(): void {
-  try {
-    if (typeof window !== "undefined") {
-      (window as any).__tenayeIsCleared = true;
-      (window as any).__tenayeSuppressAudioUntil = Date.now() + 300;
-      (window as any).__tenayeIsAiTurnActive = false;
-
-      // 1. Cancel Web Speech API immediately
-      if (window.speechSynthesis) {
-        try {
-          window.speechSynthesis.cancel();
-          setTimeout(() => {
-            try { window.speechSynthesis.cancel(); } catch {}
-          }, 50);
-        } catch {}
-      }
-
-      // 2. Stop and clear all active audio hardware sources
-      const sources = (ai as any)._voiceActiveSources || [];
-      for (const src of sources) {
-        try {
-          src.stop();
-          src.disconnect();
-        } catch {}
-      }
-      (ai as any)._voiceActiveSources = [];
-      (ai as any)._voiceNextPlay = 0;
-
-      // 3. Clear all internal Voxide pending text and snapshot buffers
-      (ai as any)._voicePendingAiText = "";
-      (ai as any)._voicePendingUserText = "";
-      (ai as any)._voiceSnapshot = { status: "idle", messages: [], currentAction: null };
-
-      // 4. Send interrupt & disconnect WebSocket
-      try {
-        (ai as any)._voiceInterrupt?.();
-        ai.disconnect();
-      } catch {}
-      (ai as any)._voiceWs = null;
-
-      // 5. Rotate anonymous visitor ID to eliminate past server memory
-      const newId =
-        typeof crypto !== "undefined" && crypto.randomUUID
-          ? crypto.randomUUID()
-          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      try {
-        window.sessionStorage.setItem("__voxide_visitor_id", newId);
-        window.localStorage.setItem("__voxide_visitor_id", newId);
-      } catch {}
-      (ai as any).anonymousId = newId;
-    }
-  } catch (err) {
-    console.warn("[Tenaye Voxide] resetVoxideSession error:", err);
-  }
-}
-
-/**
- * Disconnect and cleanly reconnect Voxide to start with a fresh state.
- */
-export async function reconnectVoxide(): Promise<void> {
-  try {
-    (window as any).__tenayeSuppressAudioUntil = Date.now() + 2000;
-    (window as any).__tenayeIsAiTurnActive = false;
-    (ai as any)._voiceStopPlayback?.();
-    ai.disconnect();
   } catch {}
-  await new Promise(r => setTimeout(r, 150));
-  try {
-    await ai.connect();
-    const ws = (ai as any)._voiceWs;
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      const currentState = (ai as any)._getCurrentStateSnapshot?.();
-      if (currentState) {
-        ws.send(JSON.stringify({ type: "state", state: currentState }));
-      }
-    }
-  } catch (err) {
-    console.warn("[Tenaye Voxide] Reconnect error:", err);
-  }
+  return sharedAudioOutCtx
 }
 
-// Configure branding, localized greeting, and design
-ai.configureUI({
-  title: "Tenaye Health Assistant",
-  subtitle: "English & አማርኛ Voice AI",
-  greeting:
-    "Hello! I am Tenaye Health Assistant. How can I help you today? / ሰላም! የጤናዬ ረዳት ነኝ። ዛሬ በምን ልርዳዎ?",
-  placeholder: "Speak in English or አማርኛ, or say 'open about page'...",
-  accentColor: "#0D9488",
-  theme: "light",
-  position: "bottom-right",
-  showBranding: false,
-});
+export function getMasterVoiceGain(ctx: AudioContext): GainNode {
+  if (
+    !masterVoiceGainNode ||
+    masterVoiceGainNode.context !==
+      ctx
+  ) {
+    masterVoiceGainNode = ctx.createGain()
+    const isMuted =
+      (window as any).__tenayeSoundMuted ===
+      true
+    masterVoiceGainNode.gain.setValueAtTime(isMuted ? 0 : 1, ctx.currentTime)
+    masterVoiceGainNode.connect(ctx.destination)
+  }
+  return masterVoiceGainNode
+}
 
-// Enable adaptive bilingual speech recognition for English and Amharic
-ai.enableMultilingual({
-  mode: "adaptive",
-  supported: ["en", "am"],
-});
-
-// App valid routes mapping with concise descriptions
+export function setVoiceMuted(muted: boolean) {
+  ;(window as any).__tenayeSoundMuted = muted
+  const ctx = getSharedAudioContext()
+  if (ctx) {
+    const gain = getMasterVoiceGain(ctx)
+    try {
+      gain.gain.setValueAtTime(muted ? 0 : 1, ctx.currentTime)
+    } catch {}
+  }
+}
+export function navigateTo(path: string, search?: string) {
+  if (
+    typeof window ===
+      "undefined" ||
+    !path
+  )
+    return
+  const targetFull =
+    path +
+    (search ? `?search=${encodeURIComponent(search)}` : "")
+  if (
+    typeof (window as any).__tenayeNavigate ===
+    "function"
+  ) {
+    try {
+      ;(window as any).__tenayeNavigate(targetFull)
+      window.scrollTo({ top: 0, behavior: "smooth" })
+      return
+    } catch {}
+  }
+  window.dispatchEvent(
+    new CustomEvent("tenaye-navigate", { detail: { path, search } }),
+  )
+  window.scrollTo({ top: 0, behavior: "smooth" })
+}
 export const APP_ROUTES = [
-  {
-    path: "/about",
-    description: "About Tenaye platform page (/about). Open ONLY when the user explicitly commands to open or go to the about page. DO NOT recite founders when opening this page.",
-  },
-  {
-    path: "/contact",
-    description: "Contact inquiry page (/contact). ONLY open when the user explicitly commands to open or go to the contact page.",
-  },
+  { path: "/", description: "Home page with health overview and search" },
   {
     path: "/emergency",
-    description: "Emergency ambulance 907 hotline page (/emergency). ONLY open when the user explicitly commands to open or go to the emergency page.",
+    description: "Emergency ambulance hotline (907) and nearby hospitals",
   },
   {
-    path: "/diseases",
-    description: "Disease Library page (/diseases). ONLY open when the user explicitly commands to open or go to the disease library page. NEVER open or navigate when the user is asking questions about malaria, diabetes, symptoms, causes, or treatments.",
+    path: "/symptoms",
+    description: "Interactive symptom checker and condition analysis",
   },
-  {
-    path: "/first-aid",
-    description: "First aid procedures page (/first-aid). ONLY open when the user explicitly commands to open or go to the first aid page.",
-  },
+  { path: "/diseases", description: "Comprehensive medical disease library" },
   {
     path: "/health-tips",
-    description: "Daily health tips page (/health-tips). ONLY open when the user explicitly commands to open or go to the health tips page.",
+    description: "Daily wellness, nutrition, and preventive tips",
   },
   {
-    path: "/",
-    description: "Home page (/). ONLY open when the user explicitly commands to go to the home page.",
+    path: "/about",
+    description: "About Tenaye platform, founders, and mission",
   },
-];
-
-/**
- * Strict, regex-grounded multilingual page resolver.
- * Accurately detects explicit navigation commands while completely ignoring
- * conversational and informational questions (e.g. malaria, fever, founders).
- */
-export function resolveSpokenPage(rawText: string): string | null {
-  if (!rawText) return null;
-  const s = rawText.toLowerCase().trim();
-
-  // 1. Direct path matches
-  if (s === "/about" || s === "/contact" || s === "/emergency" || s === "/diseases" || s === "/first-aid" || s === "/health-tips" || s === "/") {
-    return s;
-  }
-
-  // 2. Emergency Page (/emergency)
-  if (
-    /\b(open\s+emergency|emergency\s+page|open\s+ambulance|call\s+907|hotline\s+907)\b/i.test(s) ||
-    /(ድንገተኛ(\s*አደጋ)?\s*ገጽ\s*(ክፈት|ሂድ)|አምቡላንስ\s*ገጽ)/i.test(s)
-  ) {
-    return "/emergency";
-  }
-
-  // 3. First Aid Page (/first-aid)
-  if (
-    /\b(open\s+first\s*aid|first\s*aid\s+page|cpr\s+guide\s+page)\b/i.test(s) ||
-    /(የመጀመሪያ\s*እርዳታ\s*ገጽ\s*(ክፈት|ሂድ))/i.test(s)
-  ) {
-    return "/first-aid";
-  }
-
-  // 4. Health Tips Page (/health-tips)
-  if (
-    /\b(open\s+health\s*tips?|health\s*tips?\s+page|wellness\s*page)\b/i.test(s) ||
-    /(የጤና\s*ምክሮች?\s*ገጽ\s*(ክፈት|ሂድ))/i.test(s)
-  ) {
-    return "/health-tips";
-  }
-
-  // 5. Disease Library Page (/diseases)
-  if (
-    /\b(open\s+disease\s+library|open\s+diseases?(\s+page)?|go\s+to\s+diseases?(\s+page)?)\b/i.test(s) ||
-    /(የበሽታዎች\s*ማውጫ\s*ክፈት|የበሽታዎች\s*ገጽ\s*(ክፈት|ሂድ))/i.test(s)
-  ) {
-    return "/diseases";
-  }
-
-  // 6. Contact Page (/contact)
-  if (
-    /\b(open\s+contact(\s+page)?|contact\s+us\s+page|go\s+to\s+contact(\s+page)?)\b/i.test(s) ||
-    /(አግኙን\s*ገጽ\s*(ክፈት|ሂድ)|የአግኙን\s*ገጽ\s*ክፈት)/i.test(s)
-  ) {
-    return "/contact";
-  }
-
-  // 7. About Page (/about)
-  // ONLY explicit page opening commands! NEVER trigger on "who is the founder" or questions!
-  if (
-    /\b(open(\s+the)?\s+about(\s+page|\s+us)?|about\s+page|about\s+us\s+page|go\s+to\s+about(\s+page)?)\b/i.test(s) ||
-    /(ስለ\s*እኛ\s*ገጽ\s*(ክፈት|ሂድ)|ስለእኛ\s*ገጽ\s*ክፈት)/i.test(s)
-  ) {
-    return "/about";
-  }
-
-  // 8. Home Page (/)
-  if (
-    /\b(open\s+home(\s+page)?|go\s+home|back\s+to\s+home|home\s+page)\b/i.test(s) ||
-    /(መነሻ\s*ገጽ\s*(ክፈት|ሂድ)|ወደ\s*መነሻ\s*ገጽ)/i.test(s)
-  ) {
-    return "/";
-  }
-
-  return null;
-}
-
-// Navigation state tracking for seamless, de-duplicated transitions
-let lastNavigatedTarget = "";
-let lastNavigatedTimestamp = 0;
-let pendingUserTarget: string | null = null;
-let pendingUserTargetTimestamp = 0;
-
-/**
- * Execute client-side route navigation cleanly via React Router without corrupting browser history.
- */
-export function navigateTo(path: string, search?: string) {
-  if (typeof window === "undefined" || !path) return;
-
-  const targetFull = path + (search ? `?search=${encodeURIComponent(search)}` : "");
-  const now = Date.now();
-
-  // Prevent duplicate rapid calls within 800ms
-  if (targetFull === lastNavigatedTarget && now - lastNavigatedTimestamp < 800) {
-    return;
-  }
-
-  lastNavigatedTarget = targetFull;
-  lastNavigatedTimestamp = now;
-  pendingUserTarget = null; // fulfilled
-
-  console.log("[Tenaye Navigation] Navigating to:", targetFull);
-
-  // Safe navigation through React Router global handle
-  if (typeof (window as any).__tenayeNavigate === "function") {
-    try {
-      (window as any).__tenayeNavigate(targetFull);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    } catch (e) {
-      console.warn("[Tenaye Navigation] __tenayeNavigate error:", e);
-    }
-  }
-
-  // Fallback DOM event for NavigationListener
-  window.dispatchEvent(
-    new CustomEvent("tenaye-navigate", { detail: { path, search } })
-  );
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-// 1. Register official Voxide navigation tool with constrained valid paths
+  { path: "/contact", description: "Contact inquiry and feedback form" },
+  {
+    path: "/legal",
+    description: "Terms of service, privacy policy, and medical disclaimer",
+  },
+]
 ai.enableNavigation(
   {
     push: (route: string) => navigateTo(route),
@@ -530,469 +440,713 @@ ai.enableNavigation(
   APP_ROUTES.map((r) => ({
     path: r.path,
     description: r.description,
-  }))
-);
-
-// 2. Register clean, high-speed capabilities
+  })),
+)
 ai.register({
-  // Founder and team capability
-  getFounderAndTeam: {
-    description: "Get the founders and core team behind Tenaye. ONLY use when user explicitly asks 'who is the founder', 'who made this website', or 'የጤናዬ መስራቾች ማን ናቸው'. NEVER use when opening or navigating to the about page.",
-    params: {},
-    handler: async () => {
+  searchDiseases: {
+    description:
+      "Search the verified medical condition library by disease name, symptom, or keyword (e.g. malaria, diabetes, asthma, hypertension, diarrhea).",
+    params: {
+      query: {
+        type: "string",
+        required: true,
+        description: "Condition name, symptom, or keyword to search",
+      },
+      category: {
+        type: "string",
+        description:
+          "Optional category filter like Infectious, Chronic, Respiratory, Cardiovascular",
+      },
+    },
+    handler: async ({ query = "", category }: Record<string, any>) => {
+      navigateTo("/diseases", query)
+      const q = String(query).toLowerCase().trim()
+      const matches = ALL_DISEASES.filter((d) => {
+        const matchesQuery =
+          d.name.toLowerCase().includes(q) ||
+          (d.amharicName && d.amharicName.includes(query)) ||
+          d.symptoms.some((s) => s.toLowerCase().includes(q))
+        const matchesCat =
+          !category ||
+          category ===
+            "All Categories" ||
+          d.category.toLowerCase() ===
+            String(category).toLowerCase()
+        return (
+          matchesQuery &&
+          matchesCat
+        )
+      }).slice(0, 4)
+
       return {
         status: "ok",
-        founders: "Yonatan Muluken, Nahom Tibebu, Dagmawi Shigute, Ayub Ebrahim",
-        message: "The founders and core team behind Tenaye are Yonatan Muluken, Nahom Tibebu, Dagmawi Shigute, and Ayub Ebrahim.",
-      };
+        count: matches.length,
+        navigatedTo: `/diseases?search=${encodeURIComponent(query)}`,
+        results: matches.map((m) => ({
+          name: m.name,
+          amharicName: m.amharicName,
+          category: m.category,
+          overview: m.description || m.desc || m.overview || "",
+          keySymptoms: m.symptoms.slice(0, 4),
+        })),
+        message: `Found ${matches.length} conditions matching "${query}". Showing results in the Disease Library.`,
+      }
+    },
+  },
+  getDiseaseDetails: {
+    description:
+      "Get detailed clinical guidance for a specific condition: overview, key symptoms, causes, medical treatment, home care, and prevention. Can be filtered to specific aspects (e.g. 'symptoms only' or 'symptoms, cause and treatment').",
+    params: {
+      diseaseName: {
+        type: "string",
+        required: true,
+        description: "Name of the disease (in English or Amharic)",
+      },
+      requestedAspects: {
+        type: "string",
+        description:
+          "Optional specific sections requested e.g. 'symptoms only' or 'symptoms, cause and treatment'",
+      },
+    },
+    handler: async ({
+      diseaseName = "",
+      requestedAspects,
+    }: Record<string, any>) => {
+      const q = String(diseaseName).toLowerCase().trim()
+      const found = ALL_DISEASES.find(
+        (d) =>
+          d.name.toLowerCase().includes(q) ||
+          q.includes(d.name.toLowerCase()) ||
+          (d.amharicName &&
+            (d.amharicName.includes(diseaseName) ||
+              diseaseName.includes(d.amharicName))),
+      )
+
+      if (found) {
+        navigateTo(`/diseases/${found.id}`)
+        const aspectQuery = (
+          requestedAspects ||
+          ""
+        ).toLowerCase()
+        const wantsOnlySymptoms =
+          /symptom|sign|ምልክት/.test(aspectQuery) &&
+          !/treatment|cause|care|ህክምና|መንስኤ/.test(aspectQuery)
+        const wantsSymptomsCausesTreatment =
+          /symptom/.test(aspectQuery) &&
+          /cause/.test(aspectQuery) &&
+          /treatment/.test(aspectQuery)
+
+        return {
+          status: "ok",
+          id: found.id,
+          name: found.name,
+          amharicName: found.amharicName,
+          category: found.category,
+          overview: found.description || found.desc || found.overview || "",
+          symptoms: found.symptoms,
+          causes: wantsOnlySymptoms ? undefined : found.causes,
+          treatment: wantsOnlySymptoms ? undefined : found.treatment,
+          prevention:
+            wantsOnlySymptoms ||
+            wantsSymptomsCausesTreatment
+              ? undefined
+              : found.prevention,
+          whenToSeeDoctor:
+            wantsOnlySymptoms ||
+            wantsSymptomsCausesTreatment
+              ? undefined
+              : found.whenToSeeDoctor,
+          message: `Opened detailed medical page for ${found.name}.`,
+        }
+      }
+
+      navigateTo("/diseases", diseaseName)
+      return {
+        status: "not_found",
+        message: `Condition "${diseaseName}" was not found directly in catalog. Showing search results.`,
+      }
+    },
+  },
+  checkSymptoms: {
+    description:
+      "Analyze symptoms, feelings, or illness complaints (e.g. fever, headache, cough, fatigue, stomach ache, nausea, dizziness). NEVER call this for acute injuries, bleeding, cuts, accidents, breathing problems, choking, burns, or first aid (call getFirstAidGuide for those). Directly explains likely matching diseases and self-care steps without redirecting or saying 'go to dev'.",
+    params: {
+      symptoms: {
+        type: "string",
+        required: true,
+        description:
+          "Reported symptoms or feelings e.g. headache, fever, stomach pain, dizziness",
+      },
+    },
+    handler: async ({ symptoms = "" }: Record<string, any>) => {
+      if (isEmergencyOrFirstAidQuery(symptoms)) {
+        const firstAid = await getClinicalFirstAidSteps(
+          symptoms,
+          currentActiveLanguage,
+        )
+        return {
+          status: "emergency_resolved",
+          condition: firstAid.condition,
+          MANDATORY_SPEECH_INSTRUCTION: `CRITICAL: You MUST speak these exact physical action steps OUT LOUD immediately: ${firstAid.spokenText}`,
+          spokenSteps: firstAid.spokenText,
+          steps: firstAid.steps.map(
+            (s) => `${s.number}. ${s.title}: ${s.detail}`,
+          ),
+          message: firstAid.spokenText,
+        }
+      }
+
+      const isAm =
+        currentActiveLanguage ===
+        "am"
+      const matches = matchSymptomsToDiseases(symptoms)
+      const top = matches.slice(0, 3)
+
+      if (
+        top.length >
+        0
+      ) {
+        const conditionNames = top
+          .map((t) =>
+            isAm &&
+            t.disease.amharicName
+              ? `${t.disease.amharicName} (${t.disease.name})`
+              : t.disease.name,
+          )
+          .join("፣ ")
+        const spokenText = isAm
+          ? `ከተሰማዎት ምልክቶች አንጻር ተቀራራቢ ሊሆኑ የሚችሉ በሽታዎች፡ ${conditionNames} ናቸው። ለእነዚህ በሽታዎች በቂ እረፍት ማድረግ፣ ብዙ ንፁህ ፈሳሽ መጠጣት እና ምልክቶቹ ከጸኑ ወደ ጤና ጣቢያ መሄድ ይመረጣል።`
+          : `Based on your symptoms, the most probable conditions from our verified disease catalog are ${top.map((t) => t.disease.name).join(", ")}. Key home care includes resting well, staying hydrated, and consulting a health center if symptoms persist.`
+
+        return {
+          status: "ok",
+          source: "verified_catalog",
+          matchedConditions: top.map((t) => ({
+            name: t.disease.name,
+            amharicName: t.disease.amharicName,
+            overview:
+              t.disease.description ||
+              t.disease.desc ||
+              t.disease.overview ||
+              "",
+            keySymptoms: t.disease.symptoms.slice(0, 4),
+            selfCare:
+              t.disease.selfCare ||
+              [],
+          })),
+          MANDATORY_SPEECH_INSTRUCTION: `CRITICAL: You MUST speak these matching conditions and practical self-care steps OUT LOUD directly in ${
+            isAm ? "fluent Amharic" : "English"
+          }: ${spokenText} FORBIDDEN: NEVER tell the user to 'go to dev' or 'visit developer'. NEVER navigate away or say 'opened symptom checker'. Recite the conditions and relief steps immediately.`,
+          message: spokenText,
+        }
+      }
+      try {
+        const geminiRes = await queryGeminiClinical(symptoms, isAm)
+        if (geminiRes && geminiRes.rawText) {
+          const spoken = isAm
+            ? `ለተሰማዎት ምልክት ተቀራራቢ ሊሆን የሚችለው ሁኔታ ${geminiRes.possibleCondition} ነው። ${geminiRes.overview} በቂ እረፍት ያድርጉና ንፁህ ፈሳሽ ይጠጡ።`
+            : `For your symptoms, a probable condition is ${geminiRes.possibleCondition}. ${geminiRes.overview} Rest well, stay hydrated, and consult a clinic if symptoms persist.`
+
+          return {
+            status: "ok",
+            source: "gemini_clinical",
+            possibleCondition: geminiRes.possibleCondition,
+            overview: geminiRes.overview,
+            symptoms: geminiRes.symptoms,
+            firstAidSteps: geminiRes.firstAidSteps,
+            MANDATORY_SPEECH_INSTRUCTION: `CRITICAL: Directly speak the condition name, clinical overview, and care steps to the user out loud in ${
+              isAm ? "Amharic" : "English"
+            }: ${spoken} FORBIDDEN: NEVER tell the user to 'go to dev' or 'visit developer'.`,
+            message: spoken,
+          }
+        }
+      } catch (err) {
+        console.warn("[checkSymptoms Gemini Error]", err)
+      }
+      const advice = await getGeneralMedicalAdvice(
+        symptoms,
+        currentActiveLanguage,
+      )
+      return {
+        status: "ok",
+        source: "clinical_advisor",
+        advice: advice.advice,
+        MANDATORY_SPEECH_INSTRUCTION: `CRITICAL: Directly speak this clinical guidance OUT LOUD to the user: ${advice.advice} FORBIDDEN: NEVER tell the user to 'go to dev' or 'visit developer'.`,
+        message: advice.advice,
+      }
+    },
+  },
+  getFirstAidGuide: {
+    description:
+      "CRITICAL LIFE-SAVING EMERGENCY TOOL (HIGHEST PRIORITY): Call this IMMEDIATELY whenever the caller mentions ANY bleeding, leg bleeding, friend bleeding, injury, cut, wound, collapse, cannot breathe, choking, burns, CPR, or asks how to help someone ('እየደማ ነው', 'እየደማነው', 'እግሩ ደማ', 'እግሩ እየደማነው', 'እግሩ እየደማ ነው', 'ደሙ', 'ደም', 'ቁስል', 'እንዴት ልረዳው እችላለሁ', 'ነገሪኝ', 'እንዴት ልረዳው እችላለሁ ነገሪኝ', 'መተንፈስ አቅቶት', 'ወደቀ', 'ምን ላድርግ', 'የመጀመሪያ እርዳታ', 'bleeding leg', 'friend bleeding', 'how to help my friend'). FORBIDDEN: DO NOT navigate to /first-aid or any page. YOU MUST CALL THIS TOOL TO GET AND SPEAK THE NUMBERED PHYSICAL STEPS IMMEDIATELY OUT LOUD.",
+    params: {
+      condition: {
+        type: "string",
+        required: true,
+        description:
+          "The specific emergency situation (e.g. friend collapsed cannot breathe, bleeding leg, choking, burn, accident)",
+      },
+      userAlsoAskedForHospital: {
+        type: "boolean",
+        description:
+          "True if caller also asked to find nearby hospital or GPS navigation",
+      },
+    },
+    handler: async ({
+      condition = "",
+      userAlsoAskedForHospital,
+    }: Record<string, any>) => {
+      const q = (
+        condition ||
+        ""
+      ).toLowerCase()
+      const wantsHospital = Boolean(
+        userAlsoAskedForHospital ||
+          /hospital|ሆስፒታል|find|ፈልግ|ቅርብ|nearby|gps|emergency page/i.test(q),
+      )
+      const firstAid = await getClinicalFirstAidSteps(
+        condition ||
+          "emergency first aid",
+        currentActiveLanguage,
+      )
+
+      if (wantsHospital) {
+        navigateTo("/emergency?autoLocate=true")
+      }
+
+      return {
+        status: "ok",
+        condition: firstAid.condition,
+        MANDATORY_SPEECH_INSTRUCTION: `CRITICAL: You MUST speak these exact physical action steps OUT LOUD to the caller IMMEDIATELY in fluent ${currentActiveLanguage === "am" ? "Amharic" : "English"}: ${firstAid.spokenText} FORBIDDEN: DO NOT navigate to /first-aid. DO NOT tell them to visit /first-aid or any page. DO NOT say 'ይህ መረጃ ለትምህርት ብቻ ነው'. DO NOT tell them to call 907 first. DO NOT ask permission ('Shall I start?'). Recite the numbered physical steps directly and purely. ${
+          wantsHospital
+            ? "After reciting the steps, announce that you have opened the Emergency page in the background to locate nearby hospitals via GPS."
+            : ""
+        }`,
+        spokenSteps: firstAid.spokenText,
+        steps: firstAid.steps.map(
+          (s) => `${s.number}. ${s.title}: ${s.detail}`,
+        ),
+        message:
+          firstAid.spokenText +
+          (wantsHospital
+            ? " I have also opened the Emergency page in the background to locate nearby hospitals via GPS."
+            : ""),
+      }
+    },
+  },
+  findNearestHospitals: {
+    description:
+      "Locate and find the closest emergency hospitals, nearby clinics, and ambulance dispatch (907) based on the user's live GPS location, proximity, or city in Ethiopia (በአቅራቢያ ያሉ ሆስፒታሎች፣ ቅርብ ሆስፒታል፣ በጂኦሎኬሽን፣ በጂፒኤስ). If the user mentions an injury, bleeding, or an injured friend, this action also provides urgent life-saving first aid steps.",
+    params: {
+      locationOrCity: {
+        type: "string",
+        description:
+          "Optional location description, area, city, or 'nearby' / 'GPS'",
+      },
+      injuryOrCondition: {
+        type: "string",
+        description:
+          "Optional injury description like 'bleeding on leg', 'burn', 'friend injured'",
+      },
+    },
+    handler: async ({
+      locationOrCity,
+      injuryOrCondition,
+    }: {
+      locationOrCity?: string
+      injuryOrCondition?: string
+    }) => {
+      navigateTo("/emergency?autoLocate=true")
+      const all = getInstantDatabaseHospitals()
+      const q = (
+        locationOrCity ||
+        ""
+      ).toLowerCase()
+      const filtered =
+        q &&
+        !q.includes("near") &&
+        !q.includes("close") &&
+        !q.includes("gps") &&
+        !q.includes("አቅራቢያ") &&
+        !q.includes("location")
+          ? all.filter((h) => h.city.toLowerCase().includes(q))
+          : all
+      const top = (
+        filtered.length >
+        0
+          ? filtered
+          : all
+      ).slice(0, 4)
+
+      const hasEmergencyOrInjury = Boolean(
+        injuryOrCondition ||
+          /bleed|blood|wound|cut|injury|leg|friend|breathe|breath|collaps|unconscious|chok|burn|ደሙ|ደም|ቁስል|እግር|ጓደኛ|አደጋ|እርዳታ|መተንፈስ|መታንፈስ|ትንፋሽ|ወደቀ|ወድቋል|ራሱን/i.test(
+            q,
+          ) ||
+          /bleed|blood|wound|cut|injury|leg|friend|breathe|breath|collaps|unconscious|chok|burn|ደሙ|ደም|ቁስል|እግር|ጓደኛ|አደጋ|እርዳታ|መተንፈስ|መታንፈስ|ትንፋሽ|ወደቀ|ወድቋል|ራሱን/i.test(
+            injuryOrCondition ||
+              "",
+          ),
+      )
+
+      let firstAidSpoken: string | undefined = undefined
+      let firstAidStepsList: string[] | undefined = undefined
+
+      if (hasEmergencyOrInjury) {
+        const query =
+          injuryOrCondition || locationOrCity || "emergency first aid"
+        const firstAid = await getClinicalFirstAidSteps(
+          query,
+          currentActiveLanguage,
+        )
+        firstAidSpoken = firstAid.spokenText
+        firstAidStepsList = firstAid.steps.map(
+          (s) => `${s.number}. ${s.title}: ${s.detail}`,
+        )
+      }
+
+      return {
+        status: "ok",
+        action: "locate_nearby_hospitals",
+        ambulanceHotline:
+          "907 (National Toll-Free Ambulance - አገር አቀፍ ነፃ የአምቡላንስ ጥሪ)",
+        policeHotline: "991",
+        redCrossHotline: "939",
+        hospitals: top.map((h) => ({
+          name: h.name,
+          city: h.city,
+          phone:
+            h.phone ||
+            h.emergencyPhone,
+          address: h.address,
+        })),
+        MANDATORY_SPEECH_INSTRUCTION:
+          hasEmergencyOrInjury &&
+          firstAidSpoken
+            ? `CRITICAL: The caller has an active emergency or injured friend! You MUST speak these pure physical first aid steps OUT LOUD FIRST before mentioning the hospital list: ${firstAidSpoken} Then state you opened the emergency hospital locator with live GPS search.`
+            : "Announce that live GPS hospital search is active on the Emergency page and the closest verified facilities are on screen, with ambulance hotline 907.",
+        urgentFirstAidSteps: firstAidSpoken,
+        numberedSteps: firstAidStepsList,
+        message:
+          hasEmergencyOrInjury &&
+          firstAidSpoken
+            ? `FIRST AID STEPS: ${firstAidSpoken} Emergency Hospital Locator is active with nearby hospitals on screen.`
+            : "Live GPS hospital locator activated! Opened Emergency page with automatic location search. Showing closest verified emergency hospitals and 907 national ambulance dispatch.",
+      }
+    },
+  },
+  consultMedicalAdvisor: {
+    description:
+      "Get trusted medical clinical advice and home care recommendations for symptoms or health questions (e.g. 'I feel headache, a fever', 'what to do for stomach pain', 'feeling dizzy', 'ራስ ምታት አለብኝ ምን ላድርግ'). Queries Gemini API and temporary storage to provide spoken clinical guidance.",
+    params: {
+      question: {
+        type: "string",
+        required: true,
+        description: "The user's medical or health query",
+      },
+    },
+    handler: async ({ question = "" }: Record<string, any>) => {
+      const advice = await getGeneralMedicalAdvice(
+        question,
+        currentActiveLanguage,
+      )
+      return {
+        status: "ok",
+        question: advice.query,
+        clinicalAdvice: advice.advice,
+        source: advice.source,
+        message: advice.advice,
+      }
     },
   },
 
-  // Contact form quick fill
-  fillContactForm: {
-    description: "Open contact page and pre-fill the inquiry form.",
+  findEmergencyServices: {
+    description:
+      "Find verified emergency hospitals, dispatch hotlines, and 24/7 ambulance services (907) in Ethiopian cities like Addis Ababa, Adama, Hawassa, Bahir Dar, Gondar, Jimma, or by GPS proximity.",
     params: {
-      name: { type: "string", description: "Sender name" },
-      email: { type: "string", description: "Sender email" },
-      subject: { type: "string", description: "Subject" },
-      message: { type: "string", description: "Message content" },
+      city: { type: "string", description: "City name or nearby in Ethiopia" },
+    },
+    handler: async ({ city }: Record<string, any>) => {
+      navigateTo("/emergency?autoLocate=true")
+      const all = getInstantDatabaseHospitals()
+      const filtered = city
+        ? all.filter((h) =>
+            h.city.toLowerCase().includes(String(city).toLowerCase()),
+          )
+        : all
+      const top = (
+        filtered.length >
+        0
+          ? filtered
+          : all
+      ).slice(0, 4)
+
+      return {
+        status: "ok",
+        ambulanceHotline: "907 (National Toll-Free Ambulance)",
+        policeHotline: "991",
+        redCrossHotline: "939",
+        city:
+          city ||
+          "All Ethiopia",
+        hospitals: top.map((h) => ({
+          name: h.name,
+          city: h.city,
+          phone:
+            h.phone ||
+            h.emergencyPhone,
+          address: h.address,
+        })),
+        message:
+          "Opened Emergency Hub with auto-search enabled. National Ambulance Hotline is 907. Verified closest facilities: " +
+          top.map((h) => h.name).join(", ") +
+          ".",
+      }
+    },
+  },
+  getDailyHealthTip: {
+    description:
+      "Get evidence-based daily wellness, nutrition, hygiene, maternal care, or fitness tips for healthy living in Ethiopia.",
+    params: {
+      topic: {
+        type: "string",
+        description:
+          "Optional wellness topic (nutrition, hydration, sleep, exercise, heart)",
+      },
+    },
+    handler: async ({ topic = "" }: Record<string, any>) => {
+      navigateTo("/health-tips")
+      const q = String(topic).toLowerCase()
+      const tip = q
+        ? ALL_HEALTH_TIPS.find(
+            (t) =>
+              t.title.toLowerCase().includes(q) ||
+              (
+                t.desc ||
+                ""
+              )
+                .toLowerCase()
+                .includes(q),
+          ) ||
+          ALL_HEALTH_TIPS[0]
+        : ALL_HEALTH_TIPS[
+            Math.floor(
+              Math.random() *
+                ALL_HEALTH_TIPS.length,
+            )
+          ]
+
+      return {
+        status: "ok",
+        category: tip.category,
+        title: tip.title,
+        summary: tip.desc,
+        actionableSteps: tip.actions,
+        message: `Opened Daily Health Tips: ${tip.title}.`,
+      }
+    },
+  },
+  fillContactForm: {
+    description:
+      "Fill in the contact inquiry and feedback form to send a message to the Tenaye medical platform team.",
+    params: {
+      name: {
+        type: "string",
+        sensitive: true,
+        description: "Sender full name (protected with redaction)",
+      },
+      email: { type: "string", description: "Sender email address" },
+      subject: { type: "string", description: "Message subject" },
+      message: {
+        type: "string",
+        required: true,
+        description: "Inquiry or feedback message",
+      },
     },
     handler: async ({
       name,
       email,
       subject,
-      message,
-    }: {
-      name?: string;
-      email?: string;
-      subject?: string;
-      message?: string;
-    }) => {
-      navigateTo("/contact");
-      if (typeof window !== "undefined") {
-        const payload = { name, email, subject, message };
-        (window as any).__pendingContactFill = payload;
+      message = "",
+    }: Record<string, any>) => {
+      navigateTo("/contact")
+      if (
+        typeof window !==
+        "undefined"
+      ) {
+        const payload = { name, email, subject, message }
+        ;(window as any).__pendingContactFill = payload
         window.dispatchEvent(
-          new CustomEvent("tenaye-fill-contact", { detail: payload })
-        );
+          new CustomEvent("tenaye-fill-contact", { detail: payload }),
+        )
       }
       return {
         status: "ok",
         navigatedTo: "/contact",
-        message: `Opened Contact page.`,
-      };
+        message: "Opened Contact page and pre-filled inquiry form.",
+      }
     },
   },
-  // Website benefits and overview capability
-  getWebsiteBenefits: {
-    description: "Get comprehensive information about Tenaye platform, its features, and health benefits in English or Amharic.",
+  getFounderAndTeam: {
+    description:
+      "Get the verified founders and core engineering/medical team behind the Tenaye Ethiopian digital health platform.",
     params: {},
     handler: async () => {
       return {
         status: "ok",
-        platform: "Tenaye (ጤናዬ)",
-        overview: "Tenaye is Ethiopia's digital health companion providing accessible, trusted medical guidance, emergency resources, and disease education.",
-        benefitsAmharic: [
-          "የጤና መረጃና ግንዛቤ (Comprehensive disease guidance, symptoms, and prevention)",
-          "የመጀመሪያ እርዳታ መመሪያዎች (Life-saving first aid instructions for bleeding, CPR, burns)",
-          "የአደጋ ጊዜ ጥቆማ 907 (Emergency ambulance dispatch and nearby hospitals)",
-          "ዕለታዊ የጤና እና የአኗኗር ዘይቤ ምክሮች (Daily wellness and nutrition tips)",
-          "ባለሁለት ቋንቋ AI ረዳት (Bilingual AI health assistant in Amharic & English)"
-        ],
-        message: "Tenaye provides disease guidance, first aid instructions, emergency hotline 907, daily tips, and bilingual AI assistance in English and Amharic."
-      };
+        founders:
+          "Yonatan Muluken (lead system architect), Nahom Tibebu, Dagmawi Shigute, Ayub Ebrahim",
+        mission:
+          "Tenaye (ጤናዬ) provides accessible, evidence-based healthcare guidance, emergency dispatch 907, and disease education across Ethiopia.",
+        message:
+          "The founders and core team behind Tenaye are Yonatan Muluken, Nahom Tibebu, Dagmawi Shigute, and Ayub Ebrahim.",
+      }
     },
   },
-});
-
-// 3. Bind state dynamically with strict single-language isolation, zero translation lag, and full clinical coverage
+})
 ai.bindState(() => {
-  const isAm = currentActiveLanguage === "am";
-
-  if (isAm) {
-    return {
-      currentPage: typeof location !== "undefined" ? location.pathname : "/",
-      platformName: "ጤናዬ (Tenaye) የኢትዮጵያ ዲጂታል የጤና መድረክ",
-      userActiveLanguage: "am",
-      MANDATORY_LANGUAGE_RULE:
-        "CRITICAL STRICT AMHARIC ONLY: The user is communicating in Amharic (አማርኛ). You MUST answer 100% IN AMHARIC ONLY using Ethiopic Fidel (ፊደል). It is strictly forbidden to output any English words, English letters, or English sentences! Start directly in Amharic without delay!",
-      symptomsAndFocusedQuestionsRule:
-        "ለማንኛውም በሽታ (ጉንፋን፣ ስኳር፣ ወባ፣ ተቅማጥ፣ ስትሮክ ወዘተ) ሲጠየቁ ወይም ምልክቶች ብቻ ሲጠየቁም ጭምር የሚከተሉትን 4 ክፍሎች ሙሉ በሙሉ ያቅርቡ፡\n" +
-        "1. አጭር መግለጫ (1-2 ዓረፍተ ነገር)\n" +
-        "2. **ምልክቶች፡** (3-5 ነጥቦች በ • )\n" +
-        "3. **መንስኤዎች፡** (2-3 ነጥቦች በ • )\n" +
-        "4. **ህክምና እና እንክብካቤ፡** (3-4 ነጥቦች በ • )\n" +
-        "ሁሉንም 4 ክፍሎች ከመጀመሪያ እስከ መጨረሻ 100% አጠናቀው ያቅርቡ፣ በምልክቶች ላይ ብቻ ፈጽሞ አያቁሙ!",
-      speedAndLatencyRule: "ያለምንም መዘግየት መልስዎን ወዲያውኑ በአማርኛ ፊደል ይጀምሩ። አላስፈላጊ መግቢያዎችን አይጠቀሙ።",
-      hearingCheckRule:
-        "የመስማት ጥያቄ ('ትሰማኛለህ?' ወይም 'ትሰሚኛለሽ?'): መልስዎ 'አዎ፣ በደንብ እሰማዎታለሁ! ዛሬ በምን የጤና ጉዳይ ልርዳዎ?' ብቻ መሆን አለበት። በእንግሊዝኛ ፈጽሞ አይመልሱ!",
-      malariaRule:
-        "ወባ፡\nወባ በወባ ትንኝ ንክሻ ወደ ሰው ደም በሚተላለፉ ጥገኛ ተውሳኮች የሚመጣ አደገኛ ግን በህክምና የሚድን በሽታ ነው።\n\n" +
-        "**ምልክቶች፡**\n" +
-        "• በየተወሰነ ሰዓት የሚመጣ ከፍተኛ ትኩሳት\n" +
-        "• ብርድ ብርድ ማለት እና ከባድ መንቀጥቀጥ\n" +
-        "• ትኩሳቱ ሲለቅ ከፍተኛ ላብ ማላብ\n" +
-        "• ኃይለኛ ራስ ምታት እና የጡንቻዎች ድካም\n" +
-        "• ማቅለሽለሽ እና የምግብ ፍላጎት መቀነስ\n\n" +
-        "**መንስኤዎች፡**\n" +
-        "• በፕላስሞዲየም ጥገኛ ተውሳክ የተያዘች አኖፊለስ የወባ ትንኝ ንክሻ\n" +
-        "• ጥገኛ ተውሳኩ ወደ ጉበት በመሄድ በደም ውስጥ ሲባዛ\n" +
-        "• ለትንኝ መራቢያ የሚሆኑ አቆራጭ ውሃዎች መኖር\n\n" +
-        "**ህክምና እና እንክብካቤ፡**\n" +
-        "• ትኩሳት ሲሰማ ወዲያውኑ የደም ምርመራ (RDT) ማድረግ\n" +
-        "• የታዘዘውን የወባ መድኃኒት (ACT) ሳያቋርጡ በሙሉ መውሰድ\n" +
-        "• በየቀኑ በአልጋ አጎበር ውስጥ መተኛት\n" +
-        "• በቤት ዙሪያ ያሉ አቆራጭ ውሃዎችን ማድረቅ እና ማጽዳት",
-      diabetesRule:
-        "ስኳር በሽታ፡\nስኳር በሽታ ሰውነታችን ኢንሱሊንን በአግባቡ ባለመጠቀሙ በደም ውስጥ ያለው የስኳር መጠን ከፍ እንዲል የሚያደርግ ሥር የሰደደ የጤና እክል ነው።\n\n" +
-        "**ምልክቶች፡**\n" +
-        "• በተደጋጋሚ በተለይም በሌሊት መሽናት\n" +
-        "• ከፍተኛ የውሃ ጥም እና የአፍ መድረቅ\n" +
-        "• ያልታወቀ የክብደት መቀነስ እና ድካም\n" +
-        "• የእይታ መደብዘዝ ወይም ብዥታ\n" +
-        "• ቁስሎች ቶሎ ያለመዳን\n\n" +
-        "**መንስኤዎች፡**\n" +
-        "• ዓይነት 1፡ የሰውነት መከላከያ ሥርዓት ኢንሱሊን አምራች ሴሎችን ሲያጠቃ\n" +
-        "• ዓይነት 2፡ የዘር ውርስ፣ የክብደት መጨመር እና የአካል ብቃት እንቅስቃሴ ማነስ\n" +
-        "• ጤናማ ያልሆነ አመጋገብ እና ጣፋጭ ምግቦች መብዛት\n\n" +
-        "**ህክምና እና እንክብካቤ፡**\n" +
-        "• የደም ስኳር መጠንን በየጊዜው መለካት እና መከታተል\n" +
-        "• የተመጣጠነ ምግብ መመገብ እና ጣፋጭ ምግቦችን መቀነስ\n" +
-        "• መደበኛ የአካል ብቃት እንቅስቃሴ (በቀን 30 ደቂቃ) ማድረግ\n" +
-        "• የታዘዙ መድኃኒቶችን ወይም ኢንሱሊን በሰዓቱ መውሰድ",
-      commonColdRule:
-        "ጉንፋን፡\nጉንፋን በአፍንጫ እና በጉሮሮ ላይ የሚከሰት ቀላል ግን በቀላሉ የሚተላለፍ የመተንፈሻ አካላት የቫይረስ ኢንፌክሽን ነው።\n\n" +
-        "**ምልክቶች፡**\n" +
-        "• የአፍንጫ መዘጋት ወይም ንፍጥ መፍሰስ\n" +
-        "• የጉሮሮ ህመም እና ሳል\n" +
-        "• ማስነጠስ እና የዓይን ማልቀስ\n" +
-        "• መጠነኛ ትኩሳት እና የሰውነት ድካም\n\n" +
-        "**መንስኤዎች፡**\n" +
-        "• ራይኖቫይረስ እና ሌሎች የመተንፈሻ አካላት ቫይረሶች\n" +
-        "• በሳል ወይም በማስነጠስ የሚረጩ አየር ወለድ ጠብታዎች\n" +
-        "• የተበከሉ ቁሳቁሶችን ከነኩ በኋላ አፍ ወይም ዓይንን መንካት\n\n" +
-        "**ህክምና እና እንክብካቤ፡**\n" +
-        "• በቂ እረፍት ማድረግ እና ሰውነትን ማሳረፍ\n" +
-        "• ሞቅ ያሉ ፈሳሾች፣ ሻይ ከማር ጋር እና ሾርባ በብዛት መጠጣት\n" +
-        "• የአፍንጫ መዘጋትን ለማስታገስ የእንፋሎት ትንፋሽ መውሰድ\n" +
-        "• ህመሙ ከቀጠለ ወይም ከፍተኛ ትኩሳት ከመጣ የህክምና እርዳታ ማግኘት",
-      diarrheaRule:
-        "ተቅማጥ፡\nተቅማጥ በተደጋጋሚ ፈሳሽ ሰገራ መውጣት የሚያስከትል የተለመደ የሆድና አንጀት ችግር ሲሆን ፈሳሽን በፍጥነት በማሟጠጥ ለድርቀት ይዳርጋል።\n\n" +
-        "**ምልክቶች፡**\n" +
-        "• በቀን ውስጥ በተደጋጋሚ የሚወጣ ፈሳሽ ሰገራ\n" +
-        "• የሆድ ቁርጠት፣ መነፋት እና ህመም\n" +
-        "• የአፍ መድረቅ፣ ከፍተኛ ጥም እና የሰውነት ድካም\n" +
-        "• የማቅለሽለሽ ስሜት ወይም ቀላል ትኩሳት\n\n" +
-        "**መንስኤዎች፡**\n" +
-        "• በተበከለ ምግብ ወይም ውሃ የሚተላለፉ ባክቴሪያዎች እና ቫይረሶች\n" +
-        "• ንፅህናን አለመጠበቅ እና ያልታጠበ እጅ ንክኪ\n" +
-        "• ጥገኛ ተውሳኮች እና የምግብ አለመስማማት\n\n" +
-        "**ህክምና እና እንክብካቤ፡**\n" +
-        "• የሰውነት ድርቀትን ለመከላከል የአፍ ሪሃይድሬሽን ጨው (ORS) እና ንጹህ ፈሳሾችን በብዛት መጠጣት\n" +
-        "• ቀላል ምግቦችን (ሩዝ፣ ሾርባ፣ ሙዝ፣ ዳቦ) መመገብ\n" +
-        "• ቅባትና ቅመም የበዛባቸውን ምግቦች ማስወገድ\n" +
-        "• ደም ከታየ ወይም ከፍተኛ ትኩሳት ከመጣ ወዲያውኑ ወደ ጤና ተቋም መሄድ",
-      strokeRule:
-        "ስትሮክ እና የFAST ምልክቶች፡\nስትሮክ ወደ አንጎል የሚሄደው የደም ዝውውር ሲቋረጥ የሚከሰት አስቸኳይ የህክምና አደጋ ነው።\n\n" +
-        "**የስትሮክ ምልክቶች (FAST)፡**\n" +
-        "• **የፊት መውረድ (F)፡** ሲስቁ አንደኛው የፊት ክፍል መልፈስፈስ ወይም መውረድ\n" +
-        "• **የእጅ መድከም (A)፡** እጅን ሲያነሱ አንደኛው እጅ መድከም ወይም መንሳፈፍ\n" +
-        "• **የንግግር መለወጥ (S)፡** ቃላትን በግልጽ መናገር ወይም መረዳት አለመቻል\n" +
-        "• **የአደጋ ጊዜ ጥሪ (T)፡** ወዲያውኑ ለ907 መደወል\n\n" +
-        "**መንስኤዎች፡**\n" +
-        "• ወደ አንጎል የሚሄድ የደም ቧንቧ በረጋ ደም መዘጋት\n" +
-        "• በአንጎል ውስጥ የደም ቧንቧ መፈንዳት ወይም ደም መፍሰስ\n" +
-        "• ከፍተኛ የደም ግፊት፣ የስኳር በሽታ እና የልብ ችግሮች\n\n" +
-        "**አስቸኳይ እርምጃዎች፡**\n" +
-        "• ወዲያውኑ ለ907 ደውለው አምቡላንስ መጥራት\n" +
-        "• በጀርባ አስተኝቶ ጭንቅላትን እና ትከሻን ከፍ ማድረግ\n" +
-        "• ምንም ዓይነት ምግብ፣ ውሃ ወይም መድኃኒት አለመስጠት\n" +
-        "• ምልክቶቹ የጀመሩበትን ትክክለኛ ሰዓት ማስታወስ",
-      headacheAndFeverRule:
-        "ራስ ምታት እና ትኩሳት፡\nራስ ምታት እና ትኩሳት ሰውነት ኢንፌክሽንን እየተከላከለ መሆኑን የሚያሳዩ ምልክቶች ናቸው።\n\n" +
-        "**መንስኤዎች፡**\n" +
-        "• ወባ፣ ታይፎይድ፣ ጉንፋን ወይም የሳይነስ ኢንፌክሽን\n" +
-        "• የሰውነት ድርቀት ወይም ከፍተኛ ውጥረት\n" +
-        "• የባክቴሪያ ወይም የቫይረስ ኢንፌክሽን\n\n" +
-        "**አስደንጋጭ ምልክቶች፡**\n" +
-        "• የአንገት መወጠር፣ ተደጋጋሚ ማስመለስ ወይም ከ39°C በላይ ከፍተኛ ትኩሳት — ወዲያውኑ ወደ ህክምና ይሂዱ\n\n" +
-        "**ህክምና እና እንክብካቤ፡**\n" +
-        "• በቂ እረፍት ማድረግ እና ንጹህ ፈሳሽ መጠጣት\n" +
-        "• የትኩሳት ማስታገሻ (ፓራሲታሞል) መውሰድ\n" +
-        "• የደም ምርመራ ለማድረግ ወደ ጤና ተቋም መሄድ",
-      covidRule:
-        "ኮቪድ-19፡\nኮቪድ-19 በሳርስ-ኮቭ-2 (SARS-CoV-2) ኮሮና ቫይረስ የሚመጣ የመተንፈሻ አካላት በሽታ ነው።\n\n" +
-        "**ምልክቶች፡**\n" +
-        "• ትኩሳት፣ ብርድ ብርድ እና ከፍተኛ ድካም\n" +
-        "• ደረቅ ሳል እና የትንፋሽ ማጠር\n" +
-        "• የማሽተት ወይም የመቅመስ ስሜት ማጣት\n" +
-        "• የጉሮሮ ህመም እና ራስ ምታት\n\n" +
-        "**መንስኤዎች፡**\n" +
-        "• በሳርስ-ኮቭ-2 ቫይረስ አየር ወለድ ጠብታዎች መተላለፍ\n" +
-        "• በበሽታው ከተያዘ ሰው ጋር በቅርበት መገናኘት\n" +
-        "• የተበከሉ ቁሳቁሶችን ከነኩ በኋላ አፍ ወይም ዓይንን መንካት\n\n" +
-        "**ህክምና እና እንክብካቤ፡**\n" +
-        "• ራስን ማግለል፣ በቂ እረፍት ማድረግ እና ፈሳሽ መውሰድ\n" +
-        "• ትኩሳትን ለማስታገስ ፓራሲታሞል መውሰድ\n" +
-        "• ሌሎች እንዳይያዙ ጭንብል ማድረግ\n" +
-        "• የትንፋሽ ማጠር ወይም የደረት ህመም ከመጣ ወዲያውኑ ወደ ህክምና መሄድ",
-      founderRule: "የጤናዬ መስራቾች እና ዋና የቡድን አባላት ዮናታን ሙሉቀን፣ ናሆም ጥበቡ፣ ዳግማዊ ሽጉጤ እና አዩብ ኢብራሂም ናቸው።",
-      navigationConfirmationRule: "የ[ገጽ ስም] ገጽ እየከፈትኩ ነው።",
-      websiteBenefitsRule: "ጤናዬ (Tenaye) የኢትዮጵያ ዲጂታል የጤና መድረክ ሲሆን የበሽታዎች መረጃ፣ የመጀመሪያ እርዳታ፣ የነጻ አምቡላንስ ጥሪ 907፣ ዕለታዊ ምክሮች እና ባለሁለት ቋንቋ AI ረዳት ይሰጣል።",
-      emergencyHotline: "907 (የኢትዮጵያ ድንገተኛ አምቡላንስ)",
-    };
-  }
-
-  // English Mode
+  const activeLang =
+    typeof localStorage !==
+    "undefined"
+      ? localStorage.getItem("tenaye_assistant_lang") ||
+        currentActiveLanguage
+      : currentActiveLanguage
   return {
-    currentPage: typeof location !== "undefined" ? location.pathname : "/",
-    platformName: "Tenaye Ethiopian Digital Health Platform",
-    userActiveLanguage: "en",
-    MANDATORY_LANGUAGE_RULE:
-      "CRITICAL STRICT ENGLISH ONLY: The user is communicating in English. You MUST answer 100% IN ENGLISH ONLY using Latin script. It is strictly forbidden to output any Amharic or Ethiopic script! Start directly in English without delay!",
-    symptomsAndFocusedQuestionsRule:
-      "For ANY medical condition (Common Cold, Diabetes, Malaria, Diarrhea, Stroke, etc.), even if the user only asks for symptoms, deliver the full clinical guidance in all 4 sections:\n" +
-      "1. Overview (1-2 sentences)\n" +
-      "2. **Symptoms:** (3-5 bullets with • )\n" +
-      "3. **Causes:** (2-3 bullets with • )\n" +
-      "4. **Home Care & Treatment:** (3-4 bullets with • )\n" +
-      "Complete all 4 sections 100% from start to finish. Never stop at symptoms alone!",
-    speedAndLatencyRule: "Begin speaking your response immediately in English. Start directly with the answer without filler phrases.",
-    hearingCheckRule:
-      "Hearing check: Reply ONLY: 'I can hear you clearly. How can I help you with your health today?' Never answer in Amharic!",
-    malariaRule:
-      "Malaria:\nMalaria is a life-threatening infectious disease caused by Plasmodium parasites transmitted through mosquito bites.\n\n" +
-      "**Symptoms:**\n" +
-      "• High recurring fever and profuse sweating\n" +
-      "• Violent shaking chills and shivering\n" +
-      "• Severe headache and intense muscle fatigue\n" +
-      "• Nausea, vomiting, and general body weakness\n\n" +
-      "**Causes:**\n" +
-      "• Bites of infected female Anopheles mosquitoes carrying Plasmodium parasites\n" +
-      "• Parasites traveling to the liver to mature and multiply in red blood cells\n" +
-      "• Presence of stagnant water near residential areas where mosquitoes breed\n\n" +
-      "**Home Care & Treatment:**\n" +
-      "• Get rapid diagnostic clinic blood testing (RDT) immediately upon fever\n" +
-      "• Complete the entire prescribed course of Artemisinin-based Combination Therapy (ACT)\n" +
-      "• Sleep under insecticide-treated bed nets every night\n" +
-      "• Eliminate stagnant standing water around living spaces to stop mosquito breeding",
-    diabetesRule:
-      "Diabetes:\nDiabetes is a chronic metabolic condition where the body cannot properly produce or use insulin, leading to elevated blood sugar levels.\n\n" +
-      "**Symptoms:**\n" +
-      "• Frequent urination, especially at night\n" +
-      "• Excessive thirst and constant dry mouth\n" +
-      "• Unexplained weight loss and persistent fatigue\n" +
-      "• Blurred vision and slow-healing sores\n\n" +
-      "**Causes:**\n" +
-      "• Type 1 autoimmune response destroying insulin-producing pancreatic cells\n" +
-      "• Type 2 insulin resistance linked to genetics, overweight, and physical inactivity\n" +
-      "• Poor diet high in refined carbohydrates and chronic stress\n\n" +
-      "**Home Care & Treatment:**\n" +
-      "• Regular daily blood glucose monitoring\n" +
-      "• Balanced diet rich in vegetables, lean protein, and fiber with low sugar\n" +
-      "• Regular physical exercise (at least 30 minutes daily)\n" +
-      "• Consistent adherence to prescribed medications or insulin therapy",
-    commonColdRule:
-      "Common Cold:\nThe common cold is a mild, contagious viral infection that primarily affects your upper respiratory tract, nose, and throat.\n\n" +
-      "**Symptoms:**\n" +
-      "• Runny or stuffy nose and sinus congestion\n" +
-      "• Sore throat and persistent cough\n" +
-      "• Sneezing, watery eyes, and mild fatigue\n" +
-      "• Low-grade fever or general body aches\n\n" +
-      "**Causes:**\n" +
-      "• Rhinoviruses and other respiratory viruses\n" +
-      "• Airborne droplets spread through coughing or sneezing\n" +
-      "• Touching contaminated surfaces and transfer to eyes, nose, or mouth\n\n" +
-      "**Home Care & Treatment:**\n" +
-      "• Ample rest and getting plenty of sleep\n" +
-      "• Drinking warm fluids, hot tea with honey, and broths\n" +
-      "• Steam inhalation or saline nasal sprays to relieve congestion\n" +
-      "• Over-the-counter fever reducers or pain relievers if needed",
-    diarrheaRule:
-      "Diarrhea:\nDiarrhea is a common gastrointestinal disorder marked by frequent loose, watery stools that can quickly cause dehydration.\n\n" +
-      "**Symptoms:**\n" +
-      "• Frequent loose or watery bowel movements multiple times a day\n" +
-      "• Abdominal cramps, bloating, and stomach pain\n" +
-      "• Dehydration symptoms including dry mouth, dizziness, and intense thirst\n" +
-      "• Mild nausea, vomiting, or low fever\n\n" +
-      "**Causes:**\n" +
-      "• Viral infections (such as Norovirus or Rotavirus)\n" +
-      "• Bacterial infections from contaminated food or unsafe water (such as E. coli or Salmonella)\n" +
-      "• Intestinal parasites or food intolerances\n\n" +
-      "**Home Care & Treatment:**\n" +
-      "• Drink Oral Rehydration Salts (ORS) solution and clean fluids regularly\n" +
-      "• Eat gentle bland foods like rice, bananas, toast, and clear broth\n" +
-      "• Avoid dairy, high-fat, fried, or heavily spiced foods\n" +
-      "• Seek urgent medical care if blood appears in stool or fever exceeds 38.5°C",
-    strokeRule:
-      "Stroke:\nA stroke is a critical medical emergency where blood flow to part of the brain is interrupted, depriving brain tissue of oxygen.\n\n" +
-      "**Emergency Warning Signs (FAST):**\n" +
-      "• **Face Drooping (F):** One side of the face droops or is numb when trying to smile\n" +
-      "• **Arm Weakness (A):** One arm drifts downward when raising both arms\n" +
-      "• **Speech Difficulty (S):** Slurred speech or difficulty understanding words\n" +
-      "• **Time to Call 907 (T):** Call emergency hotline 907 immediately\n\n" +
-      "**Causes:**\n" +
-      "• Ischemic stroke caused by a blood clot blocking an artery to the brain\n" +
-      "• Hemorrhagic stroke caused by a ruptured or leaking blood vessel in the brain\n" +
-      "• High blood pressure, heart disease, diabetes, and smoking\n\n" +
-      "**Immediate Actions:**\n" +
-      "• Call emergency hotline 907 immediately for ambulance dispatch\n" +
-      "• Keep the person lying flat with head and shoulders slightly elevated\n" +
-      "• Do NOT give food, water, or aspirin\n" +
-      "• Note the exact time when symptoms first started",
-    headacheAndFeverRule:
-      "Headache & Fever:\nExperiencing headache and fever typically indicates your immune system is actively fighting an underlying infection.\n\n" +
-      "**Potential Causes:**\n" +
-      "• Malaria, Typhoid, Common Cold, Influenza, or Sinus infection\n" +
-      "• Dehydration or extreme fatigue\n" +
-      "• Bacterial or viral infections\n\n" +
-      "**Red Flag Warning Signs:**\n" +
-      "• Stiff neck, persistent vomiting, confusion, or high fever over 39°C — seek emergency care immediately\n\n" +
-      "**Home Care & Treatment:**\n" +
-      "• Rest and drink plenty of clean fluids\n" +
-      "• Take paracetamol to reduce fever and relieve headache\n" +
-      "• Visit a clinic for rapid malaria and blood testing",
-    covidRule:
-      "COVID-19:\nCOVID-19 is a contagious respiratory illness caused by the SARS-CoV-2 coronavirus that can range from mild to severe.\n\n" +
-      "**Symptoms:**\n" +
-      "• Fever, chills, and persistent fatigue\n" +
-      "• Dry cough and shortness of breath\n" +
-      "• Loss of taste or smell\n" +
-      "• Sore throat, body aches, and nasal congestion\n\n" +
-      "**Causes:**\n" +
-      "• SARS-CoV-2 transmission through airborne respiratory droplets\n" +
-      "• Close contact with an infected person when they talk, cough, or sneeze\n" +
-      "• Touching contaminated surfaces and transferring to eyes, nose, or mouth\n\n" +
-      "**Home Care & Treatment:**\n" +
-      "• Isolate at home, rest, and stay well hydrated\n" +
-      "• Take paracetamol to manage fever and aches\n" +
-      "• Wear a mask around others to prevent transmission\n" +
-      "• Seek emergency care immediately if breathing difficulty develops",
-    founderRule: "The founders and core team behind Tenaye are Yonatan Muluken, Nahom Tibebu, Dagmawi Shigute, and Ayub Ebrahim.",
-    navigationConfirmationRule: "Opening the [page name] page.",
-    websiteBenefitsRule: "Tenaye is Ethiopia's digital health companion providing accessible, trusted medical guidance, emergency hotline 907, first aid procedures, daily health tips, and bilingual AI assistance in English and Amharic.",
-    emergencyHotline: "907 (Ethiopian Ambulance Dispatch)",
-  };
-});
-
-// Core real-time text handler for explicit page opening commands only
-function handleTextForNavigation(role: "user" | "ai", text: string) {
-  if (!text) return;
-  const sanitized = devanagariToEnglish(text);
-  const lower = sanitized.toLowerCase().trim();
-  const now = Date.now();
-
-  if (role === "user") {
-    // Only navigate if user explicitly commanded open/go to/view
-    const isExplicitCommand =
-      lower.startsWith("open ") ||
-      lower.startsWith("go to ") ||
-      lower.includes(" open ") ||
-      lower.includes("page") ||
-      lower.includes("ክፈት") ||
-      lower.includes("ሂድ");
-
-    if (isExplicitCommand) {
-      const target = resolveSpokenPage(lower);
-      if (target) {
-        pendingUserTarget = target;
-        pendingUserTargetTimestamp = now;
-        navigateTo(target);
-      }
-    }
-  } else if (role === "ai") {
-    // Only navigate if AI explicitly says "opening the [x] page" or "እየከፈትኩ ነው"
-    const isExplicitConfirmation =
-      lower.includes("opening the") ||
-      lower.includes("opened the") ||
-      lower.includes("taking you to the") ||
-      lower.includes("እየከፈትኩ ነው") ||
-      lower.includes("ከፍቼልዎታለሁ");
-
-    if (isExplicitConfirmation) {
-      const aiTarget = resolveSpokenPage(lower);
-      if (aiTarget) {
-        navigateTo(aiTarget);
-      } else if (pendingUserTarget && now - pendingUserTargetTimestamp < 10000) {
-        navigateTo(pendingUserTarget);
-      }
-    }
+    currentPage:
+      typeof location !==
+      "undefined"
+        ? location.pathname
+        : "/",
+    platformName: "Tenaye (ጤናዬ) Ethiopian Digital Health Companion",
+    emergencyHotline: "907 (National Toll-Free Ambulance 24/7 — ነፃ የአምቡላንስ ጥሪ)",
+    bilingualDirective:
+      "You are fully bilingual in Amharic and English. If the user speaks or writes in Amharic, provide your full response in natural, fluent Amharic. If the user speaks or writes in English, reply in English. Always give immediate, direct responses without filler.",
+    emergencyPureStepsDirective: `ABSOLUTE EMERGENCY FIRST AID DIRECTIVE:
+When the user mentions ANY emergency, injury, bleeding, leg bleeding, friend injured, collapse, friend unable to breathe, choking, CPR, or asks how to help someone (e.g. 'እስቲ ጓደኛዬ እግሩ እየደማነውና እንዴት ልረዳው እችላለሁ ነገሪኝ', 'ጓደኛዬ እግሩ እየደማ ነው', 'እግሩ ደም እየፈሰሰ ነው', 'ጓደኛዬ መታንፈስ አቅቶት ወድቋል', 'ምን ላድርግ', 'can't breathe', 'collapsed', 'bleeding'):
+1. YOU MUST IMMEDIATELY CALL THE getFirstAidGuide TOOL. NEVER PROVIDE FIRST AID ADVICE YOURSELF DIRECTLY IN TEXT. ALWAYS USE THE TOOL.
+2. ABSOLUTELY FORBIDDEN: NEVER navigate to /first-aid. You do NOT have permission to navigate to first-aid.
+3. ABSOLUTELY FORBIDDEN: NEVER say 'ጓደኛዎን መርዳት እንዲችሉ፣ የመጀመሪያ እርዳታ ወደሚገኝበት ገጽ ልውሰድዎ' (Let me take you to the first-aid page) or 'ይህ መረጃ ለትምህርት ብቻ ነው፣ ለህክምና ምርመራ ምትክ አይደለም' (This info is for education only).
+4. ABSOLUTELY FORBIDDEN: NEVER say 'መጀመሪያ 907 ደውሉ' (First call 907 before I can tell you instructions). The caller already knows about 907 and hospitals.
+5. ABSOLUTELY FORBIDDEN: NEVER ask permission like 'Shall I start the instructions?' (መመሪያዎችን ልጀምር?).
+6. YOU MUST DIRECTLY RECITE THE NUMBERED ACTION STEPS (ደረጃ 1፦ ... ደረጃ 2፦ ... ደረጃ 3፦ ... ደረጃ 4፦ ... ደረጃ 5፦ ...) IMMEDIATELY AND DIRECTLY OUT LOUD:
+   - For bleeding on leg or wound: ደረጃ 1፦ ወዲያውኑ ንፁህ ጨርቅ በቁስሉ ላይ አድርገው በሁለት እጅዎ አጥብቀው ሳይለቁ ይጫኑ። ደረጃ 2፦ በቁስሉ ዙሪያ በንፁህ ውሃ ያፅዱ፤ አልኮል ወደ ጥልቅ ቁስል ውስጥ እንዳያፈሱ። ደረጃ 3፦ የተጎዳውን እግር ከልብ ከፍ አድርገው ያንሱ። ደረጃ 4፦ በፋሻ አጥብቀው ያስሩ፤ ደም ከወጣ ሌላ ጨርቅ ደርበው ይጫኑ። ደረጃ 5፦ ተጎጂውን አስተኝተው ያረጋጉ፣ በብርድ ልብስ ይሸፍኑ።
+   - For breathing difficulty / collapse: 1. Open airway 2. Check breathing 3. CPR 100-120/min if not breathing 4. Recovery position on side if breathing 5. Loosen tight clothes.
+7. If the user asked to find a hospital or asked for both first aid and hospital, recite the pure first aid steps FIRST, and only AFTER finishing the steps announce that you have opened the Emergency page in the background to locate nearby hospitals via GPS.`,
+    gpsHospitalDirective:
+      "CRITICAL: The Tenaye platform HAS FULL LIVE GPS GEOLOCATION CAPABILITY. When the visitor asks to find a nearby hospital, closest hospital by location, or hospital by GPS ('find nearby hospital', 'በአቅራቢያ ያለ ሆስፒታል ፈልግልኝ'), you MUST IMMEDIATELY call the `findNearestHospitals` action! NEVER say you cannot use GPS or geolocation. The platform automatically triggers browser GPS navigation and displays nearby facilities on the live map with hotline 907.",
+    fastResponseDirective:
+      "ULTRA-FAST DIRECT RESPONSE: You are operating in real-time voice mode where every second counts. Give your spoken response IMMEDIATELY without delays, introductory filler, or pauses. When asked about first aid or an emergency, start reciting Step 1 right away. Never repeat the question back to the caller.",
+    medicalGuidanceRules:
+      "Adhere strictly to the visitor's specific query. If the user asks for symptoms only (e.g. malaria symptoms), provide overview and symptoms only. If they ask for symptoms, cause, and treatment (e.g. diabetes), provide overview, symptoms, causes, and treatment without unsolicited extra sections like prevention or doctor warnings. Never output control tokens like <ctrl95>.",
+    symptomsAndFeelingsDirective: `CRITICAL SYMPTOMS & FEELINGS DIRECTIVE:
+When the user shares how they feel, describes symptoms (e.g. 'I feel a headache and dizzy', 'ሆዴን እና ራሴን እያመመኝ ነው', 'ትኩሳት አለብኝ', 'I feel pain in my stomach'), or asks what illness they might have:
+1. You MUST call checkSymptoms or consultMedicalAdvisor to get the related diseases and care steps.
+  2. DO NOT output medical disclaimers or say you cannot diagnose. You are a Symptom Checker platform, so provide 'Possible Conditions' confidently based on the tool results.
+2. ABSOLUTELY FORBIDDEN: NEVER say 'go to dev', 'visit developer', or mention developers in any way!
+3. ABSOLUTELY FORBIDDEN: NEVER tell the user to go to the symptom checker page or redirect them.
+4. Directly tell the user the likely related disease names (from our verified disease library or clinical guidance), explain why, and tell them practical home care and relief steps out loud immediately.`,
+    activeLanguage: activeLang,
+    diseaseCatalogCount: ALL_DISEASES.length,
+    firstAidTopicsCount: FIRST_AID_TOPICS.length,
   }
+})
+export function resolveSpokenPage(rawText: string): string | null {
+  if (!rawText) return null
+  const s = rawText.toLowerCase().trim()
+  if (isEmergencyOrFirstAidQuery(s)) {
+    return null
+  }
+
+  if (
+    s ===
+      "/about" ||
+    s ===
+      "/contact" ||
+    s ===
+      "/emergency" ||
+    s ===
+      "/symptoms" ||
+    s ===
+      "/diseases" ||
+    s ===
+      "/first-aid" ||
+    s ===
+      "/health-tips" ||
+    s ===
+      "/"
+  ) {
+    return s
+  }
+  if (
+    /\b(open\s+(?:the\s+)?about(?:\s+page|\s+us)?|about\s+page|about\s+us|apple\s+picture|about\s+picture|apple\s+page|up\s+picture|a\s+picture)\b/i.test(
+      s,
+    ) ||
+    /(ስለ\s*እኛ\s*ገጽ\s*(ክፈት|ሂድ)|ስለእኛ\s*ገጽ\s*ክፈት)/i.test(s)
+  ) {
+    return "/about"
+  }
+  if (
+    /\b(open\s+emergency|emergency\s+page|open\s+ambulance|call\s+907|hotline\s+907|find(\s+me)?\s+(a\s+)?nearby\s+hospital|nearest\s+hospital|nearby\s+hospitals?|closest\s+hospital|find\s+hospital|hospitals?\s+(?:near\s+me|by\s+location|by\s+gps))\b/i.test(
+      s,
+    ) ||
+    /(ድንገተኛ(\s*አደጋ)?\s*ገጽ\s*(ክፈት|ሂድ)|አምቡላንስ\s*ገጽ|በአቅራቢያ(\s*ያለ|\s*ያሉ|\s*ያለው)?\s*ሆስፒታል|የአቅራቢያ\s*ሆስፒታል|ሆስፒታል\s*(ፈልግልኝ|ፈልግ|አሳየኝ|እፈልጋለሁ)|በጂኦሎኬሽን|በጂፒኤስ|ቅርብ\s*ሆስፒታል|የድንገተኛ\s*ሆስፒታል)/i.test(
+      s,
+    )
+  ) {
+    return "/emergency?autoLocate=true"
+  }
+  if (
+    /\b(open\s+symptom\s+checker|symptom\s+checker(\s+page)?|check\s+my\s+symptoms|check\s+symptoms|symptom\s+page)\b/i.test(
+      s,
+    ) ||
+    /(የምልክቶች\s*መመርመሪያ\s*(ክፈት|ሂድ)|ምልክቶች\s*(መርምር|ፈትሽ))/i.test(s)
+  ) {
+    return "/symptoms"
+  }
+  if (
+    /\b(?:open|go\s+to)\s+(?:the\s+)?first\s*aid\s+page\b/i.test(s) ||
+    /(የመጀመሪያ\s*እርዳታ\s*ገጽ\s*(ክፈት|ሂድ))/i.test(s)
+  ) {
+    return "/first-aid"
+  }
+  if (
+    /\b(open\s+health\s*tips?|health\s*tips?\s+page|wellness\s*page)\b/i.test(
+      s,
+    ) ||
+    /(የጤና\s*ምክሮች?\s*ገጽ\s*(ክፈት|ሂድ))/i.test(s)
+  ) {
+    return "/health-tips"
+  }
+  if (
+    /\b(open\s+disease\s+library|open\s+diseases?(\s+page)?|go\s+to\s+diseases?(\s+page)?)\b/i.test(
+      s,
+    ) ||
+    /(የበሽታዎች\s*ማውጫ\s*ክፈት|የበሽታዎች\s*ገጽ\s*(ክፈት|ሂድ))/i.test(s)
+  ) {
+    return "/diseases"
+  }
+  if (
+    /\b(open\s+contact(\s+page)?|contact\s+us\s+page|go\s+to\s+contact(\s+page)?)\b/i.test(
+      s,
+    ) ||
+    /(አግኙን\s*ገጽ\s*(ክፈት|ሂድ)|የአግኙን\s*ገጽ\s*ክፈት)/i.test(s)
+  ) {
+    return "/contact"
+  }
+  if (
+    /\b(open\s+home(\s+page)?|go\s+home|back\s+to\s+home|home\s+page)\b/i.test(
+      s,
+    ) ||
+    /(መነሻ\s*ገጽ\s*(ክፈት|ሂድ)|ወደ\s*መነሻ\s*ገጽ)/i.test(s)
+  ) {
+    return "/"
+  }
+  return null
 }
 
-// 4. Permanent Singleton Watchers attached directly to the global Voxide client
-if (typeof window !== "undefined") {
-  // Subscribe to live transcripts
-  ai.on("transcript", (payload: { role?: "user" | "ai"; text?: string }) => {
-    if ((window as any).__tenayeIsCleared) return;
-    if (payload?.role && payload?.text) {
-      handleTextForNavigation(payload.role, payload.text);
-    }
-  });
-
-  // Subscribe to finalized messages
-  ai.on("message", (payload: { role?: "user" | "ai"; text?: string }) => {
-    if ((window as any).__tenayeIsCleared) return;
-    if (payload?.role && payload?.text) {
-      handleTextForNavigation(payload.role, payload.text);
-    }
-  });
-
-  // Watch snapshot updates for continuous resilience (catches typed text in Text mode!)
-  ai.subscribe(() => {
-    if ((window as any).__tenayeIsCleared) return;
-    const snapshot = ai.getSnapshot();
-    const msgs = snapshot?.messages;
-    if (msgs && msgs.length > 0) {
-      const latest = msgs[msgs.length - 1];
-      if (latest?.text) {
-        handleTextForNavigation(latest.role, latest.text);
-      }
-    }
-  });
-
-  // Synchronize state when voice connection opens
-  ai.on("status", (status: string) => {
-    if (status === "listening") {
-      try {
-        const ws = (ai as any)._voiceWs;
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          const currentState = (ai as any)._getCurrentStateSnapshot();
-          ws.send(JSON.stringify({ type: "state", state: currentState }));
-        }
-      } catch {
-        // ignore
-      }
-    }
-  });
-
-  // Unlock Web Audio context on first user interaction to prevent browser audio suspension
-  const unlockAudio = () => {
-    try {
-      getSharedAudioContext();
-    } catch {
-      // ignore
-    }
-  };
-  window.addEventListener("click", unlockAudio, { passive: true });
-  window.addEventListener("touchstart", unlockAudio, { passive: true });
-  window.addEventListener("pointerdown", unlockAudio, { passive: true });
-  window.addEventListener("keydown", unlockAudio, { passive: true });
-
-  // Pre-warm Voxide client configuration on load
-  ai.init().catch((err) => {
-    console.warn("[Tenaye Voxide] Pre-warm init:", err);
-  });
-}
-
-import { AIAssistant } from "./AIAssistant";
-
-/**
- * React Assistant Component
- * Renders Tenaye Assistance custom beautiful UI, permanently mounted at true root.
- */
+import { AIAssistant } from "./AIAssistant"
 export function Assistant() {
-  return <AIAssistant />;
+  return <AIAssistant />
 }
 
-export default Assistant;
+export default Assistant
