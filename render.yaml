@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: tenaye-server
+    runtime: node
+    region: oregon
+    plan: starter            # upgrade to "standard" when you need more RAM
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /data          # matches the disk mountPath below
+      - key: PORT
+        generateValue: false
+        value: "10000"        # Render injects PORT automatically; kept explicit for clarity
+      - key: JWT_SECRET
+        generateValue: true   # Render auto-generates a strong random secret
+      - key: SUPERADMIN_EMAIL
+        sync: false           # set manually in Render dashboard
+      - key: SUPERADMIN_PASSWORD
+        sync: false           # set manually in Render dashboard
+      - key: VITE_GEMINI_API_KEY
+        sync: false           # set manually in Render dashboard
+    disk:
+      name: tenaye-data
+      mountPath: /data        # persisted across all restarts & deploys
+      sizeGB: 1               # 1 GB is plenty for SQLite; raise if needed

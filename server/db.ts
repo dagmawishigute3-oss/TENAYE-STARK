@@ -3,7 +3,9 @@ import path from "node:path"
 import fs from "node:fs"
 import bcrypt from "bcryptjs"
 
-const dataDir = path.resolve(process.cwd(), "data")
+// On Render the persistent disk is mounted at /data (set via DATA_DIR env var).
+// Locally it falls back to <project-root>/data so nothing changes for dev.
+const dataDir = process.env.DATA_DIR ?? path.resolve(process.cwd(), "data")
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true })
 }
