@@ -44,10 +44,9 @@ package-lock.json
 *.geojson
 scratch_*
 
-# Databases & local state
-data/
-*.db
-*.db-*
+# Databases & local state (allow main db, block WAL/SHM)
+*.db-shm
+*.db-wal
 *.sqlite
 *.sqlite3
 
