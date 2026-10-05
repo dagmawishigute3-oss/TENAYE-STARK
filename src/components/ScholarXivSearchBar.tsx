@@ -155,6 +155,20 @@ export function ScholarXivSearchBar({
       if (onSubmit) {
         onSubmit(trimmed)
       }
+      if (papers.length === 0 && !loading && isMedicalQuery(trimmed)) {
+        setLoading(true)
+        setError(null)
+        setHasSearched(true)
+        searchScholarXiv(trimmed)
+          .then((res) => {
+            setPapers(res)
+            setLoading(false)
+          })
+          .catch((err) => {
+            setError(err?.message || "Failed to fetch medical papers from ScholarXIV.")
+            setLoading(false)
+          })
+      }
     }
   }
 

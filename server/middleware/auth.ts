@@ -29,6 +29,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as AdminUserPayload
     req.admin = decoded
+    ;(req as any).user = decoded
     next()
   } catch (err) {
     res.status(401).json({ error: "Unauthorized: Invalid or expired token" })

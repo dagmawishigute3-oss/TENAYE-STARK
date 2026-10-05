@@ -47,60 +47,96 @@ export function initDatabase() {
   `)
 
   // Safe idempotent migrations for existing databases
-  try {
-    db.exec("ALTER TABLE contact_messages ADD COLUMN phone TEXT;")
-  } catch {}
-  try {
-    db.exec("ALTER TABLE contact_messages ADD COLUMN category TEXT;")
-  } catch {}
-  try {
-    db.exec("ALTER TABLE contact_messages ADD COLUMN priority TEXT DEFAULT 'Normal - Standard support';")
-  } catch {}
+  // Safe idempotent migrations for existing databases
+  try { db.exec("ALTER TABLE contact_messages ADD COLUMN phone TEXT;") } catch {}
+  try { db.exec("ALTER TABLE contact_messages ADD COLUMN category TEXT;") } catch {}
+  try { db.exec("ALTER TABLE contact_messages ADD COLUMN priority TEXT DEFAULT 'Normal - Standard support';") } catch {}
 
-  // 3. Outbreak community reports table (for Phase 2 ready)
+  // 3. Outbreak community reports table
   db.exec(`
     CREATE TABLE IF NOT EXISTS outbreak_reports (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      disease_or_symptoms TEXT NOT NULL,
-      location_zone TEXT NOT NULL,
-      severity TEXT NOT NULL DEFAULT 'medium',
+      reporter_name TEXT DEFAULT 'Anonymous Citizen',
       reporter_contact TEXT,
-      details TEXT,
+      region_subcity TEXT NOT NULL,
+      disease_or_symptoms TEXT NOT NULL,
+      affected_count INTEGER DEFAULT 1,
+      severity TEXT NOT NULL DEFAULT 'medium',
+      notes TEXT,
       status TEXT NOT NULL DEFAULT 'pending',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `)
+  try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN reporter_name TEXT DEFAULT 'Anonymous Citizen';") } catch {}
+  try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN reporter_contact TEXT;") } catch {}
+  try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN region_subcity TEXT;") } catch {}
+  try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN disease_or_symptoms TEXT;") } catch {}
+  try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN affected_count INTEGER DEFAULT 1;") } catch {}
+  try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN severity TEXT DEFAULT 'medium';") } catch {}
+  try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN notes TEXT;") } catch {}
+  try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN status TEXT DEFAULT 'pending';") } catch {}
 
-  // 4. News and announcements table
+  // 4. News, Announcements & Outbreak Bulletins table
   db.exec(`
     CREATE TABLE IF NOT EXISTS news_posts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
+      slug TEXT,
       excerpt TEXT,
       content TEXT NOT NULL,
       category TEXT NOT NULL DEFAULT 'announcement',
-      author_name TEXT NOT NULL,
+      author_name TEXT NOT NULL DEFAULT 'Tenaye Medical Editorial',
+      status TEXT NOT NULL DEFAULT 'published',
       published INTEGER NOT NULL DEFAULT 1,
+      views_count INTEGER NOT NULL DEFAULT 0,
+      has_relief INTEGER NOT NULL DEFAULT 0,
+      relief_goal REAL NOT NULL DEFAULT 0,
+      relief_raised REAL NOT NULL DEFAULT 0,
+      relief_beneficiary TEXT,
+      relief_description TEXT,
+      cluster_symptoms TEXT,
+      cluster_region TEXT,
+      cluster_count INTEGER DEFAULT 0,
+      ai_generated INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `)
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN slug TEXT;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN excerpt TEXT;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN status TEXT DEFAULT 'published';") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN views_count INTEGER DEFAULT 0;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN has_relief INTEGER DEFAULT 0;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN relief_goal REAL DEFAULT 0;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN relief_raised REAL DEFAULT 0;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN relief_beneficiary TEXT;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN relief_description TEXT;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN cluster_symptoms TEXT;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN cluster_region TEXT;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN cluster_count INTEGER DEFAULT 0;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN ai_generated INTEGER DEFAULT 0;") } catch {}
 
-  // 5. Emergency Relief / GoFundMe-style Campaigns
+  // 5. Emergency Relief / GoFundMe-style Community Support Pledges
   db.exec(`
-    CREATE TABLE IF NOT EXISTS relief_campaigns (
+    CREATE TABLE IF NOT EXISTS relief_pledges (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL,
-      description TEXT NOT NULL,
-      location TEXT NOT NULL,
-      target_amount REAL NOT NULL DEFAULT 0,
-      raised_amount REAL NOT NULL DEFAULT 0,
-      status TEXT NOT NULL DEFAULT 'active',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      post_id INTEGER NOT NULL,
+      donor_name TEXT NOT NULL,
+      donor_phone TEXT,
+      amount_etb REAL NOT NULL,
+      message TEXT,
+      payment_method TEXT DEFAULT 'Telebirr',
+      status TEXT NOT NULL DEFAULT 'pending',
+      receipt_image TEXT,
+      receipt_name TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (post_id) REFERENCES news_posts(id) ON DELETE CASCADE
     );
   `)
+  try { db.exec("ALTER TABLE relief_pledges ADD COLUMN status TEXT DEFAULT 'pending';") } catch {}
+  try { db.exec("ALTER TABLE relief_pledges ADD COLUMN receipt_image TEXT;") } catch {}
+  try { db.exec("ALTER TABLE relief_pledges ADD COLUMN receipt_name TEXT;") } catch {}
 
   // 6. Comprehensive Audit & Activity Logs table
-  // Tracks every action: admin password/name changes, admin added/deleted, messages received/replied/deleted
   db.exec(`
     CREATE TABLE IF NOT EXISTS audit_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -115,8 +151,10 @@ export function initDatabase() {
     );
   `)
 
-  // Seed default Super Admin ONLY if the database has 0 admins
-  // This ensures that when you change your name, email, or password in Settings, it is NEVER overwritten!
+  // News table initialized clean with 0 records - real posts created via Admin
+
+
+  // Seed initial Super Admin ONLY if the database has 0 admins
   const totalAdminsCount = (db.prepare("SELECT COUNT(*) as c FROM admins").get() as any).c
 
   if (totalAdminsCount === 0) {
@@ -137,8 +175,25 @@ export function initDatabase() {
  * Records all critical events by ID, action, and timestamp into tenaye.db
  */
 export function logAuditEvent(params: {
-  actionType: "ADMIN_CREATED" | "ADMIN_UPDATED" | "ADMIN_DELETED" | "PROFILE_UPDATED" | "MESSAGE_RECEIVED" | "MESSAGE_REPLIED" | "MESSAGE_DELETED" | "STATUS_CHANGED"
-  entityType: "admin" | "contact_message" | "system"
+  actionType:
+    | "ADMIN_CREATED"
+    | "ADMIN_UPDATED"
+    | "ADMIN_DELETED"
+    | "PROFILE_UPDATED"
+    | "MESSAGE_RECEIVED"
+    | "MESSAGE_REPLIED"
+    | "MESSAGE_DELETED"
+    | "STATUS_CHANGED"
+    | "NEWS_PUBLISHED"
+    | "NEWS_UPDATED"
+    | "NEWS_DELETED"
+    | "OUTBREAK_REPORTED"
+    | "OUTBREAK_CLUSTERED"
+    | "OUTBREAK_APPROVED"
+    | "OUTBREAK_REJECTED"
+    | "PLEDGE_RECEIVED"
+    | string
+  entityType: "admin" | "contact_message" | "system" | "news" | "outbreak" | "relief" | string
   entityId?: number | null
   actorName: string
   actorEmail?: string | null

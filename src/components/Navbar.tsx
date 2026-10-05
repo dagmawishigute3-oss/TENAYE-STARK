@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
+  { label: 'News', href: '/news' },
   { label: 'Emergency', href: '/emergency' },
   { label: 'First Aid', href: '/first-aid' },
   { label: 'Disease Library', href: '/diseases' },

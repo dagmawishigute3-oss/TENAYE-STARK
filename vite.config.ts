@@ -155,6 +155,14 @@ export default defineConfig(({ mode }) => {
               "sxv_gZilZwIZrVmrVHAUASgIiCRqYxWbWpRjZWJQqbgSxXDaFcgIQtHWGrxqVIVJCILV",
           },
         },
+        "/api/news": {
+          target: "http://127.0.0.1:5000",
+          changeOrigin: true,
+        },
+        "/api/outbreak-reports": {
+          target: "http://127.0.0.1:5000",
+          changeOrigin: true,
+        },
         "/api/auth": {
           target: "http://127.0.0.1:5000",
           changeOrigin: true,
@@ -187,6 +195,14 @@ export default defineConfig(({ mode }) => {
             "x-api-key":
               "sxv_gZilZwIZrVmrVHAUASgIiCRqYxWbWpRjZWJQqbgSxXDaFcgIQtHWGrxqVIVJCILV",
           },
+        },
+        "/api/news": {
+          target: "http://127.0.0.1:5000",
+          changeOrigin: true,
+        },
+        "/api/outbreak-reports": {
+          target: "http://127.0.0.1:5000",
+          changeOrigin: true,
         },
         "/api/auth": {
           target: "http://127.0.0.1:5000",

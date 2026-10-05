@@ -19,6 +19,7 @@ import { About } from "./pages/About"
 import { Contact } from "./pages/Contact"
 import { Legal } from "./pages/Legal"
 import { SymptomChecker } from "./pages/SymptomChecker"
+import { News } from "./pages/News"
 import { AdminLogin } from "./pages/admin/AdminLogin"
 import { AdminDashboard } from "./pages/admin/AdminDashboard"
 
@@ -105,6 +106,8 @@ function AppContent() {
           <Route path="/terms" element={<Legal />} />
           <Route path="/disclaimer" element={<Legal />} />
           <Route path="/accessibility" element={<Legal />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/news/:id" element={<News />} />
 
           {/* Admin routes */}
           <Route path="/admin" element={<AdminDashboard />} />

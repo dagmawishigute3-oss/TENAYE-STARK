@@ -14,7 +14,8 @@ adminRouter.get("/stats", requireAuth, (_req: Request, res: Response): void => {
     const repliedMessages = (db.prepare("SELECT COUNT(*) as c FROM contact_messages WHERE status = 'replied'").get() as any).c
     const totalAdmins = (db.prepare("SELECT COUNT(*) as c FROM admins").get() as any).c
     const pendingOutbreaks = (db.prepare("SELECT COUNT(*) as c FROM outbreak_reports WHERE status = 'pending'").get() as any).c
-    const publishedNews = (db.prepare("SELECT COUNT(*) as c FROM news_posts WHERE published = 1").get() as any).c
+    const pendingDrafts = (db.prepare("SELECT COUNT(*) as c FROM news_posts WHERE status = 'draft' AND ai_generated = 1").get() as any).c
+    const publishedNews = (db.prepare("SELECT COUNT(*) as c FROM news_posts WHERE published = 1 AND status = 'published'").get() as any).c
 
     // Resolution rate percentage
     const resolutionRate = totalMessages > 0 ? Math.round((repliedMessages / totalMessages) * 100) : 100
@@ -26,6 +27,7 @@ adminRouter.get("/stats", requireAuth, (_req: Request, res: Response): void => {
         repliedMessages,
         totalAdmins,
         pendingOutbreaks,
+        pendingDrafts,
         publishedNews,
         resolutionRate,
       },
@@ -38,7 +40,18 @@ adminRouter.get("/stats", requireAuth, (_req: Request, res: Response): void => {
 // GET /api/admin/notifications - System & messages unified notification feed
 adminRouter.get("/notifications", requireAuth, (_req: Request, res: Response): void => {
   try {
-    // 1. Unread contact messages
+    // 1. Pending AI Outbreak Drafts (Top Priority)
+    const outbreakDrafts = db
+      .prepare(`
+        SELECT id, title, cluster_region as subtitle, 'AI Outbreak Draft: Requires Admin Approval' as detail, 'outbreak' as category, created_at
+        FROM news_posts
+        WHERE status = 'draft' AND ai_generated = 1
+        ORDER BY created_at DESC
+        LIMIT 5
+      `)
+      .all() as any[]
+
+    // 2. Unread contact messages
     const unreadMessages = db
       .prepare(`
         SELECT id, name as title, subject as subtitle, message as detail, 'message' as category, created_at
@@ -49,7 +62,7 @@ adminRouter.get("/notifications", requireAuth, (_req: Request, res: Response): v
       `)
       .all() as any[]
 
-    // 2. Recent admin roster changes
+    // 3. Recent admin roster changes
     const recentAdmins = db
       .prepare(`
         SELECT id, name as title, role as subtitle, 'Registered system officer' as detail, 'security' as category, created_at
@@ -60,7 +73,7 @@ adminRouter.get("/notifications", requireAuth, (_req: Request, res: Response): v
       .all() as any[]
 
     // Combine notifications
-    const notifications = [...unreadMessages, ...recentAdmins].sort(
+    const notifications = [...outbreakDrafts, ...unreadMessages, ...recentAdmins].sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     )
 
@@ -87,8 +100,8 @@ adminRouter.get("/audit-logs", requireAuth, (_req: Request, res: Response): void
   }
 })
 
-// GET /api/admin/admins - list all admins (Super Admin only)
-adminRouter.get("/admins", requireSuperAdmin, (_req: Request, res: Response): void => {
+// GET /api/admin/admins - list all admins (Visible to all authenticated admins)
+adminRouter.get("/admins", requireAuth, (_req: Request, res: Response): void => {
   try {
     const admins = db
       .prepare("SELECT id, name, email, role, created_at FROM admins ORDER BY id ASC")

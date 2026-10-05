@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useScrollReveal } from "../hooks/useScrollReveal"
 import {
   IconShield,
@@ -11,6 +11,7 @@ import {
   IconBrain,
   IconSearch,
   IconPhone,
+  IconAlertTriangle,
 } from "../components/Icons"
 import { ScholarXivSearchBar } from "../components/ScholarXivSearchBar"
 import { HomeIntroLoader } from "../components/HomeIntroLoader"
@@ -69,21 +70,11 @@ const FEATURED = [
 ]
 
 export function Home() {
-  const navigate = useNavigate()
   const [query, setQuery] = useState("")
   const statsRef = useScrollReveal()
   const whyRef = useScrollReveal()
   const featuredRef = useScrollReveal()
   const ctaRef = useScrollReveal()
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (query.trim()) {
-      navigate(`/diseases?search=${encodeURIComponent(query.trim())}`)
-    } else {
-      navigate("/diseases")
-    }
-  }
 
   return (
     <>
@@ -108,16 +99,6 @@ export function Home() {
                 <ScholarXivSearchBar
                   value={query}
                   onChange={setQuery}
-                  onSubmit={(submittedVal) => {
-                    const targetQuery = submittedVal?.trim() || query.trim()
-                    if (targetQuery) {
-                      navigate(
-                        `/diseases?search=${encodeURIComponent(targetQuery)}`,
-                      )
-                    } else {
-                      navigate("/diseases")
-                    }
-                  }}
                   variant="hero"
                   placeholder="Search diseases, symptoms, or conditions…"
                 />

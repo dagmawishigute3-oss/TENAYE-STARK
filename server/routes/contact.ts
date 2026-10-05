@@ -77,7 +77,7 @@ contactRouter.get("/admin/contacts", requireAuth, (req: Request, res: Response):
     params.push(pattern, pattern, pattern, pattern, pattern, pattern)
   }
 
-  query += " ORDER BY created_at DESC"
+  query += " ORDER BY id ASC"
 
   try {
     const messages = db.prepare(query).all(...params)

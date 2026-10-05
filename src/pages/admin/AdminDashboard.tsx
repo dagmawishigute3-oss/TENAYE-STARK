@@ -20,6 +20,15 @@ import {
   IconEye,
   IconDownload,
   IconFileText,
+  IconAlertTriangle,
+  IconHeart,
+  IconActivity,
+  IconGlobe,
+  IconUsers,
+  IconPhone,
+  IconMapPin,
+  IconStethoscope,
+  IconAlertCircle,
 } from "../../components/Icons"
 
 interface AdminUser {
@@ -52,6 +61,7 @@ interface StatsData {
   repliedMessages: number
   totalAdmins: number
   pendingOutbreaks: number
+  pendingDrafts?: number
   publishedNews: number
   resolutionRate?: number
 }
@@ -61,11 +71,11 @@ interface SystemNotification {
   title: string
   subtitle: string
   detail: string
-  category: "message" | "security" | "system"
+  category: "message" | "security" | "system" | "outbreak"
   created_at: string
 }
 
-type DashboardTab = "dashboard" | "admin" | "messages" | "settings"
+type DashboardTab = "dashboard" | "admin" | "messages" | "news" | "funds" | "settings"
 type ThemeMode = "dark" | "light"
 
 export function AdminDashboard() {
@@ -139,6 +149,28 @@ export function AdminDashboard() {
   // View Admin Modal
   const [viewingAdmin, setViewingAdmin] = useState<AdminUser | null>(null)
 
+  // In-Dashboard Article Reader Modal (Not redirecting away to public page)
+  const [viewingArticle, setViewingArticle] = useState<any | null>(null)
+
+  // View Community / Citizen Report Detail Modal
+  const [selectedCommunityReport, setSelectedCommunityReport] = useState<any | null>(null)
+
+  // Community Funds & Donations states
+  const [fundPledges, setFundPledges] = useState<any[]>([])
+  const [fundCampaigns, setFundCampaigns] = useState<any[]>([])
+  const [fundStats, setFundStats] = useState<any>({
+    totalPledges: 0,
+    verifiedTotal: 0,
+    pendingTotal: 0,
+    pendingCount: 0,
+    approvedCount: 0,
+    rejectedCount: 0,
+  })
+  const [viewingReceiptModal, setViewingReceiptModal] = useState<any | null>(null)
+  const [selectedFundDetail, setSelectedFundDetail] = useState<any | null>(null)
+  const [fundStatusFilter, setFundStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all")
+  const [fundActionLoading, setFundActionLoading] = useState<number | null>(null)
+
   // Settings: Profile Form states
   const [profileName, setProfileName] = useState("")
   const [profileEmail, setProfileEmail] = useState("")
@@ -149,9 +181,111 @@ export function AdminDashboard() {
   const [profileMessage, setProfileMessage] = useState<string | null>(null)
   const [profileError, setProfileError] = useState<string | null>(null)
 
-  // Settings: Preferences states
-  const [autoAiDraftEnabled, setAutoAiDraftEnabled] = useState(true)
-  const [soundAlertsEnabled, setSoundAlertsEnabled] = useState(true)
+  // Settings: Preferences states (persisted in localStorage)
+  const [autoAiDraftEnabled, setAutoAiDraftEnabled] = useState(() => {
+    return localStorage.getItem("tenaye_auto_ai_draft") !== "false"
+  })
+  const [soundAlertsEnabled, setSoundAlertsEnabled] = useState(() => {
+    return localStorage.getItem("tenaye_sound_alerts") !== "false"
+  })
+  const prevUnreadCountRef = useRef<number | null>(null)
+  const prevDraftsCountRef = useRef<number | null>(null)
+
+  // Web Audio synthesizer for alert notifications & toggle confirmations
+  const playAudioAlert = useCallback((type: "urgent" | "success" | "toggle" = "toggle") => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
+      if (!AudioCtx) return
+      const ctx = new AudioCtx()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+
+      if (type === "urgent") {
+        // High-priority urgent dual-tone chime
+        osc.type = "sine"
+        osc.frequency.setValueAtTime(880, ctx.currentTime) // A5
+        osc.frequency.exponentialRampToValueAtTime(1174.66, ctx.currentTime + 0.15) // D6
+        gain.gain.setValueAtTime(0.35, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45)
+        osc.start(ctx.currentTime)
+        osc.stop(ctx.currentTime + 0.45)
+      } else if (type === "success") {
+        // Crisp success chime
+        osc.type = "triangle"
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime) // C5
+        osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12) // G5
+        gain.gain.setValueAtTime(0.3, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35)
+        osc.start(ctx.currentTime)
+        osc.stop(ctx.currentTime + 0.35)
+      } else {
+        // Confirmation beep
+        osc.type = "sine"
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime) // E5
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08) // A5
+        gain.gain.setValueAtTime(0.2, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25)
+        osc.start(ctx.currentTime)
+        osc.stop(ctx.currentTime + 0.25)
+      }
+    } catch (err) {
+      console.warn("[SoundAlert] Audio playback error:", err)
+    }
+  }, [])
+
+  const handleToggleAutoAiDraft = () => {
+    const nextVal = !autoAiDraftEnabled
+    setAutoAiDraftEnabled(nextVal)
+    localStorage.setItem("tenaye_auto_ai_draft", String(nextVal))
+    if (soundAlertsEnabled) {
+      playAudioAlert(nextVal ? "success" : "toggle")
+    }
+    setActionNotice(
+      nextVal
+        ? "Clinical AI Intent Detection & Auto-Drafting Enabled (Messages will automatically generate context-aware AI replies)"
+        : "Clinical AI Auto-Drafting Disabled (Manual officer response template active)"
+    )
+  }
+
+  const handleToggleSoundAlerts = () => {
+    const nextVal = !soundAlertsEnabled
+    setSoundAlertsEnabled(nextVal)
+    localStorage.setItem("tenaye_sound_alerts", String(nextVal))
+    if (nextVal) {
+      playAudioAlert("urgent")
+    }
+    setActionNotice(
+      nextVal
+        ? "Live Sound Alerts Enabled (Testing audio chime... Audio alerts active for urgent inquiries & outbreak alerts)"
+        : "Live Sound Alerts Disabled"
+    )
+  }
+
+  // News, Outbreak Surveillance & Relief Management
+  const [outbreakDrafts, setOutbreakDrafts] = useState<any[]>([])
+  const [communityReports, setCommunityReports] = useState<any[]>([])
+  const [adminNewsList, setAdminNewsList] = useState<any[]>([])
+  const [newsSubTab, setNewsSubTab] = useState<"drafts" | "create" | "articles" | "reports">("drafts")
+
+  // Outbreak Draft approval options state (keyed by draft.id)
+  const [draftReliefSettings, setDraftReliefSettings] = useState<
+    Record<number, { has_relief: boolean; relief_goal: string; relief_beneficiary: string; relief_description: string }>
+  >({})
+  const [approvingDraftId, setApprovingDraftId] = useState<number | null>(null)
+
+  // Article creation form state
+  const [newArticleTitle, setNewArticleTitle] = useState("")
+  const [newArticleCategory, setNewArticleCategory] = useState("announcement")
+  const [newArticleExcerpt, setNewArticleExcerpt] = useState("")
+  const [newArticleContent, setNewArticleContent] = useState("")
+  const [newArticleHasRelief, setNewArticleHasRelief] = useState(false)
+  const [newArticleReliefGoal, setNewArticleReliefGoal] = useState("50000")
+  const [newArticleReliefBeneficiary, setNewArticleReliefBeneficiary] = useState("")
+  const [newArticleReliefDesc, setNewArticleReliefDesc] = useState("")
+  const [creatingArticle, setCreatingArticle] = useState(false)
+  const [createArticleNotice, setCreateArticleNotice] = useState<string | null>(null)
 
   // 1. Session verification
   useEffect(() => {
@@ -221,15 +355,25 @@ export function AdminDashboard() {
       })
       if (res.ok) {
         const data = await res.json()
-        setMessages(data.messages || [])
+        const msgs = data.messages || []
+        setMessages(msgs)
+        const unreadCount = msgs.filter((m: any) => m.status === "unread").length
+        if (
+          soundAlertsEnabled &&
+          prevUnreadCountRef.current !== null &&
+          unreadCount > prevUnreadCountRef.current
+        ) {
+          playAudioAlert("urgent")
+        }
+        prevUnreadCountRef.current = unreadCount
       }
     } catch (err) {
       console.error("[Dashboard] Error fetching messages:", err)
     }
-  }, [token, statusFilter, searchQuery])
+  }, [token, statusFilter, searchQuery, soundAlertsEnabled, playAudioAlert])
 
   const fetchAdmins = useCallback(async () => {
-    if (!token || currentUser?.role !== "super_admin") return
+    if (!token) return
     try {
       const res = await fetch("/api/admin/admins", {
         headers: { Authorization: `Bearer ${token}` },
@@ -241,7 +385,7 @@ export function AdminDashboard() {
     } catch (err) {
       console.error("[Dashboard] Error fetching admins:", err)
     }
-  }, [token, currentUser])
+  }, [token])
 
   const fetchNotifications = useCallback(async () => {
     if (!token) return
@@ -258,11 +402,285 @@ export function AdminDashboard() {
     }
   }, [token])
 
+  const fetchOutbreakDrafts = useCallback(async () => {
+    if (!token) return
+    try {
+      const res = await fetch("/api/admin/outbreak/drafts", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const drafts = data.drafts || []
+        setOutbreakDrafts(drafts)
+        if (
+          soundAlertsEnabled &&
+          prevDraftsCountRef.current !== null &&
+          drafts.length > prevDraftsCountRef.current
+        ) {
+          playAudioAlert("urgent")
+        }
+        prevDraftsCountRef.current = drafts.length
+      }
+    } catch (err) {
+      console.error("[Dashboard] Error fetching outbreak drafts:", err)
+    }
+  }, [token, soundAlertsEnabled, playAudioAlert])
+
+  const fetchCommunityReports = useCallback(async () => {
+    if (!token) return
+    try {
+      const res = await fetch("/api/admin/outbreak/reports", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setCommunityReports(data.reports || [])
+      }
+    } catch (err) {
+      console.error("[Dashboard] Error fetching outbreak reports:", err)
+    }
+  }, [token])
+
+  const fetchAdminNews = useCallback(async () => {
+    try {
+      const res = await fetch("/api/news?include_drafts=true")
+      if (res.ok) {
+        const data = await res.json()
+        setAdminNewsList(data.posts || [])
+      }
+    } catch (err) {
+      console.error("[Dashboard] Error fetching admin news:", err)
+    }
+  }, [])
+
+  const handleApproveDraft = async (draft: any) => {
+    if (!token) return
+    const customSettings = draftReliefSettings[draft.id]
+    const hasRelief = customSettings ? customSettings.has_relief : Boolean(draft.has_relief)
+    const reliefGoal = customSettings ? parseFloat(customSettings.relief_goal) || 0 : draft.relief_goal || 0
+    const reliefBeneficiary = customSettings
+      ? customSettings.relief_beneficiary
+      : draft.relief_beneficiary || `${draft.cluster_region} Emergency Relief`
+    const reliefDesc = customSettings
+      ? customSettings.relief_description
+      : draft.relief_description || `Community medical relief for families in ${draft.cluster_region}.`
+
+    setApprovingDraftId(draft.id)
+    try {
+      const res = await fetch(`/api/admin/outbreak/drafts/${draft.id}/approve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: draft.title,
+          content: draft.content,
+          has_relief: hasRelief ? 1 : 0,
+          relief_goal: hasRelief ? reliefGoal : 0,
+          relief_beneficiary: hasRelief ? reliefBeneficiary : null,
+          relief_description: hasRelief ? reliefDesc : null,
+        }),
+      })
+      if (res.ok) {
+        setActionNotice(`Approved & published outbreak advisory: "${draft.title}" ${hasRelief ? "(With Relief Campaign)" : "(Standard News Notice)"}`)
+        fetchOutbreakDrafts()
+        fetchAdminNews()
+        fetchStats()
+        fetchNotifications()
+      } else {
+        let errData: any = {}
+        try { errData = await res.json() } catch {}
+        alert(errData?.error || `Failed to approve draft (${res.status})`)
+      }
+    } catch (err: any) {
+      alert(err.message || "Error approving draft")
+    } finally {
+      setApprovingDraftId(null)
+    }
+  }
+
+  const handleRejectDraft = async (draftId: number) => {
+    if (!token) return
+    const reason = window.prompt("Reason for rejecting this AI outbreak draft:", "Not clinically verified")
+    if (reason === null) return
+
+    try {
+      const res = await fetch(`/api/admin/outbreak/drafts/${draftId}/reject`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reason }),
+      })
+      if (res.ok) {
+        setActionNotice("Draft rejected and removed from publishing queue")
+        fetchOutbreakDrafts()
+        fetchStats()
+        fetchNotifications()
+      }
+    } catch (err: any) {
+      alert(err.message || "Error rejecting draft")
+    }
+  }
+
+  const handleCreateArticle = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!token) return
+    setCreatingArticle(true)
+    setCreateArticleNotice(null)
+
+    try {
+      const res = await fetch("/api/news", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: newArticleTitle,
+          category: newArticleCategory,
+          excerpt: newArticleExcerpt || undefined,
+          content: newArticleContent,
+          has_relief: newArticleHasRelief,
+          relief_goal: parseFloat(newArticleReliefGoal) || 0,
+          relief_beneficiary: newArticleReliefBeneficiary || undefined,
+          relief_description: newArticleReliefDesc || undefined,
+        }),
+      })
+
+      let data: any = {}
+      try {
+        data = await res.json()
+      } catch {}
+
+      if (!res.ok) throw new Error(data?.error || `Failed to create article (${res.status})`)
+
+      setCreateArticleNotice("Article published successfully to the public News & Health Bulletins page!")
+      setNewArticleTitle("")
+      setNewArticleExcerpt("")
+      setNewArticleContent("")
+      setNewArticleHasRelief(false)
+      fetchAdminNews()
+      fetchStats()
+      setTimeout(() => {
+        setNewsSubTab("articles")
+        setCreateArticleNotice(null)
+      }, 1200)
+    } catch (err: any) {
+      alert(err.message || "Error publishing article")
+    } finally {
+      setCreatingArticle(false)
+    }
+  }
+
+  const handleDeleteArticle = async (id: number) => {
+    if (!token) return
+    if (!window.confirm("Are you sure you want to delete this article? This will also remove any associated relief campaign records.")) return
+
+    try {
+      const res = await fetch(`/api/news/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        fetchAdminNews()
+        fetchStats()
+      }
+    } catch (err: any) {
+      alert(err.message || "Error deleting article")
+    }
+  }
+
+  const fetchFunds = useCallback(async () => {
+    if (!token) return
+    try {
+      const res = await fetch("/api/news/admin/funds", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setFundPledges(data.pledges || [])
+        setFundCampaigns(data.campaigns || [])
+        if (data.stats) setFundStats(data.stats)
+      }
+    } catch (err) {
+      console.error("[Dashboard] Error fetching funds data:", err)
+    }
+  }, [token])
+
+  const handleApproveFund = async (pledgeId: number) => {
+    if (!token) return
+    setFundActionLoading(pledgeId)
+    try {
+      const res = await fetch(`/api/news/admin/funds/${pledgeId}/approve`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || "Failed to approve donation")
+      setActionNotice(data.message || "Donation approved and added to campaign balance!")
+      fetchFunds()
+      fetchAdminNews()
+      fetchStats()
+    } catch (err: any) {
+      alert(err.message || "Error approving donation")
+    } finally {
+      setFundActionLoading(null)
+    }
+  }
+
+  const handleRejectFund = async (pledgeId: number) => {
+    if (!token) return
+    const reason = window.prompt("Reason for rejecting donation / receipt:", "Invalid or unverified receipt")
+    if (reason === null) return
+    setFundActionLoading(pledgeId)
+    try {
+      const res = await fetch(`/api/news/admin/funds/${pledgeId}/reject`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reason }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || "Failed to reject donation")
+      setActionNotice("Donation record marked as rejected.")
+      fetchFunds()
+      fetchAdminNews()
+      fetchStats()
+    } catch (err: any) {
+      alert(err.message || "Error rejecting donation")
+    } finally {
+      setFundActionLoading(null)
+    }
+  }
+
   const refreshAll = useCallback(async () => {
     setLoading(true)
-    await Promise.all([fetchStats(), fetchMessages(), fetchAdmins(), fetchNotifications()])
+    await Promise.all([
+      fetchStats(),
+      fetchMessages(),
+      fetchAdmins(),
+      fetchNotifications(),
+      fetchOutbreakDrafts(),
+      fetchCommunityReports(),
+      fetchAdminNews(),
+      fetchFunds(),
+    ])
     setLoading(false)
-  }, [fetchStats, fetchMessages, fetchAdmins, fetchNotifications])
+  }, [
+    fetchStats,
+    fetchMessages,
+    fetchAdmins,
+    fetchNotifications,
+    fetchOutbreakDrafts,
+    fetchCommunityReports,
+    fetchAdminNews,
+    fetchFunds,
+  ])
 
   useEffect(() => {
     if (token) {
@@ -270,16 +688,19 @@ export function AdminDashboard() {
     }
   }, [token, refreshAll])
 
-  // Periodic polling for real-time notification alert (every 25 seconds)
+  // Periodic polling for real-time notification alert, drafts, reports, and funds (every 25 seconds)
   useEffect(() => {
     if (!token) return
     const interval = setInterval(() => {
       fetchStats()
       fetchMessages()
       fetchNotifications()
+      fetchOutbreakDrafts()
+      fetchCommunityReports()
+      fetchFunds()
     }, 25000)
     return () => clearInterval(interval)
-  }, [token, fetchStats, fetchMessages, fetchNotifications])
+  }, [token, fetchStats, fetchMessages, fetchNotifications, fetchOutbreakDrafts, fetchCommunityReports, fetchFunds])
 
   // 3. AI Smart Reply Generator with Intent Detection
   const generateAiReply = async (msg: ContactMessage) => {
@@ -613,7 +1034,8 @@ export function AdminDashboard() {
 
   // Export Inquiries Data (JSON download)
   const handleExportInquiriesJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(messages, null, 2))
+    const sorted = messages.slice().sort((a, b) => a.id - b.id)
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sorted, null, 2))
     const downloadAnchor = document.createElement("a")
     downloadAnchor.setAttribute("href", dataStr)
     downloadAnchor.setAttribute("download", `tenaye_inquiries_${new Date().toISOString().slice(0, 10)}.json`)
@@ -624,6 +1046,7 @@ export function AdminDashboard() {
 
   // Export Inquiries Data (Printable PDF Report)
   const handleExportInquiriesPDF = () => {
+    const sorted = messages.slice().sort((a, b) => a.id - b.id)
     const printWindow = window.open("", "_blank")
     if (!printWindow) {
       alert("Please allow pop-ups to generate PDF report")
@@ -649,7 +1072,7 @@ export function AdminDashboard() {
         </head>
         <body>
           <h1>Tenaye Operations - Inbound Contact Inquiries Report</h1>
-          <p class="meta">Exported on ${new Date().toLocaleString()} | Total Messages: ${messages.length}</p>
+          <p class="meta">Exported on ${new Date().toLocaleString()} | Total Messages: ${sorted.length}</p>
           <table>
             <thead>
               <tr>
@@ -663,7 +1086,7 @@ export function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              ${messages.map((m, idx) => `
+              ${sorted.map((m, idx) => `
                 <tr>
                   <td style="font-weight: bold; color: #119197;">Message ${idx + 1}</td>
                   <td><span class="badge ${m.status === 'replied' ? 'badge-replied' : 'badge-unread'}">${m.status}</span></td>
@@ -696,7 +1119,8 @@ export function AdminDashboard() {
 
   // Export Admins Data (JSON download)
   const handleExportAdminsJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(adminsList, null, 2))
+    const sorted = adminsList.slice().sort((a, b) => a.id - b.id)
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sorted, null, 2))
     const downloadAnchor = document.createElement("a")
     downloadAnchor.setAttribute("href", dataStr)
     downloadAnchor.setAttribute("download", `tenaye_admins_roster_${new Date().toISOString().slice(0, 10)}.json`)
@@ -707,6 +1131,7 @@ export function AdminDashboard() {
 
   // Export Admins Data (Printable PDF Report)
   const handleExportAdminsPDF = () => {
+    const sorted = adminsList.slice().sort((a, b) => a.id - b.id)
     const printWindow = window.open("", "_blank")
     if (!printWindow) {
       alert("Please allow pop-ups to generate PDF report")
@@ -732,7 +1157,7 @@ export function AdminDashboard() {
         </head>
         <body>
           <h1>Tenaye Operations - Administrative Governance Roster</h1>
-          <p class="meta">Exported on ${new Date().toLocaleString()} | Total Active Administrators: ${adminsList.length}</p>
+          <p class="meta">Exported on ${new Date().toLocaleString()} | Total Active Administrators: ${sorted.length}</p>
           <table>
             <thead>
               <tr>
@@ -745,7 +1170,7 @@ export function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              ${adminsList.map((a, idx) => `
+              ${sorted.map((a, idx) => `
                 <tr>
                   <td style="font-weight: bold; text-align: center;">${idx + 1}</td>
                   <td style="font-weight: bold; color: #119197; font-family: monospace;">${formatAdminId(a.id)}</td>
@@ -753,6 +1178,89 @@ export function AdminDashboard() {
                   <td style="font-family: monospace;">${a.email}</td>
                   <td><span class="badge ${a.role === 'super_admin' ? 'badge-super' : 'badge-officer'}">${a.role === 'super_admin' ? 'Super Admin' : 'Operations Officer'}</span></td>
                   <td>${a.created_at ? new Date(a.created_at).toLocaleDateString() : 'System Seed'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `
+    printWindow.document.write(htmlContent)
+    printWindow.document.close()
+    printWindow.focus()
+    setTimeout(() => {
+      printWindow.print()
+    }, 300)
+  }
+
+  // Export Relief Funds Data (JSON download)
+  const handleExportFundsJSON = () => {
+    const sorted = fundPledges.slice().sort((a, b) => a.id - b.id)
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sorted, null, 2))
+    const downloadAnchor = document.createElement("a")
+    downloadAnchor.setAttribute("href", dataStr)
+    downloadAnchor.setAttribute("download", `tenaye_relief_funds_${new Date().toISOString().slice(0, 10)}.json`)
+    document.body.appendChild(downloadAnchor)
+    downloadAnchor.click()
+    downloadAnchor.remove()
+  }
+
+  // Export Relief Funds Data (Printable PDF Report)
+  const handleExportFundsPDF = () => {
+    const sorted = fundPledges.slice().sort((a, b) => a.id - b.id)
+    const printWindow = window.open("", "_blank")
+    if (!printWindow) {
+      alert("Please allow pop-ups to generate PDF report")
+      return
+    }
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Tenaye Health - Community Relief Funds Report</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 28px; color: #1e293b; }
+            h1 { color: #0c6e73; margin-bottom: 4px; font-size: 22px; }
+            p.meta { color: #64748b; font-size: 12px; margin-top: 0; margin-bottom: 24px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+            th { background: #f1f5f9; text-align: left; padding: 10px; border-bottom: 2px solid #cbd5e1; color: #475569; }
+            td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+            tr:nth-child(even) { background: #f8fafc; }
+            .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+            .badge-approved { background: #d1fae5; color: #065f46; }
+            .badge-pending { background: #fef3c7; color: #92400e; }
+            .badge-rejected { background: #fee2e2; color: #991b1b; }
+          </style>
+        </head>
+        <body>
+          <h1>Tenaye Operations - Emergency Relief Funds & Donations Audit</h1>
+          <p class="meta">Exported on ${new Date().toLocaleString()} | Total Verified: ${fundStats.verifiedTotal?.toLocaleString()} ETB | Total Donor Records: ${sorted.length}</p>
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px;">#</th>
+                <th>Donor Name & Contact</th>
+                <th>Amount (ETB)</th>
+                <th>Channel</th>
+                <th>Associated Campaign</th>
+                <th>Status</th>
+                <th>Submission Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sorted.map((p, idx) => `
+                <tr>
+                  <td style="font-weight: bold; text-align: center;">${idx + 1}</td>
+                  <td>
+                    <strong>${p.donor_name}</strong>
+                    ${p.donor_phone ? `<br/><small style="color: #64748b;">Tel: ${p.donor_phone}</small>` : ''}
+                    ${p.message ? `<div style="color: #0c6e73; font-size: 11px; margin-top: 2px; font-style: italic;">"${p.message}"</div>` : ''}
+                  </td>
+                  <td style="font-family: monospace; font-weight: bold; color: #059669;">+${p.amount_etb?.toLocaleString()} ETB</td>
+                  <td><span style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">${p.payment_method === 'BOA' ? 'Bank of Abyssinia' : p.payment_method}</span></td>
+                  <td><strong>${p.relief_beneficiary || p.post_title || 'General Relief'}</strong></td>
+                  <td><span class="badge ${p.status === 'approved' ? 'badge-approved' : p.status === 'rejected' ? 'badge-rejected' : 'badge-pending'}">${p.status || 'pending'}</span></td>
+                  <td>${new Date(p.created_at).toLocaleString()}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -897,7 +1405,69 @@ export function AdminDashboard() {
               )}
             </button>
 
-            {/* 4. Setting */}
+            {/* 4. News & Outbreak Surveillance */}
+            <button
+              onClick={() => {
+                setActiveTab("news")
+                setSidebarOpen(false)
+              }}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === "news"
+                  ? "bg-gradient-to-r from-[#0c6e73] to-[#119197] text-white shadow-md shadow-teal-950/40"
+                  : isDark
+                    ? "text-slate-400 hover:text-white hover:bg-slate-800"
+                    : "text-stone-600 hover:text-stone-900 hover:bg-[#f5ecdf]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <IconAlertTriangle size={16} />
+                <span>News & Outbreaks</span>
+              </div>
+              {outbreakDrafts.length > 0 ? (
+                <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black animate-pulse">
+                  {outbreakDrafts.length} to review
+                </span>
+              ) : (
+                <span className={`text-[10px] px-2 py-0.5 rounded ${
+                  isDark ? "bg-slate-950 text-slate-400" : "bg-[#ebdcc9] text-stone-700"
+                }`}>
+                  {stats.publishedNews || 0}
+                </span>
+              )}
+            </button>
+
+            {/* 5. Emergency Relief Funds & Donations Management */}
+            <button
+              onClick={() => {
+                setActiveTab("funds")
+                setSidebarOpen(false)
+              }}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === "funds"
+                  ? "bg-gradient-to-r from-[#0c6e73] to-[#119197] text-white shadow-md shadow-teal-950/40"
+                  : isDark
+                    ? "text-slate-400 hover:text-white hover:bg-slate-800"
+                    : "text-stone-600 hover:text-stone-900 hover:bg-[#f5ecdf]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <IconHeart size={16} className={activeTab === "funds" ? "text-rose-300" : "text-rose-400"} />
+                <span>Relief Funds</span>
+              </div>
+              {fundStats.pendingCount > 0 ? (
+                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black animate-pulse">
+                  {fundStats.pendingCount} pending
+                </span>
+              ) : (
+                <span className={`text-[10px] px-2 py-0.5 rounded ${
+                  isDark ? "bg-slate-950 text-slate-400" : "bg-[#ebdcc9] text-stone-700"
+                }`}>
+                  {fundStats.totalPledges || 0}
+                </span>
+              )}
+            </button>
+
+            {/* 6. Setting */}
             <button
               onClick={() => {
                 setActiveTab("settings")
@@ -1222,7 +1792,274 @@ export function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Row 2: Quick Administrative Tools & Export Bar */}
+              {/* Row 2: Analytics & Intelligence Dashboards (News Analysis & Funds Report Analysis) */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {/* News & Outbreak Surveillance Analysis */}
+                <div className={`border rounded-3xl p-5 sm:p-6 flex flex-col justify-between ${
+                  isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9] shadow-xs"
+                }`}>
+                  <div>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800/40">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-[#119197] flex items-center justify-center font-bold">
+                          <IconGlobe size={16} />
+                        </div>
+                        <div>
+                          <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                            News & Community Surveillance Analysis
+                          </h4>
+                          <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                            Broadcast performance, community read velocity, and active outbreak alerts
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/10 text-[#119197] border border-teal-500/20">
+                        {adminNewsList.length} Articles
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3 my-4">
+                      <div className={`p-3 rounded-2xl border text-center ${
+                        isDark ? "bg-slate-950/60 border-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9]"
+                      }`}>
+                        <span className="text-[10px] text-stone-400 uppercase tracking-wider font-bold block">
+                          Published News
+                        </span>
+                        <span className="text-xl font-black text-[#119197] mt-0.5 block font-mono">
+                          {adminNewsList.length}
+                        </span>
+                      </div>
+
+                      <div className={`p-3 rounded-2xl border text-center ${
+                        isDark ? "bg-slate-950/60 border-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9]"
+                      }`}>
+                        <span className="text-[10px] text-stone-400 uppercase tracking-wider font-bold block">
+                          Total Reader Views
+                        </span>
+                        <span className="text-xl font-black text-amber-500 mt-0.5 block font-mono">
+                          {adminNewsList.reduce((acc, curr) => acc + (curr.views_count || 0), 0).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div className={`p-3 rounded-2xl border text-center ${
+                        isDark ? "bg-slate-950/60 border-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9]"
+                      }`}>
+                        <span className="text-[10px] text-stone-400 uppercase tracking-wider font-bold block">
+                          Citizen Reports
+                        </span>
+                        <span className="text-xl font-black text-purple-400 mt-0.5 block font-mono">
+                          {communityReports.length}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Category Distribution Breakdown */}
+                    <div className="space-y-2 mt-3">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-stone-400 font-semibold">Content Category Distribution</span>
+                        <span className="text-[10px] text-[#119197] font-mono font-bold">Health Advisory Network</span>
+                      </div>
+                      <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden flex">
+                        <div
+                          className="bg-[#119197] h-full"
+                          style={{
+                            width: `${
+                              adminNewsList.length > 0
+                                ? (adminNewsList.filter((a) => a.category === "announcement").length / adminNewsList.length) * 100
+                                : 50
+                            }%`,
+                          }}
+                          title="Announcements"
+                        />
+                        <div
+                          className="bg-rose-500 h-full"
+                          style={{
+                            width: `${
+                              adminNewsList.length > 0
+                                ? (adminNewsList.filter((a) => a.category === "outbreak").length / adminNewsList.length) * 100
+                                : 25
+                            }%`,
+                          }}
+                          title="Outbreaks"
+                        />
+                        <div
+                          className="bg-amber-400 h-full"
+                          style={{
+                            width: `${
+                              adminNewsList.length > 0
+                                ? (adminNewsList.filter((a) => a.category === "advisory").length / adminNewsList.length) * 100
+                                : 25
+                            }%`,
+                          }}
+                          title="Advisories"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-stone-400 pt-1">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#119197]" />
+                          Bulletins ({adminNewsList.filter((a) => a.category === "announcement").length})
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-rose-500" />
+                          Outbreak Alerts ({adminNewsList.filter((a) => a.category === "outbreak").length})
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-amber-400" />
+                          Preventive ({adminNewsList.filter((a) => a.category === "advisory").length})
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-800/40 flex items-center justify-between">
+                    <span className="text-[11px] text-stone-400">
+                      Pending outbreak drafts to approve: <strong>{outbreakDrafts.length}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("news")}
+                      className="text-xs font-bold text-[#119197] hover:underline cursor-pointer"
+                    >
+                      Manage News &rarr;
+                    </button>
+                  </div>
+                </div>
+
+                {/* Funds Report Analysis */}
+                <div className={`border rounded-3xl p-5 sm:p-6 flex flex-col justify-between ${
+                  isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9] shadow-xs"
+                }`}>
+                  <div>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800/40">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+                          <IconHeart size={16} className="text-rose-500" />
+                        </div>
+                        <div>
+                          <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                            Emergency Relief Funds Report Analysis
+                          </h4>
+                          <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                            Real-time disbursement metrics, verification progress, and channel distribution
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        {fundStats.approvedCount || 0} Verified
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3 my-4">
+                      <div className={`p-3 rounded-2xl border text-center ${
+                        isDark ? "bg-slate-950/60 border-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9]"
+                      }`}>
+                        <span className="text-[10px] text-stone-400 uppercase tracking-wider font-bold block">
+                          Verified Funds
+                        </span>
+                        <span className="text-xl font-black text-emerald-400 mt-0.5 block font-mono">
+                          {(fundStats.verifiedTotal || 0).toLocaleString()} <span className="text-[10px] text-stone-400 font-sans">ETB</span>
+                        </span>
+                      </div>
+
+                      <div className={`p-3 rounded-2xl border text-center ${
+                        isDark ? "bg-slate-950/60 border-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9]"
+                      }`}>
+                        <span className="text-[10px] text-stone-400 uppercase tracking-wider font-bold block">
+                          Pending Verification
+                        </span>
+                        <span className="text-xl font-black text-amber-500 mt-0.5 block font-mono">
+                          {(fundStats.pendingTotal || 0).toLocaleString()} <span className="text-[10px] text-stone-400 font-sans">ETB</span>
+                        </span>
+                      </div>
+
+                      <div className={`p-3 rounded-2xl border text-center ${
+                        isDark ? "bg-slate-950/60 border-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9]"
+                      }`}>
+                        <span className="text-[10px] text-stone-400 uppercase tracking-wider font-bold block">
+                          Total Donors
+                        </span>
+                        <span className="text-xl font-black text-cyan-400 mt-0.5 block font-mono">
+                          {fundPledges.length}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Channels Distribution: Telebirr vs CBE vs BOA */}
+                    <div className="space-y-2 mt-3">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-stone-400 font-semibold">Payment Channel Distribution</span>
+                        <span className="text-[10px] text-emerald-400 font-mono font-bold">
+                          {Math.round(((fundStats.verifiedTotal || 0) / Math.max(1, (fundStats.verifiedTotal || 0) + (fundStats.pendingTotal || 0))) * 100)}% Verified
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden flex">
+                        <div
+                          className="bg-[#119197] h-full"
+                          style={{
+                            width: `${
+                              fundPledges.length > 0
+                                ? (fundPledges.filter((p) => p.payment_method === "Telebirr").length / fundPledges.length) * 100
+                                : 40
+                            }%`,
+                          }}
+                          title="Telebirr"
+                        />
+                        <div
+                          className="bg-purple-600 h-full"
+                          style={{
+                            width: `${
+                              fundPledges.length > 0
+                                ? (fundPledges.filter((p) => p.payment_method === "CBE").length / fundPledges.length) * 100
+                                : 35
+                            }%`,
+                          }}
+                          title="CBE"
+                        />
+                        <div
+                          className="bg-amber-500 h-full"
+                          style={{
+                            width: `${
+                              fundPledges.length > 0
+                                ? (fundPledges.filter((p) => p.payment_method === "BOA").length / fundPledges.length) * 100
+                                : 25
+                            }%`,
+                          }}
+                          title="Bank of Abyssinia"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-stone-400 pt-1">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#119197]" />
+                          Telebirr ({fundPledges.filter((p) => p.payment_method === "Telebirr").length})
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-purple-600" />
+                          CBE ({fundPledges.filter((p) => p.payment_method === "CBE").length})
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-amber-500" />
+                          BOA ({fundPledges.filter((p) => p.payment_method === "BOA").length})
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-800/40 flex items-center justify-between">
+                    <span className="text-[11px] text-stone-400">
+                      Awaiting verification: <strong>{fundStats.pendingCount || 0} receipts</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("funds")}
+                      className="text-xs font-bold text-emerald-400 hover:underline cursor-pointer"
+                    >
+                      Audit Relief Vault &rarr;
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 3: Quick Administrative Tools & Export Bar */}
               <div className={`border rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4 ${
                 isDark ? "bg-slate-900 border-slate-800" : "bg-[#fdfbf7] border-amber-200/60 shadow-xs"
               }`}>
@@ -1257,6 +2094,18 @@ export function AdminDashboard() {
                   >
                     <IconFileText size={14} />
                     <span>Inquiries (PDF)</span>
+                  </button>
+
+                  <button
+                    onClick={handleExportFundsPDF}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      isDark
+                        ? "bg-slate-950 border-slate-800 hover:border-slate-700 text-emerald-400"
+                        : "bg-white border-amber-200 hover:bg-amber-50 text-emerald-700 shadow-2xs"
+                    }`}
+                  >
+                    <IconFileText size={14} />
+                    <span>Relief Report (PDF)</span>
                   </button>
 
                   {currentUser?.role === "super_admin" && (
@@ -1349,7 +2198,7 @@ export function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className={`divide-y ${isDark ? "divide-slate-800" : "divide-[#f2e7da]"}`}>
-                      {adminsList.map((admin, idx) => (
+                      {adminsList.slice().sort((a, b) => a.id - b.id).map((admin, idx) => (
                         <tr key={admin.id} className={isDark ? "hover:bg-slate-800/40" : "hover:bg-[#fcfaf6]"}>
                           {/* Order Number (1, 2, 3...) */}
                           <td className="py-3.5 px-4 font-bold text-center text-stone-400">
@@ -1572,7 +2421,7 @@ export function AdminDashboard() {
                         </tr>
                       </thead>
                       <tbody className={`divide-y ${isDark ? "divide-slate-800" : "divide-[#f2e7da]"}`}>
-                        {messages.map((msg, idx) => (
+                        {messages.slice().sort((a, b) => a.id - b.id).map((msg, idx) => (
                           <tr
                             key={msg.id}
                             className={`transition-colors cursor-pointer group ${
@@ -1718,7 +2567,1031 @@ export function AdminDashboard() {
           )}
 
           {/* ==================================================== */}
-          {/* TAB 4: SETTING (PROFILE SETTINGS & APP PREFERENCES)  */}
+          {/* TAB 4: NEWS, OUTBREAK SURVEILLANCE & RELIEF          */}
+          {/* ==================================================== */}
+          {activeTab === "news" && (
+            <div className="space-y-6">
+              {/* Header Banner */}
+              <div className={`p-6 rounded-3xl border ${
+                isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9] shadow-xs"
+              }`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-rose-500/15 text-rose-500 border border-rose-500/30">
+                        AI Outbreak Detection & Public News
+                      </span>
+                      {outbreakDrafts.length > 0 && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white animate-pulse">
+                          {outbreakDrafts.length} Action Required
+                        </span>
+                      )}
+                    </div>
+                    <h2 className={`font-display font-black text-xl sm:text-2xl mt-2 ${isDark ? "text-white" : "text-stone-900"}`}>
+                      Epidemiological Outbreak Triage & Editorial Hub
+                    </h2>
+                    <p className={`text-xs mt-1 max-w-2xl leading-relaxed ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                      Review AI-drafted outbreak advisories generated from 3+ clustered citizen reports. Publish verified health news, platform features, and launch GoFundMe-style emergency relief campaigns.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setNewsSubTab("create")}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#0c6e73] to-[#119197] hover:from-[#09575b] hover:to-[#0c6e73] text-white text-xs font-bold shadow-lg shadow-teal-950/30 transition-all cursor-pointer whitespace-nowrap self-start sm:self-auto"
+                  >
+                    <IconFileText size={14} />
+                    <span>Write Article / Announcement</span>
+                  </button>
+                </div>
+
+                {/* Sub Navigation Tabs */}
+                <div className={`flex flex-wrap items-center gap-2 mt-6 pt-5 border-t ${isDark ? "border-slate-800/80" : "border-[#ebdcc9]"}`}>
+                  {[
+                    { id: "drafts", label: `AI Outbreak Review Queue (${outbreakDrafts.length})`, count: outbreakDrafts.length, alert: outbreakDrafts.length > 0 },
+                    { id: "create", label: "Write Announcement" },
+                    { id: "articles", label: `Published Articles (${adminNewsList.length})` },
+                    { id: "reports", label: `Citizen Reports Feed (${communityReports.length})` },
+                  ].map((st) => (
+                    <button
+                      key={st.id}
+                      onClick={() => setNewsSubTab(st.id as any)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                        newsSubTab === st.id
+                          ? "bg-[#119197] text-white shadow-sm"
+                          : isDark
+                            ? "bg-slate-950 border border-slate-800 text-slate-300 hover:bg-slate-800"
+                            : "bg-[#f5ecdf] text-stone-700 hover:bg-[#ebdcc9]"
+                      }`}
+                    >
+                      <span>{st.label}</span>
+                      {st.alert && (
+                        <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action notice */}
+              {actionNotice && (
+                <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-between">
+                  <span>{actionNotice}</span>
+                  <button onClick={() => setActionNotice(null)} className="text-emerald-400 hover:text-white">
+                    <IconX size={14} />
+                  </button>
+                </div>
+              )}
+
+              {/* SUBTAB 1: AI OUTBREAK DRAFTS REVIEW QUEUE */}
+              {newsSubTab === "drafts" && (
+                <div className="space-y-4">
+                  {outbreakDrafts.length === 0 ? (
+                    <div className={`p-12 text-center rounded-3xl border ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9]"}`}>
+                      <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto mb-3">
+                        <IconCheck size={28} />
+                      </div>
+                      <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                        No Pending Outbreak Drafts
+                      </h3>
+                      <p className={`text-xs mt-1 max-w-md mx-auto ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                        All community health reports are currently within normal variance. When 3 or more citizens report identical symptoms in the same zone, Tenaye AI will synthesize an advisory draft and alert you here.
+                      </p>
+                    </div>
+                  ) : (
+                    outbreakDrafts.map((draft) => {
+                      const reliefConfig = draftReliefSettings[draft.id] || {
+                        has_relief: Boolean(draft.has_relief),
+                        relief_goal: String(draft.relief_goal || 50000),
+                        relief_beneficiary: draft.relief_beneficiary || `${draft.cluster_region} Community Emergency Relief`,
+                        relief_description: draft.relief_description || `Providing clean water sanitization, oral hydration salts, and primary medical supplies for vulnerable households in ${draft.cluster_region}.`,
+                      }
+
+                      return (
+                        <div
+                          key={draft.id}
+                          className={`p-6 sm:p-7 rounded-3xl border transition-all space-y-5 ${
+                            isDark ? "bg-slate-900 border-rose-900/50 shadow-lg" : "bg-[#fffefb] border-rose-200 shadow-md"
+                          }`}
+                        >
+                          {/* Header Bar */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-rose-200/40">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-xs">
+                                🚨 Urgent Outbreak Cluster
+                              </span>
+                              <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-teal-500/15 text-[#119197] border border-teal-500/30">
+                                📍 {draft.cluster_region}
+                              </span>
+                              <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/15 text-amber-600 border border-amber-500/30">
+                                🔬 {draft.cluster_symptoms || "Reported Symptoms"}
+                              </span>
+                            </div>
+                            <span className="text-[11px] text-slate-400 font-mono">
+                              Triggered {new Date(draft.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} • {new Date(draft.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+
+                          {/* Headline & Abstract */}
+                          <div>
+                            <h3 className={`text-xl font-black leading-tight ${isDark ? "text-white" : "text-stone-900"}`}>
+                              {draft.title}
+                            </h3>
+                            <p className={`text-xs mt-2 leading-relaxed ${isDark ? "text-slate-300" : "text-stone-600"}`}>
+                              {draft.excerpt}
+                            </p>
+                          </div>
+
+                          {/* ── CARD 1: CITIZEN INTAKE & EPIDEMIOLOGICAL ANALYSIS CARD ── */}
+                          <div className={`p-5 rounded-2xl border ${
+                            isDark ? "bg-slate-950/70 border-slate-800" : "bg-gradient-to-br from-teal-50/70 to-emerald-50/40 border-teal-200/80"
+                          }`}>
+                            <div className="flex items-center gap-2.5 mb-3 text-[#0c6e73]">
+                              <div className="w-7 h-7 rounded-xl bg-teal-500/15 flex items-center justify-center font-bold">
+                                <IconActivity size={16} />
+                              </div>
+                              <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+                                  Citizen Intake & Epidemiological Analysis
+                                </h4>
+                                <p className="text-[11px] text-teal-700 font-medium">
+                                  {draft.cluster_count || 3} independent citizen reports clustered in {draft.cluster_region}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Underlying citizen reports feed table */}
+                            {draft.citizen_reports && draft.citizen_reports.length > 0 ? (
+                              <div className="mt-3 overflow-x-auto">
+                                <table className="w-full text-left text-xs border-collapse">
+                                   <thead>
+                                    <tr className={`border-b text-[10px] uppercase font-bold tracking-wider ${
+                                      isDark ? "border-slate-800 text-slate-400" : "border-teal-200 text-teal-900"
+                                    }`}>
+                                      <th className="py-2 px-2.5 w-8 text-center">#</th>
+                                      <th className="py-2 px-2.5">Reporter Identity</th>
+                                      <th className="py-2 px-2.5">Verified Contact</th>
+                                      <th className="py-2 px-2.5">Disease / Symptoms</th>
+                                      <th className="py-2 px-2.5">Severity</th>
+                                      <th className="py-2 px-2.5">Citizen Notes</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-slate-800/20 text-[11px]">
+                                    {(draft.citizen_reports || [])
+                                      .slice()
+                                      .sort((a: any, b: any) => a.id - b.id)
+                                      .map((rep: any, idx: number) => (
+                                      <tr key={rep.id} className="hover:bg-black/5">
+                                        <td className="py-2 px-2.5 font-bold text-center text-teal-600">
+                                          {idx + 1}
+                                        </td>
+                                        <td className="py-2 px-2.5 font-bold text-slate-800 dark:text-slate-200">
+                                          {rep.reporter_name || "Anonymous Citizen"}
+                                        </td>
+                                        <td className="py-2 px-2.5 font-mono text-slate-500 dark:text-slate-400">
+                                          {rep.reporter_contact || "Registered"}
+                                        </td>
+                                        <td className="py-2 px-2.5 font-medium text-slate-700 dark:text-slate-300">
+                                          {rep.disease_or_symptoms}
+                                        </td>
+                                        <td className="py-2 px-2.5">
+                                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
+                                            rep.severity === "urgent" || rep.severity === "high"
+                                              ? "bg-rose-500/15 text-rose-500"
+                                              : "bg-amber-500/15 text-amber-500"
+                                          }`}>
+                                            {rep.severity || "medium"}
+                                          </span>
+                                        </td>
+                                        <td className="py-2 px-2.5 italic text-slate-500 max-w-xs truncate">
+                                          {rep.notes ? `"${rep.notes}"` : "None provided"}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ) : (
+                              <p className="text-xs text-slate-500 italic">
+                                Algorithmic analysis confirmed cross-verification of {draft.cluster_count || 3} local reports matching "{draft.cluster_symptoms}" in this jurisdiction.
+                              </p>
+                            )}
+                          </div>
+
+                          {/* ── CARD 2: PREVIEW OF AI GENERATED BULLETIN ── */}
+                          <div className="space-y-1.5">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                              Synthesized Public Advisory Text Preview:
+                            </span>
+                            <div className={`p-4 rounded-2xl border text-xs leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap font-sans ${
+                              isDark ? "bg-slate-950 border-slate-800 text-slate-300" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-700"
+                            }`}>
+                              {draft.content}
+                            </div>
+                          </div>
+
+                          {/* ── CARD 3: OPTIONAL GOFUNDME / RELIEF CAMPAIGN TOGGLE ── */}
+                          <div className={`p-4 rounded-2xl border transition-all ${
+                            isDark
+                              ? reliefConfig.has_relief ? "bg-teal-950/40 border-teal-700/60" : "bg-slate-950/40 border-slate-800"
+                              : reliefConfig.has_relief ? "bg-teal-50 border-teal-300" : "bg-stone-50 border-stone-200"
+                          }`}>
+                            <div className="flex items-center justify-between">
+                              <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={reliefConfig.has_relief}
+                                  onChange={(e) => {
+                                    setDraftReliefSettings((prev) => ({
+                                      ...prev,
+                                      [draft.id]: {
+                                        ...reliefConfig,
+                                        has_relief: e.target.checked,
+                                      },
+                                    }))
+                                  }}
+                                  className="w-4 h-4 rounded text-[#119197] focus:ring-[#119197] cursor-pointer"
+                                />
+                                <div>
+                                  <span className={`text-xs font-bold block ${isDark ? "text-white" : "text-stone-900"}`}>
+                                    Attach Community Emergency Relief / "GoFundMe" Campaign
+                                  </span>
+                                  <span className="text-[11px] text-slate-400 block">
+                                    {reliefConfig.has_relief
+                                      ? "Active: Community members can pledge financial support via Telebirr, CBE, or BOA."
+                                      : "Optional: Leave unchecked to publish as a pure informational health advisory without funding."}
+                                  </span>
+                                </div>
+                              </label>
+                              <IconHeart size={18} className={reliefConfig.has_relief ? "text-rose-500 animate-pulse" : "text-slate-400"} />
+                            </div>
+
+                            {reliefConfig.has_relief && (
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-teal-200/60 dark:border-teal-800/60">
+                                <div>
+                                  <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                                    Fundraising Target (ETB)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    min="1000"
+                                    value={reliefConfig.relief_goal}
+                                    onChange={(e) => {
+                                      setDraftReliefSettings((prev) => ({
+                                        ...prev,
+                                        [draft.id]: {
+                                          ...reliefConfig,
+                                          relief_goal: e.target.value,
+                                        },
+                                      }))
+                                    }}
+                                    className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                                      isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-teal-300 text-stone-900"
+                                    }`}
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                                    Beneficiary Fund Name
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={reliefConfig.relief_beneficiary}
+                                    onChange={(e) => {
+                                      setDraftReliefSettings((prev) => ({
+                                        ...prev,
+                                        [draft.id]: {
+                                          ...reliefConfig,
+                                          relief_beneficiary: e.target.value,
+                                        },
+                                      }))
+                                    }}
+                                    className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                                      isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-teal-300 text-stone-900"
+                                    }`}
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                                    Campaign Mission Note
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={reliefConfig.relief_description}
+                                    onChange={(e) => {
+                                      setDraftReliefSettings((prev) => ({
+                                        ...prev,
+                                        [draft.id]: {
+                                          ...reliefConfig,
+                                          relief_description: e.target.value,
+                                        },
+                                      }))
+                                    }}
+                                    className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                                      isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-teal-300 text-stone-900"
+                                    }`}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* ── CARD ACTIONS: ACCEPT / REJECT ── */}
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-slate-800/40">
+                            <span className="text-[11px] text-slate-400">
+                              Status: <strong className="text-amber-500 uppercase">Pending Triage Clearance</strong>
+                            </span>
+
+                            <div className="flex items-center gap-3 self-end sm:self-auto">
+                              <button
+                                type="button"
+                                onClick={() => handleRejectDraft(draft.id)}
+                                className="px-4 py-2.5 rounded-xl border border-rose-500/30 text-rose-500 hover:bg-rose-500/20 text-xs font-bold transition-all cursor-pointer"
+                              >
+                                Reject & Discard
+                              </button>
+                              <button
+                                type="button"
+                                disabled={approvingDraftId === draft.id}
+                                onClick={() => handleApproveDraft(draft)}
+                                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-md transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50"
+                              >
+                                <IconCheck size={14} />
+                                <span>{approvingDraftId === draft.id ? "Publishing..." : "Accept & Publish Alert"}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              )}
+
+              {/* SUBTAB 2: WRITE NEW ANNOUNCEMENT */}
+              {newsSubTab === "create" && (
+                <div className={`p-6 sm:p-8 rounded-3xl border ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9]"}`}>
+                  <h3 className={`font-display font-bold text-lg mb-1 ${isDark ? "text-white" : "text-stone-900"}`}>
+                    Publish Official News or Medical Announcement
+                  </h3>
+                  <p className={`text-xs mb-6 ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                    Draft articles will instantly be broadcasted to the public /news portal.
+                  </p>
+
+                  {createArticleNotice && (
+                    <div className="mb-4 p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+                      {createArticleNotice}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleCreateArticle} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="sm:col-span-2">
+                        <label className={`block text-xs font-bold mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                          Article Title *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g., Expansion of Emergency 907 Ambulance Routing in Sidama Region"
+                          value={newArticleTitle}
+                          onChange={(e) => setNewArticleTitle(e.target.value)}
+                          className={`w-full border rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#119197] ${
+                            isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <label className={`block text-xs font-bold mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                          Category *
+                        </label>
+                        <select
+                          value={newArticleCategory}
+                          onChange={(e) => setNewArticleCategory(e.target.value)}
+                          className={`w-full border rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#119197] ${
+                            isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                          }`}
+                        >
+                          <option value="announcement">Platform Announcement</option>
+                          <option value="health_tip">Clinical Advisory & Tips</option>
+                          <option value="outbreak">Epidemic Alert</option>
+                          <option value="relief">Relief & Support Campaign</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className={`block text-xs font-bold mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                        Brief Summary / Excerpt
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="1-2 sentences summarizing the key announcement..."
+                        value={newArticleExcerpt}
+                        onChange={(e) => setNewArticleExcerpt(e.target.value)}
+                        className={`w-full border rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#119197] ${
+                          isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                        }`}
+                      />
+                    </div>
+
+                    <div>
+                      <label className={`block text-xs font-bold mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                        Full Article Content *
+                      </label>
+                      <textarea
+                        rows={7}
+                        required
+                        placeholder="Detailed clinical instructions, quotes, or guidelines..."
+                        value={newArticleContent}
+                        onChange={(e) => setNewArticleContent(e.target.value)}
+                        className={`w-full border rounded-2xl p-4 text-xs focus:outline-none focus:border-[#119197] resize-none ${
+                          isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                        }`}
+                      />
+                    </div>
+
+                    {/* Relief Campaign Option */}
+                    <div className={`p-4 rounded-2xl border ${isDark ? "bg-slate-950 border-slate-800" : "bg-teal-50/50 border-teal-200"}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={newArticleHasRelief}
+                            onChange={(e) => setNewArticleHasRelief(e.target.checked)}
+                            className="rounded text-[#119197] focus:ring-[#119197]"
+                          />
+                          <span className={`text-xs font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                            Attach Community Emergency Relief / "GoFundMe" Campaign
+                          </span>
+                        </label>
+                        <IconHeart size={16} className="text-rose-500" />
+                      </div>
+
+                      {newArticleHasRelief && (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 pt-3 border-t border-slate-800/40">
+                          <div>
+                            <label className={`block text-[11px] font-bold mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                              Fundraising Target (ETB)
+                            </label>
+                            <input
+                              type="number"
+                              min="1000"
+                              value={newArticleReliefGoal}
+                              onChange={(e) => setNewArticleReliefGoal(e.target.value)}
+                              className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                                isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-[#ebdcc9] text-stone-900"
+                              }`}
+                            />
+                          </div>
+                          <div>
+                            <label className={`block text-[11px] font-bold mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                              Beneficiary Fund Name
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g., Clean Water & ORS Support"
+                              value={newArticleReliefBeneficiary}
+                              onChange={(e) => setNewArticleReliefBeneficiary(e.target.value)}
+                              className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                                isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-[#ebdcc9] text-stone-900"
+                              }`}
+                            />
+                          </div>
+                          <div>
+                            <label className={`block text-[11px] font-bold mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                              Campaign Description
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g., Procuring rehydration kits..."
+                              value={newArticleReliefDesc}
+                              onChange={(e) => setNewArticleReliefDesc(e.target.value)}
+                              className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                                isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-[#ebdcc9] text-stone-900"
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end pt-2">
+                      <button
+                        type="submit"
+                        disabled={creatingArticle}
+                        className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#0c6e73] to-[#119197] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-md"
+                      >
+                        {creatingArticle ? "Publishing..." : "Publish Article Now"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* SUBTAB 3: PUBLISHED ARTICLES CATALOG */}
+              {newsSubTab === "articles" && (
+                <div className={`rounded-3xl border overflow-hidden ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9]"}`}>
+                  <div className="p-4 sm:p-5 border-b border-slate-800/40 flex items-center justify-between">
+                    <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                      All Platform News & Bulletins ({adminNewsList.filter((art) => art.published === 1 && art.status === "published").length})
+                    </h3>
+                    <Link
+                      to="/news"
+                      target="_blank"
+                      className="text-xs font-bold text-[#119197] hover:underline flex items-center gap-1"
+                    >
+                      <IconGlobe size={13} />
+                      <span>View Public /news Page &rarr;</span>
+                    </Link>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className={`border-b ${isDark ? "border-slate-800 text-slate-400 bg-slate-950/40" : "border-[#ebdcc9] text-stone-600 bg-[#fbf9f4]"}`}>
+                          <th className="py-3 px-4">#</th>
+                          <th className="py-3 px-4">Title & Excerpt</th>
+                          <th className="py-3 px-4">Category</th>
+                          <th className="py-3 px-4">Author</th>
+                          <th className="py-3 px-4">Views</th>
+                          <th className="py-3 px-4">Relief Campaign</th>
+                          <th className="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/40">
+                        {adminNewsList
+                          .filter((art) => art.published === 1 && art.status === "published")
+                          .slice()
+                          .sort((a, b) => a.id - b.id)
+                          .map((art, idx) => (
+                          <tr key={art.id} className={isDark ? "hover:bg-slate-800/40" : "hover:bg-stone-50"}>
+                            <td className="py-3 px-4 font-bold text-stone-400">{idx + 1}</td>
+                            <td className="py-3 px-4 max-w-sm">
+                              <p className={`font-bold line-clamp-1 ${isDark ? "text-white" : "text-stone-900"}`}>
+                                {art.title}
+                              </p>
+                              <p className="text-[11px] text-stone-400 line-clamp-1">{art.excerpt}</p>
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-500/10 text-[#119197]">
+                                {art.category}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-stone-400 whitespace-nowrap">{art.author_name}</td>
+                            <td className="py-3 px-4 whitespace-nowrap font-mono">{art.views_count}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              {art.has_relief ? (
+                                <span className="text-[10px] font-bold text-emerald-400">
+                                  {art.relief_raised?.toLocaleString()} / {art.relief_goal?.toLocaleString()} ETB
+                                </span>
+                              ) : (
+                                <span className="text-stone-500 text-[10px]">—</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-right whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setViewingArticle(art)}
+                                  className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                                    isDark
+                                      ? "border-slate-700 text-stone-300 hover:text-white hover:bg-slate-800"
+                                      : "border-stone-300 text-stone-700 hover:text-stone-900 hover:bg-stone-100"
+                                  }`}
+                                  title="Read article inside dashboard"
+                                >
+                                  <IconEye size={13} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteArticle(art.id)}
+                                  className="p-1.5 rounded-lg border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 cursor-pointer"
+                                  title="Delete article"
+                                >
+                                  <IconTrash size={13} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* SUBTAB 4: CITIZEN OUTBREAK SURVEILLANCE FEED */}
+              {newsSubTab === "reports" && (
+                <div className={`rounded-3xl border overflow-hidden ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9]"}`}>
+                  <div className="p-4 sm:p-5 border-b border-slate-800/40 flex items-center justify-between">
+                    <div>
+                      <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                        Citizen Disease & Outbreak Reports ({communityReports.length})
+                      </h3>
+                      <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                        Live intake from the public reporting modal. Clustered automatically when 3+ reports match.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className={`border-b ${isDark ? "border-slate-800 text-slate-400 bg-slate-950/40" : "border-[#ebdcc9] text-stone-600 bg-[#fbf9f4]"}`}>
+                          <th className="py-3 px-4">#</th>
+                          <th className="py-3 px-4">Reporter</th>
+                          <th className="py-3 px-4">Zone / Sub-City</th>
+                          <th className="py-3 px-4">Symptoms / Condition</th>
+                          <th className="py-3 px-4">Count</th>
+                          <th className="py-3 px-4">Severity</th>
+                          <th className="py-3 px-4">Status</th>
+                          <th className="py-3 px-4">Date</th>
+                          <th className="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/40">
+                        {communityReports
+                          .slice()
+                          .sort((a, b) => a.id - b.id)
+                          .map((cr, idx) => (
+                          <tr key={cr.id} className={isDark ? "hover:bg-slate-800/40" : "hover:bg-stone-50"}>
+                            <td className="py-3 px-4 font-bold text-stone-400">{idx + 1}</td>
+                            <td className="py-3 px-4 font-semibold text-stone-300">
+                              {cr.reporter_name}
+                              {cr.reporter_contact && (
+                                <span className="block text-[10px] text-stone-500 font-mono">{cr.reporter_contact}</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 font-bold text-[#119197]">{cr.region_subcity}</td>
+                            <td className="py-3 px-4 max-w-xs truncate" title={cr.disease_or_symptoms}>
+                              {cr.disease_or_symptoms}
+                              {cr.notes && <span className="block text-[10px] text-stone-400 truncate">"{cr.notes}"</span>}
+                            </td>
+                            <td className="py-3 px-4 font-bold">{cr.affected_count || 1}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                cr.severity === "urgent" || cr.severity === "high"
+                                  ? "bg-rose-500/15 text-rose-400"
+                                  : "bg-amber-500/15 text-amber-400"
+                              }`}>
+                                {cr.severity}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                cr.status === "clustered"
+                                  ? "bg-purple-500/15 text-purple-400 border border-purple-500/30"
+                                  : "bg-teal-500/15 text-[#119197] border border-teal-500/30"
+                              }`}>
+                                {cr.status === "clustered" ? "Clustered (AI)" : "Pending Review"}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-stone-400 whitespace-nowrap text-[11px]">
+                              {new Date(cr.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="py-3 px-4 text-right whitespace-nowrap">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedCommunityReport(cr)}
+                                className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 ml-auto cursor-pointer transition-colors ${
+                                  isDark
+                                    ? "border-slate-700 text-teal-400 hover:text-teal-300 hover:bg-slate-800"
+                                    : "border-[#ebdcc9] text-[#0c6e73] hover:text-[#119197] hover:bg-teal-50"
+                                }`}
+                                title="View complete report intake details"
+                              >
+                                <IconEye size={13} />
+                                <span>View</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ==================================================== */}
+          {/* TAB 5: RELIEF FUNDS & DONOR VERIFICATION MANAGEMENT  */}
+          {/* ==================================================== */}
+          {activeTab === "funds" && (
+            <div className="space-y-6">
+              {/* Top Highlights Banner */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className={`p-5 rounded-3xl border ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9] shadow-xs"}`}>
+                  <p className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                    Total Verified Relief
+                  </p>
+                  <p className="text-2xl font-black text-emerald-500 mt-1 font-mono">
+                    {fundStats.verifiedTotal?.toLocaleString()} <span className="text-xs font-bold text-slate-400">ETB</span>
+                  </p>
+                  <p className="text-[11px] text-stone-400 mt-1">
+                    {fundStats.approvedCount || 0} approved contributions
+                  </p>
+                </div>
+
+                <div className={`p-5 rounded-3xl border ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9] shadow-xs"}`}>
+                  <p className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                    Pending Verification
+                  </p>
+                  <p className="text-2xl font-black text-amber-500 mt-1 font-mono">
+                    {fundStats.pendingTotal?.toLocaleString()} <span className="text-xs font-bold text-slate-400">ETB</span>
+                  </p>
+                  <p className="text-[11px] text-amber-400/90 mt-1 font-semibold">
+                    {fundStats.pendingCount || 0} awaiting receipt check
+                  </p>
+                </div>
+
+                <div className={`p-5 rounded-3xl border ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9] shadow-xs"}`}>
+                  <p className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                    Active Campaigns
+                  </p>
+                  <p className="text-2xl font-black text-[#119197] mt-1 font-mono">
+                    {fundCampaigns.length}
+                  </p>
+                  <p className="text-[11px] text-stone-400 mt-1">
+                    Emergency response funds
+                  </p>
+                </div>
+
+                <div className={`p-5 rounded-3xl border ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9] shadow-xs"}`}>
+                  <p className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                    Total Donor Submissions
+                  </p>
+                  <p className="text-2xl font-black text-slate-300 mt-1 font-mono">
+                    {fundStats.totalPledges || 0}
+                  </p>
+                  <p className="text-[11px] text-stone-400 mt-1">
+                    {fundStats.rejectedCount || 0} rejected receipts
+                  </p>
+                </div>
+              </div>
+
+              {/* Active Campaigns Progress Overview */}
+              <div className={`rounded-3xl border overflow-hidden p-6 ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9]"}`}>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                      Active Relief Vaults & Progress
+                    </h3>
+                    <p className={`text-xs ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                      Live community relief campaigns connected to public advisories.
+                    </p>
+                  </div>
+                  <button
+                    onClick={fetchFunds}
+                    className="text-xs px-3 py-1.5 rounded-xl border border-teal-500/30 text-[#119197] hover:bg-teal-500/10 cursor-pointer font-bold"
+                  >
+                    Refresh Balances
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {fundCampaigns.map((camp) => {
+                    const percent = camp.relief_goal > 0
+                      ? Math.min(100, Math.round((camp.relief_raised / camp.relief_goal) * 100))
+                      : 0
+                    return (
+                      <div
+                        key={camp.id}
+                        className={`p-4 rounded-2xl border ${isDark ? "bg-slate-950/60 border-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9]"}`}
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <span className="font-mono text-[10px] text-teal-400 font-bold">
+                            Vault #{camp.id}
+                          </span>
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
+                            {percent}%
+                          </span>
+                        </div>
+                        <h4 className={`text-xs font-bold line-clamp-1 ${isDark ? "text-white" : "text-stone-900"}`}>
+                          {camp.relief_beneficiary || camp.title}
+                        </h4>
+                        <p className="text-[11px] text-stone-400 line-clamp-1 mt-0.5 mb-3">
+                          {camp.title}
+                        </p>
+
+                        <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden mb-2">
+                          <div
+                            className="bg-gradient-to-r from-teal-500 to-emerald-400 h-2 rounded-full"
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-stone-400">
+                            Raised: <strong className="text-emerald-400">{camp.relief_raised?.toLocaleString()} ETB</strong>
+                          </span>
+                          <span className="text-stone-400">
+                            Goal: <strong className="text-slate-300">{camp.relief_goal?.toLocaleString()} ETB</strong>
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Donors & Receipts Table */}
+              <div className={`rounded-3xl border overflow-hidden ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9]"}`}>
+                <div className="p-4 sm:p-5 border-b border-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                      Donor Requests & Payment Receipt Verification Table
+                    </h3>
+                    <p className={`text-xs ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                      Review uploaded Telebirr and Bank of Abyssinia (BOA) transfer receipts to approve or reject.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* Export Buttons */}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={handleExportFundsJSON}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                          isDark
+                            ? "bg-slate-950 border-slate-800 hover:border-slate-700 text-teal-400"
+                            : "bg-white border-[#ebdcc9] hover:bg-[#f5ecdf] text-teal-700 shadow-2xs"
+                        }`}
+                        title="Export Relief Funds Data as JSON"
+                      >
+                        <IconDownload size={13} />
+                        <span>JSON</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleExportFundsPDF}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                          isDark
+                            ? "bg-slate-950 border-slate-800 hover:border-slate-700 text-purple-400"
+                            : "bg-white border-[#ebdcc9] hover:bg-[#f5ecdf] text-purple-700 shadow-2xs"
+                        }`}
+                        title="Print or Save Relief Funds Report as PDF"
+                      >
+                        <IconFileText size={13} />
+                        <span>PDF</span>
+                      </button>
+                    </div>
+
+                    {/* Filter Pills */}
+                    <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-950/40 border border-slate-800 text-xs">
+                      {(["all", "pending", "approved", "rejected"] as const).map((st) => (
+                        <button
+                          key={st}
+                          onClick={() => setFundStatusFilter(st)}
+                          className={`px-3 py-1 rounded-lg font-bold capitalize transition-colors cursor-pointer ${
+                            fundStatusFilter === st
+                              ? "bg-[#119197] text-white shadow-xs"
+                              : isDark ? "text-slate-400 hover:text-white" : "text-stone-600 hover:text-stone-900"
+                          }`}
+                        >
+                          {st}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className={`border-b ${isDark ? "border-slate-800 text-slate-400 bg-slate-950/40" : "border-[#ebdcc9] text-stone-600 bg-[#fbf9f4]"}`}>
+                        <th className="py-3 px-4">#</th>
+                        <th className="py-3 px-4">Donor Name & Contact</th>
+                        <th className="py-3 px-4">Amount (ETB)</th>
+                        <th className="py-3 px-4">Channel</th>
+                        <th className="py-3 px-4">Associated Campaign</th>
+                        <th className="py-3 px-4">Receipt Screenshot</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4">Date</th>
+                        <th className="py-3 px-4 text-right">Verification Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/40">
+                      {fundPledges
+                        .filter((p) => fundStatusFilter === "all" || p.status === fundStatusFilter)
+                        .slice()
+                        .sort((a, b) => a.id - b.id)
+                        .map((p, idx) => (
+                          <tr key={p.id} className={isDark ? "hover:bg-slate-800/40" : "hover:bg-stone-50"}>
+                            <td className="py-3 px-4 font-bold text-stone-400">{idx + 1}</td>
+                            <td className="py-3 px-4">
+                              <span className={`font-bold block ${isDark ? "text-white" : "text-stone-900"}`}>
+                                {p.donor_name}
+                              </span>
+                              {p.donor_phone && (
+                                <span className="font-mono text-[10px] text-stone-400 block">{p.donor_phone}</span>
+                              )}
+                              {p.message && (
+                                <span className="italic text-[10px] text-teal-400/90 line-clamp-1 max-w-xs">
+                                  "{p.message}"
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 font-mono font-black text-emerald-400 text-sm whitespace-nowrap">
+                              +{p.amount_etb?.toLocaleString()} ETB
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                p.payment_method === "BOA"
+                                  ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                                  : p.payment_method === "CBE"
+                                  ? "bg-purple-500/15 text-purple-400 border border-purple-500/30"
+                                  : "bg-teal-500/15 text-teal-400 border border-teal-500/30"
+                              }`}>
+                                {p.payment_method === "BOA" ? "Bank of Abyssinia" : p.payment_method === "CBE" ? "Commercial Bank (CBE)" : p.payment_method}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 max-w-xs truncate" title={p.post_title}>
+                              <span className="font-semibold text-stone-300 block truncate">{p.relief_beneficiary || p.post_title}</span>
+                              <span className="text-[10px] text-stone-500 truncate block">Article #{p.post_id}</span>
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              {p.receipt_image ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setViewingReceiptModal(p)}
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-teal-500/10 border border-teal-500/30 text-[#119197] hover:bg-teal-500/20 font-bold text-[10px] cursor-pointer"
+                                >
+                                  <IconEye size={12} />
+                                  <span>View Receipt</span>
+                                </button>
+                              ) : (
+                                <span className="text-stone-500 text-[10px] italic">No receipt file</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                p.status === "approved"
+                                  ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                                  : p.status === "rejected"
+                                  ? "bg-rose-500/15 text-rose-400 border border-rose-500/30"
+                                  : "bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse"
+                              }`}>
+                                {p.status || "pending"}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-stone-400 whitespace-nowrap text-[11px]">
+                              {new Date(p.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="py-3 px-4 text-right whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedFundDetail(p)}
+                                  className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                                    isDark
+                                      ? "border-slate-700 text-stone-300 hover:text-white hover:bg-slate-800"
+                                      : "border-stone-300 text-stone-700 hover:text-stone-900 hover:bg-stone-100"
+                                  }`}
+                                  title="View Full Pledge & Donor Details"
+                                >
+                                  <IconEye size={13} />
+                                </button>
+
+                                {p.status !== "approved" && (
+                                  <button
+                                    type="button"
+                                    disabled={fundActionLoading === p.id}
+                                    onClick={() => handleApproveFund(p.id)}
+                                    className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] transition-colors cursor-pointer disabled:opacity-50"
+                                    title="Verify and Approve Donation"
+                                  >
+                                    {fundActionLoading === p.id ? "Saving..." : "Approve"}
+                                  </button>
+                                )}
+                                {p.status !== "rejected" && (
+                                  <button
+                                    type="button"
+                                    disabled={fundActionLoading === p.id}
+                                    onClick={() => handleRejectFund(p.id)}
+                                    className="px-2.5 py-1 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 font-bold text-[10px] transition-colors cursor-pointer disabled:opacity-50"
+                                    title="Reject Invalid Payment"
+                                  >
+                                    Reject
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==================================================== */}
+          {/* TAB 6: SETTING (PROFILE SETTINGS & APP PREFERENCES)  */}
           {/* ==================================================== */}
           {activeTab === "settings" && (
             <div className="space-y-6 max-w-4xl">
@@ -1854,15 +3727,25 @@ export function AdminDashboard() {
                 <div className="space-y-4">
                   <div className={`flex items-center justify-between pb-4 border-b ${isDark ? "border-slate-800/50" : "border-[#ebdcc9]"}`}>
                     <div>
-                      <p className={`text-xs font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
-                        Automatic AI Intent Detection & Drafting
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className={`text-xs font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                          Automatic AI Intent Detection & Drafting
+                        </p>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          autoAiDraftEnabled
+                            ? "bg-teal-500/15 text-[#119197] border border-teal-500/30"
+                            : "bg-stone-500/15 text-stone-400 border border-stone-500/30"
+                        }`}>
+                          {autoAiDraftEnabled ? "Active" : "Disabled"}
+                        </span>
+                      </div>
                       <p className={`text-xs mt-0.5 ${isDark ? "text-slate-400" : "text-stone-500"}`}>
                         Analyzes whether user is reporting a bug, proposing partnership, or asking for health triage.
                       </p>
                     </div>
                     <button
-                      onClick={() => setAutoAiDraftEnabled(!autoAiDraftEnabled)}
+                      type="button"
+                      onClick={handleToggleAutoAiDraft}
                       className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
                         autoAiDraftEnabled ? "bg-[#119197]" : "bg-slate-700"
                       }`}
@@ -1875,15 +3758,25 @@ export function AdminDashboard() {
 
                   <div className={`flex items-center justify-between pb-4 border-b ${isDark ? "border-slate-800/50" : "border-[#ebdcc9]"}`}>
                     <div>
-                      <p className={`text-xs font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
-                        Live Sound Alerts
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className={`text-xs font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                          Live Sound Alerts
+                        </p>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          soundAlertsEnabled
+                            ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                            : "bg-stone-500/15 text-stone-400 border border-stone-500/30"
+                        }`}>
+                          {soundAlertsEnabled ? "Audio On" : "Muted"}
+                        </span>
+                      </div>
                       <p className={`text-xs mt-0.5 ${isDark ? "text-slate-400" : "text-stone-500"}`}>
                         Receive live audio notifications when an urgent message arrives.
                       </p>
                     </div>
                     <button
-                      onClick={() => setSoundAlertsEnabled(!soundAlertsEnabled)}
+                      type="button"
+                      onClick={handleToggleSoundAlerts}
                       className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
                         soundAlertsEnabled ? "bg-[#119197]" : "bg-slate-700"
                       }`}
@@ -1985,7 +3878,16 @@ export function AdminDashboard() {
             <div className="flex items-center justify-between mb-3">
               <label className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${isDark ? "text-slate-400" : "text-stone-600"}`}>
                 <IconSparkles size={14} className="text-[#119197]" />
-                <span>Context-Aware AI Reply Draft:</span>
+                <span>
+                  {autoAiDraftEnabled ? "Clinical AI Intent & Reply Draft:" : "Officer Manual Reply Draft:"}
+                </span>
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                  autoAiDraftEnabled
+                    ? "bg-teal-500/15 text-[#119197] border border-teal-500/30"
+                    : "bg-stone-500/15 text-stone-400 border border-stone-500/30"
+                }`}>
+                  {autoAiDraftEnabled ? "Auto-AI On" : "Manual Mode"}
+                </span>
               </label>
               <button
                 type="button"
@@ -1994,7 +3896,7 @@ export function AdminDashboard() {
                 className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-teal-500/15 hover:bg-teal-500/25 text-[#119197] border border-teal-500/30 text-[11px] font-bold transition-all cursor-pointer disabled:opacity-50"
               >
                 <IconSparkles size={12} />
-                <span>{aiGenerating ? "Analyzing..." : "Re-generate with AI"}</span>
+                <span>{aiGenerating ? "Analyzing..." : autoAiDraftEnabled ? "Re-generate with AI" : "Generate with Clinical AI"}</span>
               </button>
             </div>
 
@@ -2361,6 +4263,764 @@ export function AdminDashboard() {
                 onClick={() => setViewingAdmin(null)}
                 className={`px-5 py-2 rounded-xl text-xs font-semibold cursor-pointer ${
                   isDark ? "bg-slate-800 text-white hover:bg-slate-700" : "bg-[#ebdcc9] text-stone-800 hover:bg-[#dfcdb7]"
+                }`}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 5: IN-DASHBOARD ARTICLE READER PREVIEW MODAL       */}
+      {/* ======================================================== */}
+      {viewingArticle && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className={`rounded-3xl shadow-2xl border max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 ${
+            isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-[#fffefb] border-[#ebdcc9] text-stone-900"
+          }`}>
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800/40">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-500/15 text-[#119197] border border-teal-500/30">
+                  {viewingArticle.category}
+                </span>
+                <span className="text-xs text-stone-400 font-mono">Article #{viewingArticle.id}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingArticle(null)}
+                className={`p-1.5 rounded-xl cursor-pointer ${
+                  isDark ? "text-slate-400 hover:text-white hover:bg-slate-800" : "text-stone-500 hover:text-stone-900 hover:bg-stone-200"
+                }`}
+              >
+                <IconX size={18} />
+              </button>
+            </div>
+
+            <div className="my-5 space-y-4">
+              <h2 className="text-lg font-bold leading-snug">{viewingArticle.title}</h2>
+              <div className="flex items-center gap-3 text-xs text-stone-400">
+                <span>By <strong>{viewingArticle.author_name}</strong></span>
+                <span>•</span>
+                <span>{new Date(viewingArticle.created_at).toLocaleDateString()}</span>
+                <span>•</span>
+                <span>{viewingArticle.views_count} views</span>
+              </div>
+
+              {viewingArticle.excerpt && (
+                <p className={`p-3.5 rounded-xl text-xs italic ${
+                  isDark ? "bg-slate-950 text-slate-300 border border-slate-800" : "bg-stone-50 text-stone-700 border border-stone-200"
+                }`}>
+                  "{viewingArticle.excerpt}"
+                </p>
+              )}
+
+              <div className="pt-2">
+                {/* Visual rich card renderer for article content */}
+                {(() => {
+                  const content = viewingArticle.content
+                  if (!content) return null
+                  const hasHeadings = /^##\s+/m.test(content)
+                  // Helper: auto-detect and style bullet points, key:value pairs, and paragraphs
+                  const renderSmartBlocks = (text: string) => {
+                    const paragraphs = text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean)
+                    return (
+                      <div className="space-y-3.5">
+                        {paragraphs.map((para: string, pIdx: number) => {
+                          const lines = para.split("\n").map(l => l.trim()).filter(Boolean)
+
+                          // Intro header ending with colon
+                          if (lines.length === 1 && lines[0].endsWith(":") && lines[0].length < 80) {
+                            return (
+                              <div key={pIdx} className="pt-2 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-[#119197]" />
+                                <h4 className={`text-xs font-black uppercase tracking-wider ${isDark ? "text-slate-200" : "text-stone-800"}`}>
+                                  {lines[0].replace(/:$/, "")}
+                                </h4>
+                              </div>
+                            )
+                          }
+
+                          // List of bullet points or numbered items or key:value pairs
+                          const isListBlock = lines.length > 1 && lines.every(l =>
+                            /^[-*•]|\d+[.)]/.test(l) || /^[A-Z][\w\s/&-]{2,35}:\s*/.test(l)
+                          )
+
+                          if (isListBlock) {
+                            return (
+                              <div key={pIdx} className="space-y-2">
+                                {lines.map((item: string, iIdx: number) => {
+                                  const cleanItem = item.replace(/^[-*•]\s*|\d+[.)]\s*/, "")
+                                  const matchKV = cleanItem.match(/^(\*\*)?([A-Za-z0-9\s/&-]{2,40})(\*\*)?:\s*(.*)$/)
+
+                                  if (matchKV) {
+                                    const keyLabel = matchKV[2].trim()
+                                    const valText = matchKV[4].trim()
+                                    return (
+                                      <div
+                                        key={iIdx}
+                                        className={`p-3.5 rounded-2xl border flex items-start gap-3 ${
+                                          isDark
+                                            ? "bg-slate-950/70 border-slate-800"
+                                            : "bg-teal-50/50 border-teal-200/80"
+                                        }`}
+                                      >
+                                        <div className="w-5 h-5 rounded-md bg-teal-500/15 text-[#119197] font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                                          {iIdx + 1}
+                                        </div>
+                                        <div className="text-xs leading-relaxed">
+                                          <strong className={`block font-bold mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>
+                                            {keyLabel}
+                                          </strong>
+                                          <span className={isDark ? "text-slate-300" : "text-stone-600"}>
+                                            {valText}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    )
+                                  }
+
+                                  return (
+                                    <div
+                                      key={iIdx}
+                                      className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs ${
+                                        isDark ? "bg-slate-950/40 border-slate-800 text-slate-300" : "bg-white border-stone-200 text-stone-700"
+                                      }`}
+                                    >
+                                      <span className="w-1.5 h-1.5 rounded-full bg-[#119197] shrink-0 mt-2" />
+                                      <span>{cleanItem.replace(/\*\*(.*?)\*\*/g, "$1")}</span>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            )
+                          }
+
+                          // Single Key: Value item
+                          const singleKvMatch = para.match(/^(\*\*)?([A-Z][A-Za-z0-9\s/&-]{2,35})(\*\*)?:\s*(.*)$/)
+                          if (singleKvMatch && lines.length === 1) {
+                            return (
+                              <div
+                                key={pIdx}
+                                className={`p-3.5 rounded-2xl border flex items-start gap-3 ${
+                                  isDark ? "bg-slate-950/70 border-slate-800" : "bg-teal-50/50 border-teal-200/80"
+                                }`}
+                              >
+                                <div className="p-1.5 rounded-lg bg-teal-500/15 text-[#119197] shrink-0 mt-0.5">
+                                  <IconActivity size={14} />
+                                </div>
+                                <div className="text-xs leading-relaxed">
+                                  <strong className={`block font-bold mb-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>
+                                    {singleKvMatch[2].trim()}
+                                  </strong>
+                                  <span className={isDark ? "text-slate-300" : "text-stone-600"}>
+                                    {singleKvMatch[4].trim()}
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          }
+
+                          // First paragraph (Executive overview)
+                          if (pIdx === 0) {
+                            return (
+                              <div
+                                key={pIdx}
+                                className={`p-4 rounded-2xl border text-xs leading-relaxed ${
+                                  isDark ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-stone-50 border-stone-200 text-stone-800 font-medium"
+                                }`}
+                              >
+                                <div className="flex items-center gap-1.5 mb-1.5 text-[#119197]">
+                                  <IconAlertCircle size={14} />
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                    Official Briefing Overview
+                                  </span>
+                                </div>
+                                <p>{para.replace(/\*\*(.*?)\*\*/g, "$1")}</p>
+                              </div>
+                            )
+                          }
+
+                          // Closing / Contact notice
+                          if (/for inquiries|contact|hotline|support desk|further details/i.test(para)) {
+                            return (
+                              <div
+                                key={pIdx}
+                                className={`p-3.5 rounded-2xl border text-xs flex items-center gap-2.5 ${
+                                  isDark ? "bg-teal-950/30 border-teal-800/50 text-teal-300" : "bg-teal-50 border-teal-200 text-[#0c6e73]"
+                                }`}
+                              >
+                                <IconPhone size={15} className="shrink-0 text-[#119197]" />
+                                <p>{para.replace(/\*\*(.*?)\*\*/g, "$1")}</p>
+                              </div>
+                            )
+                          }
+
+                          return (
+                            <div
+                              key={pIdx}
+                              className={`p-3.5 rounded-2xl border text-xs leading-relaxed ${
+                                isDark ? "bg-slate-950/40 border-slate-800 text-slate-300" : "bg-white border-stone-200 text-stone-700"
+                              }`}
+                            >
+                              <p>{para.replace(/\*\*(.*?)\*\*/g, "$1")}</p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )
+                  }
+
+                  if (!hasHeadings) {
+                    return renderSmartBlocks(content)
+                  }
+
+                  const rawSections = content.split(/^##\s+/m).filter(Boolean)
+                  return (
+                    <div className="space-y-4">
+                      {rawSections.map((sec: string, idx: number) => {
+                        const lines = sec.trim().split("\n")
+                        const heading = lines[0].trim()
+                        const bodyLines = lines.slice(1).join("\n").trim()
+
+                        if (/investigation summary|surveillance/i.test(heading)) {
+                          const items = bodyLines.split("\n").filter((l: string) => l.trim().startsWith("-") || l.trim().startsWith("*"))
+                          return (
+                            <div key={idx} className={`p-4 rounded-2xl border ${
+                              isDark ? "bg-teal-950/40 border-teal-800/60" : "bg-teal-50/80 border-teal-200"
+                            }`}>
+                              <h4 className="font-bold text-xs text-teal-400 mb-2.5 flex items-center gap-2">
+                                <IconActivity size={15} />
+                                <span>Epidemiological Investigation Summary</span>
+                              </h4>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                {items.map((it: string, i: number) => {
+                                  const clean = it.replace(/^[-*]\s*/, "").replace(/\*\*/g, "")
+                                  const [k, ...vParts] = clean.split(":")
+                                  return (
+                                    <div key={i} className={`p-2 rounded-xl border ${
+                                      isDark ? "bg-slate-900 border-slate-800 text-slate-300" : "bg-white border-teal-100 text-slate-800"
+                                    }`}>
+                                      <span className="text-[10px] uppercase font-bold text-slate-400 block">{k.trim()}</span>
+                                      <span className="font-semibold">{vParts.join(":").trim() || k.trim()}</span>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )
+                        }
+
+                        if (/what happened|clinical context|pathology|vector/i.test(heading)) {
+                          return (
+                            <div key={idx} className={`p-4 rounded-2xl border ${
+                              isDark ? "bg-slate-950 border-slate-800" : "bg-white border-stone-200"
+                            }`}>
+                              <h4 className="font-bold text-xs text-indigo-400 mb-1.5 flex items-center gap-2">
+                                <IconAlertCircle size={15} />
+                                <span>Clinical Definition & Transmission Vector</span>
+                              </h4>
+                              <p className={`text-xs leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                                {bodyLines.replace(/\*\*(.*?)\*\*/g, "$1")}
+                              </p>
+                            </div>
+                          )
+                        }
+
+                        if (/environmental|guidance|protective|directives|prevention/i.test(heading)) {
+                          const dirs = bodyLines.split(/\n(?=\d+\.|\-)/).map((d: string) => d.trim()).filter(Boolean)
+                          return (
+                            <div key={idx} className={`p-4 rounded-2xl border ${
+                              isDark ? "bg-amber-950/30 border-amber-800/50" : "bg-amber-50/80 border-amber-200"
+                            }`}>
+                              <h4 className="font-bold text-xs text-amber-500 mb-2.5 flex items-center gap-2">
+                                <IconShieldCheck size={15} />
+                                <span>Immediate Environmental Guidance & Directives</span>
+                              </h4>
+                              <div className="space-y-2">
+                                {dirs.map((dir: string, i: number) => {
+                                  const clean = dir.replace(/^\d+\.\s*/, "").replace(/^[-*]\s*/, "")
+                                  const m = clean.match(/^\*\*(.*?)\*\*:\s*(.*)$/)
+                                  return (
+                                    <div key={i} className={`p-2.5 rounded-xl border text-xs flex items-start gap-2 ${
+                                      isDark ? "bg-slate-900 border-slate-800" : "bg-white border-amber-100"
+                                    }`}>
+                                      <span className="w-5 h-5 rounded-md bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                                        {i + 1}
+                                      </span>
+                                      <div>
+                                        <strong className={isDark ? "text-white" : "text-slate-900"}>{m ? m[1] : `Step ${i + 1}`}: </strong>
+                                        <span className={isDark ? "text-slate-300" : "text-slate-600"}>{m ? m[2].replace(/\*\*/g, "") : clean.replace(/\*\*/g, "")}</span>
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )
+                        }
+
+                        if (/treatment|triage|emergency protocol|ambulance/i.test(heading)) {
+                          const triageBlocks = bodyLines.split(/\n(?=###|(?:\d+\.|\-)\s*\*\*)/).map((b: string) => b.trim()).filter(Boolean)
+                          return (
+                            <div key={idx} className={`p-4 rounded-2xl border ${
+                              isDark ? "bg-rose-950/30 border-rose-800/50" : "bg-rose-50/80 border-rose-200"
+                            }`}>
+                              <h4 className="font-bold text-xs text-rose-500 mb-2 flex items-center gap-2">
+                                <IconStethoscope size={15} />
+                                <span>Treatment Guide & Triage Directives (Home vs. Hospital)</span>
+                              </h4>
+                              <div className="space-y-2 text-xs">
+                                {triageBlocks.map((block: string, i: number) => {
+                                  const clean = block.replace(/^###\s*/, "")
+                                  if (clean.includes("Can This Be Treated") || clean.includes("Treatability Assessment")) {
+                                    return <div key={i} className="font-bold uppercase text-[10px] text-slate-400">{clean.replace(/\*\*/g, "")}</div>
+                                  }
+                                  const isHome = /home supportive|home care|mild cases|home observation|safe at home/i.test(clean)
+                                  const isHospital = /hospital|untreatable|immediate transfer|emergency clinical|escalation|evacuat/i.test(clean)
+                                  const [titlePart, ...descParts] = clean.split(":")
+                                  return (
+                                    <div key={i} className={`p-2.5 rounded-xl border ${
+                                      isHome
+                                        ? isDark ? "bg-emerald-950/30 border-emerald-800/60 text-emerald-200" : "bg-emerald-50 border-emerald-200 text-emerald-950"
+                                        : isHospital
+                                        ? isDark ? "bg-rose-900/30 border-rose-700/60 text-rose-200" : "bg-rose-100/70 border-rose-300 text-rose-950"
+                                        : isDark ? "bg-slate-900 border-slate-800 text-slate-300" : "bg-white border-stone-200 text-slate-700"
+                                    }`}>
+                                      <strong className="block mb-0.5">{titlePart.replace(/^[-*]\s*/, "").replace(/\*\*/g, "")}</strong>
+                                      <span className="text-[11px] opacity-90">{descParts.join(":").replace(/\*\*/g, "").trim() || clean.replace(/\*\*/g, "")}</span>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )
+                        }
+
+                        if (/notice|disclaimer/i.test(heading)) {
+                          return null
+                        }
+
+                        return (
+                          <div key={idx} className={`p-3.5 rounded-2xl border text-xs ${
+                            isDark ? "bg-slate-950 border-slate-800 text-slate-300" : "bg-stone-50 border-stone-200 text-slate-700"
+                          }`}>
+                            <h5 className="font-bold uppercase tracking-wider text-[11px] mb-1">{heading.replace(/^[#\s]+/, "")}</h5>
+                            <p>{bodyLines.replace(/^[#-*\s]+/gm, "").replace(/\*\*/g, "")}</p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
+              </div>
+
+              {viewingArticle.has_relief ? (
+                <div className={`p-4 rounded-2xl border ${
+                  isDark ? "bg-teal-950/40 border-teal-800/50" : "bg-teal-50 border-teal-200"
+                }`}>
+                  <div className="flex items-center justify-between text-xs font-bold text-teal-400 mb-2">
+                    <span className="flex items-center gap-1.5">
+                      <IconHeart size={14} className="text-rose-400" />
+                      Attached Relief Fund
+                    </span>
+                    <span>
+                      {viewingArticle.relief_raised?.toLocaleString()} / {viewingArticle.relief_goal?.toLocaleString()} ETB
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-300">
+                    Beneficiary: <strong>{viewingArticle.relief_beneficiary || "Community Fund"}</strong>
+                  </p>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex justify-end pt-3 border-t border-slate-800/40">
+              <button
+                type="button"
+                onClick={() => setViewingArticle(null)}
+                className={`px-5 py-2 rounded-xl text-xs font-semibold cursor-pointer ${
+                  isDark ? "bg-slate-800 text-white hover:bg-slate-700" : "bg-[#ebdcc9] text-stone-800 hover:bg-[#dfcdb7]"
+                }`}
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 6: DONATION PAYMENT RECEIPT VERIFICATION MODAL     */}
+      {/* ======================================================== */}
+      {viewingReceiptModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className={`rounded-3xl shadow-2xl border max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 ${
+            isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-[#fffefb] border-[#ebdcc9] text-stone-900"
+          }`}>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800/40">
+              <div>
+                <h3 className="text-sm font-bold">Payment Receipt Verification</h3>
+                <p className="text-[11px] text-stone-400 font-mono">
+                  Donation #{viewingReceiptModal.id} • {viewingReceiptModal.donor_name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingReceiptModal(null)}
+                className="p-1 text-slate-400 hover:text-white"
+              >
+                <IconX size={18} />
+              </button>
+            </div>
+
+            <div className="my-4 space-y-3">
+              <div className="rounded-2xl overflow-hidden border border-slate-700 bg-black/40 flex items-center justify-center max-h-[380px]">
+                <img
+                  src={viewingReceiptModal.receipt_image}
+                  alt="Payment Receipt"
+                  className="w-full h-auto object-contain max-h-[380px]"
+                />
+              </div>
+
+              <div className={`p-3 rounded-xl text-xs space-y-1.5 ${
+                isDark ? "bg-slate-950 border border-slate-800" : "bg-[#fbf9f4] border border-[#ebdcc9]"
+              }`}>
+                <div className="flex justify-between">
+                  <span className="text-stone-400">Pledged Amount:</span>
+                  <strong className="text-emerald-400 font-mono">+{viewingReceiptModal.amount_etb?.toLocaleString()} ETB</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-stone-400">Payment Channel:</span>
+                  <strong className="text-[#119197]">{viewingReceiptModal.payment_method === "BOA" ? "Bank of Abyssinia (BOA)" : viewingReceiptModal.payment_method}</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-stone-400">Current Status:</span>
+                  <span className="font-bold uppercase tracking-wider text-[10px] text-amber-400">{viewingReceiptModal.status}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800/40">
+              <button
+                type="button"
+                onClick={() => setViewingReceiptModal(null)}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer ${
+                  isDark ? "bg-slate-800 text-white hover:bg-slate-700" : "bg-stone-200 text-stone-800 hover:bg-stone-300"
+                }`}
+              >
+                Close
+              </button>
+              {viewingReceiptModal.status !== "approved" && (
+                <button
+                  type="button"
+                  disabled={fundActionLoading === viewingReceiptModal.id}
+                  onClick={() => {
+                    handleApproveFund(viewingReceiptModal.id)
+                    setViewingReceiptModal(null)
+                  }}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Approve & Add to Balance
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 7: FULL DONOR PLEDGE & CAMPAIGN DETAIL MODAL       */}
+      {/* ======================================================== */}
+      {selectedFundDetail && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className={`rounded-3xl shadow-2xl border max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-7 ${
+            isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-[#fffefb] border-[#ebdcc9] text-stone-900"
+          }`}>
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-800/40">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-teal-500/10 text-[#119197] border border-teal-500/20">
+                  <IconHeart size={18} className="text-rose-500" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold">Relief Contribution Record</h3>
+                  <p className="text-[11px] text-stone-400 font-mono">
+                    Pledge #{selectedFundDetail.id} • {selectedFundDetail.donor_name}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedFundDetail(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <IconX size={18} />
+              </button>
+            </div>
+
+            <div className="my-5 space-y-4">
+              {/* Financial Highlight */}
+              <div className={`p-4 rounded-2xl border flex items-center justify-between ${
+                isDark ? "bg-slate-950 border-slate-800" : "bg-teal-50/60 border-teal-200"
+              }`}>
+                <div>
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 block">
+                    Pledged Donation Amount
+                  </span>
+                  <span className="text-2xl font-black font-mono text-emerald-500">
+                    +{selectedFundDetail.amount_etb?.toLocaleString()} ETB
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 block">
+                    Current Status
+                  </span>
+                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mt-1 ${
+                    selectedFundDetail.status === "approved"
+                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                      : selectedFundDetail.status === "rejected"
+                      ? "bg-rose-500/15 text-rose-400 border border-rose-500/30"
+                      : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                  }`}>
+                    {selectedFundDetail.status || "pending"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Data Grid */}
+              <div className={`rounded-2xl border divide-y text-xs ${
+                isDark ? "bg-slate-950/40 border-slate-800 divide-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9] divide-[#ebdcc9]"
+              }`}>
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Donor Name:</span>
+                  <strong className={isDark ? "text-white" : "text-stone-900"}>{selectedFundDetail.donor_name}</strong>
+                </div>
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Phone Contact:</span>
+                  <span className="font-mono text-stone-300">{selectedFundDetail.donor_phone || "Not provided (Anonymous/Online)"}</span>
+                </div>
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Payment Channel:</span>
+                  <strong className="text-[#119197]">
+                    {selectedFundDetail.payment_method === "BOA"
+                      ? "Bank of Abyssinia (BOA)"
+                      : selectedFundDetail.payment_method === "CBE"
+                      ? "Commercial Bank of Ethiopia (CBE)"
+                      : "Telebirr (Mobile Wallet)"}
+                  </strong>
+                </div>
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Associated Campaign:</span>
+                  <span className="font-semibold text-right max-w-xs truncate text-stone-200">
+                    {selectedFundDetail.relief_beneficiary || selectedFundDetail.post_title || "General Emergency Relief"}
+                  </span>
+                </div>
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Submission Timestamp:</span>
+                  <span className="text-stone-400 font-mono text-[11px]">{new Date(selectedFundDetail.created_at).toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* Message from Donor */}
+              {selectedFundDetail.message && (
+                <div className={`p-3.5 rounded-2xl border ${
+                  isDark ? "bg-slate-950 border-slate-800" : "bg-white border-[#ebdcc9]"
+                }`}>
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-teal-400 block mb-1">
+                    Donor Solidarity Note
+                  </span>
+                  <p className="text-xs italic text-stone-300">
+                    "{selectedFundDetail.message}"
+                  </p>
+                </div>
+              )}
+
+              {/* Receipt Preview if available */}
+              {selectedFundDetail.receipt_image && (
+                <div className="space-y-2">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 block">
+                    Proof of Transfer / Receipt Attachment
+                  </span>
+                  <div className="rounded-2xl border border-slate-700 bg-black/40 overflow-hidden flex items-center justify-center max-h-56">
+                    <img
+                      src={selectedFundDetail.receipt_image}
+                      alt="Transfer Receipt"
+                      className="w-full h-auto object-contain max-h-56 cursor-pointer"
+                      onClick={() => setViewingReceiptModal(selectedFundDetail)}
+                      title="Click to enlarge"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Actions Bar */}
+            <div className="flex items-center justify-between pt-3.5 border-t border-slate-800/40">
+              <button
+                type="button"
+                onClick={() => setSelectedFundDetail(null)}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer ${
+                  isDark ? "bg-slate-800 text-white hover:bg-slate-700" : "bg-stone-200 text-stone-800 hover:bg-stone-300"
+                }`}
+              >
+                Close
+              </button>
+
+              <div className="flex items-center gap-2">
+                {selectedFundDetail.status !== "approved" && (
+                  <button
+                    type="button"
+                    disabled={fundActionLoading === selectedFundDetail.id}
+                    onClick={() => {
+                      handleApproveFund(selectedFundDetail.id)
+                      setSelectedFundDetail(null)
+                    }}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    Approve & Credit Campaign
+                  </button>
+                )}
+                {selectedFundDetail.status !== "rejected" && (
+                  <button
+                    type="button"
+                    disabled={fundActionLoading === selectedFundDetail.id}
+                    onClick={() => {
+                      handleRejectFund(selectedFundDetail.id)
+                      setSelectedFundDetail(null)
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    Reject Record
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 7: VIEW CITIZEN COMMUNITY REPORT DETAIL            */}
+      {/* ======================================================== */}
+      {selectedCommunityReport && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className={`rounded-3xl shadow-2xl border max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 ${
+            isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-[#fffefb] border-[#ebdcc9] text-stone-900"
+          }`}>
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800/40">
+              <div className="flex items-center gap-2">
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  selectedCommunityReport.status === "clustered"
+                    ? "bg-purple-500/15 text-purple-400 border border-purple-500/30"
+                    : "bg-teal-500/15 text-[#119197] border border-teal-500/30"
+                }`}>
+                  {selectedCommunityReport.status === "clustered" ? "Clustered by AI" : "Pending Surveillance Clearance"}
+                </span>
+                <span className="text-xs text-stone-400 font-mono">Report #{selectedCommunityReport.id}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedCommunityReport(null)}
+                className={`p-1.5 rounded-xl cursor-pointer ${
+                  isDark ? "text-slate-400 hover:text-white hover:bg-slate-800" : "text-stone-500 hover:text-stone-900 hover:bg-stone-200"
+                }`}
+              >
+                <IconX size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="my-5 space-y-4">
+              <div className={`p-4 rounded-2xl border ${
+                isDark ? "bg-slate-950/60 border-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9]"
+              }`}>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-teal-600 block mb-1">
+                  Reported Illness & Condition
+                </span>
+                <h3 className="text-base font-bold text-[#119197]">
+                  {selectedCommunityReport.disease_or_symptoms}
+                </h3>
+              </div>
+
+              {/* Attributes Grid */}
+              <div className={`rounded-2xl border divide-y text-xs ${
+                isDark ? "bg-slate-950/40 border-slate-800 divide-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9] divide-[#ebdcc9]"
+              }`}>
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Reporter Identity:</span>
+                  <strong className={isDark ? "text-white" : "text-stone-900"}>
+                    {selectedCommunityReport.reporter_name || "Anonymous Citizen"}
+                  </strong>
+                </div>
+
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Contact Email / Phone:</span>
+                  <span className="font-mono text-stone-300">
+                    {selectedCommunityReport.reporter_contact || "Mandatory intake not specified"}
+                  </span>
+                </div>
+
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Zone / Sub-City:</span>
+                  <strong className="text-[#119197]">{selectedCommunityReport.region_subcity}</strong>
+                </div>
+
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Affected Individuals:</span>
+                  <strong className="text-amber-500 font-bold">{selectedCommunityReport.affected_count || 1} Person(s)</strong>
+                </div>
+
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Clinical Severity Level:</span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                    selectedCommunityReport.severity === "urgent" || selectedCommunityReport.severity === "high"
+                      ? "bg-rose-500/15 text-rose-400 border border-rose-500/30"
+                      : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                  }`}>
+                    {selectedCommunityReport.severity || "medium"}
+                  </span>
+                </div>
+
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Logged Timestamp:</span>
+                  <span className="text-stone-400 font-mono text-[11px]">
+                    {new Date(selectedCommunityReport.created_at).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* Additional Citizen Observation Notes */}
+              <div className={`p-4 rounded-2xl border ${
+                isDark ? "bg-slate-950 border-slate-800" : "bg-white border-[#ebdcc9]"
+              }`}>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1">
+                  Citizen Field Notes & Context
+                </span>
+                <p className={`text-xs leading-relaxed italic ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                  {selectedCommunityReport.notes ? `"${selectedCommunityReport.notes}"` : "No additional contextual notes provided by reporter."}
+                </p>
+              </div>
+
+              {/* Epidemiological Surveillance Notice */}
+              <div className={`p-3.5 rounded-2xl border text-xs flex items-center gap-2.5 ${
+                isDark ? "bg-teal-950/30 border-teal-800/40 text-teal-300" : "bg-teal-50 border-teal-200 text-[#0c6e73]"
+              }`}>
+                <IconActivity size={16} className="shrink-0 text-[#119197]" />
+                <p className="text-[11px] leading-relaxed">
+                  When 3 or more citizen reports share matching symptoms in <strong>{selectedCommunityReport.region_subcity}</strong>, the automated surveillance engine clusters them into an epidemiological draft advisory for triage review.
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end pt-3.5 border-t border-slate-800/40">
+              <button
+                type="button"
+                onClick={() => setSelectedCommunityReport(null)}
+                className={`px-5 py-2 rounded-xl text-xs font-semibold cursor-pointer ${
+                  isDark ? "bg-slate-800 text-white hover:bg-slate-700" : "bg-stone-200 text-stone-800 hover:bg-stone-300"
                 }`}
               >
                 Close
