@@ -40,6 +40,20 @@ interface AdminUser {
   created_at?: string
 }
 
+function formatUtcToLocal(utcDateStr?: string | null): string {
+  if (!utcDateStr) return ""
+  try {
+    // If it's SQLite datetime like '2026-10-06 17:30:59' without Z or T, parse as UTC
+    const normalized = utcDateStr.includes("T") || utcDateStr.endsWith("Z")
+      ? utcDateStr
+      : utcDateStr.replace(" ", "T") + "Z"
+    const d = new Date(normalized)
+    return isNaN(d.getTime()) ? utcDateStr : d.toLocaleString()
+  } catch {
+    return utcDateStr || ""
+  }
+}
+
 interface ContactMessage {
   id: number
   name: string
@@ -3961,9 +3975,12 @@ export function AdminDashboard() {
                               </td>
                             </tr>
                           ) : (
-                            smsLogs.map((log) => (
+                            smsLogs
+                              .slice()
+                              .sort((a, b) => a.id - b.id)
+                              .map((log, idx) => (
                               <tr key={log.id} className={isDark ? "hover:bg-slate-800/40" : "hover:bg-stone-50"}>
-                                <td className="py-3 px-4 font-mono font-bold text-stone-400">#{log.id}</td>
+                                <td className="py-3 px-4 font-mono font-bold text-stone-400">#{idx + 1}</td>
                                 <td className="py-3 px-4 font-mono font-bold text-stone-300">
                                   {log.recipient_phone}
                                 </td>
@@ -3975,7 +3992,7 @@ export function AdminDashboard() {
                                 </td>
                                 <td className="py-3 px-4 whitespace-nowrap">
                                   <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-500/15 text-[#119197] border border-teal-500/30">
-                                    {log.provider === "smsethiopia" ? "SMSEthiopia" : log.provider === "afromessage" ? "AfroMessage" : "Simulator Demo"}
+                                    {log.provider === "smsethiopia" ? "SMSEthiopia" : "Simulator Demo"}
                                   </span>
                                 </td>
                                 <td className="py-3 px-4 whitespace-nowrap">
@@ -3990,7 +4007,7 @@ export function AdminDashboard() {
                                   </span>
                                 </td>
                                 <td className="py-3 px-4 text-stone-400 whitespace-nowrap text-[11px] font-mono">
-                                  {new Date(log.created_at).toLocaleString()}
+                                  {formatUtcToLocal(log.created_at)}
                                 </td>
                                 <td className="py-3 px-4 text-right whitespace-nowrap">
                                   <div className="flex items-center justify-end gap-1.5">
@@ -4365,7 +4382,7 @@ export function AdminDashboard() {
                           )}
 
                           <div className="flex items-center justify-between pt-2 border-t border-slate-800/40 text-[11px] text-stone-400">
-                            <span>Logged at: {new Date(selectedSmsLog.created_at).toLocaleString()}</span>
+                            <span>Logged at: {formatUtcToLocal(selectedSmsLog.created_at)}</span>
                             <span>Triggered by: {selectedSmsLog.triggered_by || "Admin Operations"}</span>
                           </div>
                         </div>

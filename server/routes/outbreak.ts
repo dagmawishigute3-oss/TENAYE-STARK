@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from "express"
 import { db, logAuditEvent } from "../db"
 import { requireAuth, type AdminUserPayload } from "../middleware/auth"
-import { sendOutbreakSms } from "../services/afroMessage"
+import { sendOutbreakSms } from "../services/smsService"
 
 export const outbreakRouter = Router()
 

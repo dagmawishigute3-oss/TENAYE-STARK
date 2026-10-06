@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import { db, logAuditEvent } from "../db"
 import { requireAuth, requireSuperAdmin, JWT_SECRET, type AdminUserPayload } from "../middleware/auth"
-import { sendOutbreakSms } from "../services/afroMessage"
+import { sendOutbreakSms } from "../services/smsService"
 
 export const adminRouter = Router()
 
@@ -791,10 +791,9 @@ adminRouter.post("/sms/broadcast", requireAuth, async (req: Request, res: Respon
     }
 
     const recipients = Array.from(phoneSet)
-    const dispatchResults: any[] = []
 
-    // Dispatch via AfroMessage Service
-    for (const phone of recipients) {
+    // Dispatch in parallel via SMSEthiopia / carrier gateway for fast delivery
+    const dispatchPromises = recipients.map(async (phone) => {
       const result = await sendOutbreakSms({
         to: phone,
         message: trimmedMsg,
@@ -802,8 +801,15 @@ adminRouter.post("/sms/broadcast", requireAuth, async (req: Request, res: Respon
         senderName: chosenSender,
         triggeredBy: admin?.name || "Operations Officer",
       })
-      dispatchResults.push({ phone, ...result })
-    }
+      return { phone, ...result }
+    })
+
+    const settledResults = await Promise.allSettled(dispatchPromises)
+    const dispatchResults = settledResults.map((s, i) =>
+      s.status === "fulfilled"
+        ? s.value
+        : { phone: recipients[i], success: false, status: "failed", provider: "smsethiopia", detail: s.reason?.message }
+    )
 
     logAuditEvent({
       actionType: "SMS_BROADCAST_DISPATCHED",
@@ -815,7 +821,7 @@ adminRouter.post("/sms/broadcast", requireAuth, async (req: Request, res: Respon
       ipAddress: req.ip,
     })
 
-    const isLive = Boolean(process.env.SMS_ETHIOPIA_API_KEY || process.env.SMSETHIOPIA_API_KEY || process.env.AFROMESSAGE_API_TOKEN || "H08YSMTVVS5C8I6PNMIMI0TOPB7E265ZVAS99CD3")
+    const isLive = Boolean(process.env.SMS_ETHIOPIA_API_KEY || process.env.SMSETHIOPIA_API_KEY || process.env.AFROMESSAGE_API_TOKEN)
     const primaryProvider = dispatchResults[0]?.provider || "smsethiopia"
     const lastDetail = dispatchResults[0]?.detail
 
@@ -825,7 +831,7 @@ adminRouter.post("/sms/broadcast", requireAuth, async (req: Request, res: Respon
       zone: targetZone,
       results: dispatchResults,
       hasLiveToken: isLive,
-      activeProvider: primaryProvider === "smsethiopia" ? "SMSEthiopia" : (primaryProvider === "afromessage" ? "AfroMessage" : "Simulator"),
+      activeProvider: primaryProvider === "smsethiopia" ? "SMSEthiopia" : "Simulator",
       lastStatus: dispatchResults[0]?.status,
       lastDetail: lastDetail,
     })

@@ -1,2 +1,3 @@
-// Backward compatibility export so existing imports continue to function smoothly
-export { sendOutbreakSms, formatMsisdn, type SendSmsParams, type SmsResult } from "./smsService"
+// Deprecated AfroMessage service module — migrated exclusively to SMSEthiopia gateway
+// (Kept as empty stub to prevent dangling module resolution)
+export {}

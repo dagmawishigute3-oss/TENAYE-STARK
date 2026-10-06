@@ -23,13 +23,6 @@ services:
         value: H08YSMTVVS5C8I6PNMIMI0TOPB7E265ZVAS99CD3
       - key: SMS_SENDER_NAME
         value: Tenaye Alert
-      # AfroMessage fallback (optional — leave blank to skip)
-      - key: AFROMESSAGE_API_TOKEN
-        value: ""
-      - key: AFROMESSAGE_IDENTIFIER_ID
-        value: ""
-      - key: AFROMESSAGE_SENDER_NAME
-        value: Tenaye Alert
       - key: SUPERADMIN_EMAIL
         sync: false           # set manually in Render dashboard
       - key: SUPERADMIN_PASSWORD

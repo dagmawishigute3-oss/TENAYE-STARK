@@ -166,7 +166,7 @@ export function initDatabase() {
     );
   `)
 
-  // 7. AfroMessage SMS Alert Broadcasts Audit Ledger
+  // 7. SMSEthiopia SMS Alert Broadcasts Audit Ledger
   db.exec(`
     CREATE TABLE IF NOT EXISTS sms_broadcast_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -174,7 +174,7 @@ export function initDatabase() {
       zone TEXT NOT NULL,
       message TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'sent',
-      provider TEXT NOT NULL DEFAULT 'afromessage',
+      provider TEXT NOT NULL DEFAULT 'smsethiopia',
       detail TEXT,
       triggered_by TEXT DEFAULT 'Admin',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
