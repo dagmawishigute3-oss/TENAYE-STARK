@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import logoImg from "../../imports/image-removebg-preview.png"
 import {
   IconMail,
+  IconShield,
   IconShieldCheck,
   IconClock,
   IconSend,
@@ -267,13 +268,45 @@ export function AdminDashboard() {
   const [outbreakDrafts, setOutbreakDrafts] = useState<any[]>([])
   const [communityReports, setCommunityReports] = useState<any[]>([])
   const [adminNewsList, setAdminNewsList] = useState<any[]>([])
-  const [newsSubTab, setNewsSubTab] = useState<"drafts" | "create" | "articles" | "reports">("drafts")
+  const [newsSubTab, setNewsSubTab] = useState<"drafts" | "create" | "articles" | "reports" | "sms">("drafts")
+
+  // AfroMessage SMS Broadcast states
+  const [smsLogs, setSmsLogs] = useState<any[]>([])
+  const [smsSenderName, setSmsSenderName] = useState("Tenaye Alert")
+  const [smsZone, setSmsZone] = useState("Addis Ababa - Kirkos Sub-City")
+  const [smsMessage, setSmsMessage] = useState("🚨 TENAYE ALERT: Active acute watery diarrhea cluster verified in Kirkos. Boil all drinking water. For ambulance triage dial 907.")
+  const [smsCustomRecipients, setSmsCustomRecipients] = useState("")
+  const [overrideRecipientPhone, setOverrideRecipientPhone] = useState(false)
+  const [smsSending, setSmsSending] = useState(false)
+  const [smsBroadcastNotice, setSmsBroadcastNotice] = useState<string | null>(null)
+  const [smsBroadcastError, setSmsBroadcastError] = useState<string | null>(null)
+
+  // Sub-City Emergency Contacts Management
+  const [emergencyContacts, setEmergencyContacts] = useState<any[]>([])
+  const [newContactZone, setNewContactZone] = useState("Addis Ababa - Bole Sub-City")
+  const [newContactPhone, setNewContactPhone] = useState("+251967453624")
+  const [newContactOfficer, setNewContactOfficer] = useState("")
+  const [newContactRole, setNewContactRole] = useState("Emergency Health Officer")
+  const [addingContact, setAddingContact] = useState(false)
+  const [editingContact, setEditingContact] = useState<any | null>(null)
 
   // Outbreak Draft approval options state (keyed by draft.id)
   const [draftReliefSettings, setDraftReliefSettings] = useState<
-    Record<number, { has_relief: boolean; relief_goal: string; relief_beneficiary: string; relief_description: string }>
+    Record<
+      number,
+      {
+        has_relief: boolean
+        relief_goal: string
+        relief_beneficiary: string
+        relief_description: string
+        send_sms: boolean
+        custom_sms_text?: string
+        target_phone?: string
+      }
+    >
   >({})
   const [approvingDraftId, setApprovingDraftId] = useState<number | null>(null)
+  const [selectedSmsLog, setSelectedSmsLog] = useState<any | null>(null)
 
   // Article creation form state
   const [newArticleTitle, setNewArticleTitle] = useState("")
@@ -457,6 +490,9 @@ export function AdminDashboard() {
     if (!token) return
     const customSettings = draftReliefSettings[draft.id]
     const hasRelief = customSettings ? customSettings.has_relief : Boolean(draft.has_relief)
+    const sendSms = customSettings?.send_sms !== undefined ? customSettings.send_sms : true
+    const customSmsText = (customSettings?.custom_sms_text || draft.emergency_sms_text || "").trim()
+    const targetPhone = (customSettings?.target_phone || draft.detected_contact?.phone_number || "").trim()
     const reliefGoal = customSettings ? parseFloat(customSettings.relief_goal) || 0 : draft.relief_goal || 0
     const reliefBeneficiary = customSettings
       ? customSettings.relief_beneficiary
@@ -480,14 +516,20 @@ export function AdminDashboard() {
           relief_goal: hasRelief ? reliefGoal : 0,
           relief_beneficiary: hasRelief ? reliefBeneficiary : null,
           relief_description: hasRelief ? reliefDesc : null,
+          send_sms: sendSms,
+          custom_sms_text: customSmsText,
+          target_phone: targetPhone,
         }),
       })
       if (res.ok) {
-        setActionNotice(`Approved & published outbreak advisory: "${draft.title}" ${hasRelief ? "(With Relief Campaign)" : "(Standard News Notice)"}`)
+        const respData = await res.json().catch(() => ({}))
+        const smsNotice = sendSms && respData.sms_destination ? ` (Emergency SMS dispatched to ${respData.sms_destination})` : sendSms ? " (SMS Dispatched)" : ""
+        setActionNotice(`Approved & published outbreak advisory: "${draft.title}" ${hasRelief ? "(With Relief Campaign)" : ""}${smsNotice}`)
         fetchOutbreakDrafts()
         fetchAdminNews()
         fetchStats()
         fetchNotifications()
+        fetchSmsLogs()
       } else {
         let errData: any = {}
         try { errData = await res.json() } catch {}
@@ -497,6 +539,23 @@ export function AdminDashboard() {
       alert(err.message || "Error approving draft")
     } finally {
       setApprovingDraftId(null)
+    }
+  }
+
+  const handleDeleteSmsLog = async (id: number) => {
+    if (!token) return
+    if (!window.confirm("Delete this SMS delivery log record?")) return
+
+    try {
+      const res = await fetch(`/api/admin/sms/logs/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        fetchSmsLogs()
+      }
+    } catch (err: any) {
+      alert(err.message || "Error deleting SMS log")
     }
   }
 
@@ -572,6 +631,181 @@ export function AdminDashboard() {
       alert(err.message || "Error publishing article")
     } finally {
       setCreatingArticle(false)
+    }
+  }
+
+  const fetchSmsLogs = useCallback(async () => {
+    if (!token) return
+    try {
+      const res = await fetch("/api/admin/sms/logs", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setSmsLogs(data.logs || [])
+      }
+    } catch (err) {
+      console.error("[Dashboard] Error fetching SMS logs:", err)
+    }
+  }, [token])
+
+  const handleSendSms = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!token || !smsMessage.trim()) return
+
+    setSmsSending(true)
+    setSmsBroadcastNotice(null)
+    setSmsBroadcastError(null)
+
+    try {
+      const registered = emergencyContacts.find(
+        (c) => c.is_active && (c.zone_subcity === smsZone || smsZone.includes(c.zone_subcity) || c.zone_subcity.includes(smsZone))
+      )
+      const effectiveRecipients = overrideRecipientPhone
+        ? smsCustomRecipients.trim() || undefined
+        : (registered?.phone_number || smsCustomRecipients.trim() || undefined)
+
+      const res = await fetch("/api/admin/sms/broadcast", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          zone: smsZone,
+          message: smsMessage.trim(),
+          customRecipients: effectiveRecipients,
+          senderName: smsSenderName.trim() || "Tenaye Alert",
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to dispatch SMS broadcast")
+
+      const providerLabel = data.activeProvider ? `Gateway: ${data.activeProvider}` : (data.hasLiveToken ? "Gateway: Live Network" : "Simulator Demo Active")
+      setSmsBroadcastNotice(
+        `✅ Emergency SMS broadcast successfully dispatched to ${data.recipientCount} recipient(s) in ${data.zone}! (${providerLabel})`
+      )
+      if (soundAlertsEnabled) {
+        playAudioAlert("success")
+      }
+      fetchSmsLogs()
+    } catch (err: any) {
+      setSmsBroadcastError(err.message || "Error dispatching SMS broadcast")
+    } finally {
+      setSmsSending(false)
+    }
+  }
+
+  const fetchEmergencyContacts = useCallback(async () => {
+    if (!token) return
+    try {
+      const res = await fetch("/api/admin/emergency-contacts", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setEmergencyContacts(data.contacts || [])
+      }
+    } catch (err) {
+      console.error("[Dashboard] Error fetching emergency contacts:", err)
+    }
+  }, [token])
+
+  const handleAddEmergencyContact = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!token || !newContactZone.trim() || !newContactPhone.trim()) return
+
+    setAddingContact(true)
+    try {
+      const res = await fetch("/api/admin/emergency-contacts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          zone_subcity: newContactZone.trim(),
+          phone_number: newContactPhone.trim(),
+          officer_name: newContactOfficer.trim() || undefined,
+          role: newContactRole.trim() || undefined,
+        }),
+      })
+
+      let data: any = {}
+      try {
+        const text = await res.text()
+        data = text ? JSON.parse(text) : {}
+      } catch {
+        // Response was not JSON
+      }
+
+      if (!res.ok) {
+        throw new Error(data?.error || `Failed to add emergency contact (HTTP ${res.status})`)
+      }
+
+      setActionNotice(`Emergency contact registered for ${newContactZone}: ${newContactPhone}`)
+      setNewContactOfficer("")
+      fetchEmergencyContacts()
+    } catch (err: any) {
+      alert(err.message || "Error adding emergency contact")
+    } finally {
+      setAddingContact(false)
+    }
+  }
+
+  const handleUpdateEmergencyContact = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!token || !editingContact) return
+
+    try {
+      const res = await fetch(`/api/admin/emergency-contacts/${editingContact.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          zone_subcity: editingContact.zone_subcity,
+          phone_number: editingContact.phone_number,
+          officer_name: editingContact.officer_name,
+          role: editingContact.role,
+          is_active: editingContact.is_active,
+        }),
+      })
+
+      let data: any = {}
+      try {
+        const text = await res.text()
+        data = text ? JSON.parse(text) : {}
+      } catch {}
+
+      if (!res.ok) {
+        throw new Error(data?.error || `Failed to update emergency contact (HTTP ${res.status})`)
+      }
+
+      setActionNotice(`Updated contact for ${editingContact.zone_subcity}`)
+      setEditingContact(null)
+      fetchEmergencyContacts()
+    } catch (err: any) {
+      alert(err.message || "Error updating emergency contact")
+    }
+  }
+
+  const handleDeleteEmergencyContact = async (id: number) => {
+    if (!token) return
+    if (!window.confirm("Remove this emergency responder contact from automated outbreak alerts?")) return
+
+    try {
+      const res = await fetch(`/api/admin/emergency-contacts/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        fetchEmergencyContacts()
+      }
+    } catch (err: any) {
+      alert(err.message || "Error deleting emergency contact")
     }
   }
 
@@ -669,6 +903,8 @@ export function AdminDashboard() {
       fetchCommunityReports(),
       fetchAdminNews(),
       fetchFunds(),
+      fetchSmsLogs(),
+      fetchEmergencyContacts(),
     ])
     setLoading(false)
   }, [
@@ -680,6 +916,8 @@ export function AdminDashboard() {
     fetchCommunityReports,
     fetchAdminNews,
     fetchFunds,
+    fetchSmsLogs,
+    fetchEmergencyContacts,
   ])
 
   useEffect(() => {
@@ -688,7 +926,7 @@ export function AdminDashboard() {
     }
   }, [token, refreshAll])
 
-  // Periodic polling for real-time notification alert, drafts, reports, and funds (every 25 seconds)
+  // Periodic polling for real-time notification alert, drafts, reports, funds, and SMS logs (every 25 seconds)
   useEffect(() => {
     if (!token) return
     const interval = setInterval(() => {
@@ -698,9 +936,11 @@ export function AdminDashboard() {
       fetchOutbreakDrafts()
       fetchCommunityReports()
       fetchFunds()
+      fetchSmsLogs()
+      fetchEmergencyContacts()
     }, 25000)
     return () => clearInterval(interval)
-  }, [token, fetchStats, fetchMessages, fetchNotifications, fetchOutbreakDrafts, fetchCommunityReports, fetchFunds])
+  }, [token, fetchStats, fetchMessages, fetchNotifications, fetchOutbreakDrafts, fetchCommunityReports, fetchFunds, fetchSmsLogs, fetchEmergencyContacts])
 
   // 3. AI Smart Reply Generator with Intent Detection
   const generateAiReply = async (msg: ContactMessage) => {
@@ -2611,6 +2851,7 @@ export function AdminDashboard() {
                     { id: "create", label: "Write Announcement" },
                     { id: "articles", label: `Published Articles (${adminNewsList.length})` },
                     { id: "reports", label: `Citizen Reports Feed (${communityReports.length})` },
+                    { id: "sms", label: `SMS Alerts (${smsLogs.length})` },
                   ].map((st) => (
                     <button
                       key={st.id}
@@ -2664,6 +2905,7 @@ export function AdminDashboard() {
                         relief_goal: String(draft.relief_goal || 50000),
                         relief_beneficiary: draft.relief_beneficiary || `${draft.cluster_region} Community Emergency Relief`,
                         relief_description: draft.relief_description || `Providing clean water sanitization, oral hydration salts, and primary medical supplies for vulnerable households in ${draft.cluster_region}.`,
+                        send_sms: true,
                       }
 
                       return (
@@ -2889,6 +3131,169 @@ export function AdminDashboard() {
                                       }))
                                     }}
                                     className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                                      isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-teal-300 text-stone-900"
+                                    }`}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                            {/* ── CARD 4: GEMINI AI BACKGROUND EMERGENCY SMS DISPATCH ── */}
+                          <div className={`p-4 rounded-2xl border transition-all ${
+                            isDark
+                              ? reliefConfig.send_sms !== false ? "bg-emerald-950/40 border-emerald-700/60" : "bg-slate-950/40 border-slate-800"
+                              : reliefConfig.send_sms !== false ? "bg-emerald-50 border-emerald-300" : "bg-stone-50 border-stone-200"
+                          }`}>
+                            <div className="flex items-center justify-between">
+                              <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={reliefConfig.send_sms !== false}
+                                  onChange={(e) => {
+                                    setDraftReliefSettings((prev) => ({
+                                      ...prev,
+                                      [draft.id]: {
+                                        ...reliefConfig,
+                                        send_sms: e.target.checked,
+                                      },
+                                    }))
+                                  }}
+                                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-600 cursor-pointer"
+                                />
+                                <div>
+                                  <span className={`text-xs font-bold block ${isDark ? "text-white" : "text-stone-900"}`}>
+                                    Send Live Emergency Alert via Real SMS on Publish
+                                  </span>
+                                  <span className="text-[11px] text-slate-400 block">
+                                    {reliefConfig.send_sms !== false
+                                      ? `Active: Automatically dispatches SMS alert to the official ${draft.cluster_region} emergency desk and citizen reporters.`
+                                      : "Optional: Leave unchecked to publish advisory to /news without dispatching handset SMS alerts."}
+                                  </span>
+                                </div>
+                              </label>
+                              <IconPhone size={18} className={reliefConfig.send_sms !== false ? "text-emerald-400" : "text-slate-400"} />
+                            </div>
+
+                            {reliefConfig.send_sms !== false && (
+                              <div className="mt-4 pt-3.5 border-t border-emerald-200/60 dark:border-emerald-800/60 space-y-3">
+                                {/* Sub-City Emergency Responder Contact Binding */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/80">
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                    <span className="text-[11px] font-bold text-slate-200">
+                                      Destination Sub-City Responder:
+                                    </span>
+                                    {draft.detected_contact ? (
+                                      <span className="text-[11px] font-mono text-emerald-400 font-bold">
+                                        {draft.detected_contact.phone_number} ({draft.detected_contact.officer_name || "Emergency Desk"})
+                                      </span>
+                                    ) : (
+                                      <span className="text-[11px] text-amber-400 font-semibold">
+                                        No contact registered for {draft.cluster_region} (Routing to Bole Operations: +251967453624)
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                                    <label className="text-[10px] text-slate-400 uppercase font-bold">Override Phone:</label>
+                                    <input
+                                      type="text"
+                                      placeholder={draft.detected_contact?.phone_number || "+251967453624"}
+                                      value={reliefConfig.target_phone !== undefined ? reliefConfig.target_phone : (draft.detected_contact?.phone_number || "+251967453624")}
+                                      onChange={(e) => {
+                                        setDraftReliefSettings((prev) => ({
+                                          ...prev,
+                                          [draft.id]: {
+                                            ...reliefConfig,
+                                            target_phone: e.target.value,
+                                          },
+                                        }))
+                                      }}
+                                      className={`border rounded-lg px-2 py-1 text-xs font-mono font-bold focus:outline-none focus:border-[#119197] w-36 ${
+                                        isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-teal-300 text-stone-900"
+                                      }`}
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Gemini AI Message Payload Editor */}
+                                <div>
+                                  <div className="flex items-center justify-between mb-1.5">
+                                    <label className={`flex items-center gap-1.5 text-[11px] font-bold ${isDark ? "text-slate-200" : "text-stone-800"}`}>
+                                      <IconActivity size={14} className="text-emerald-400" />
+                                      <span>Gemini AI Emergency SMS Text (Ready for Immediate Carrier Dispatch)</span>
+                                    </label>
+                                    {(() => {
+                                      const text = reliefConfig.custom_sms_text !== undefined ? reliefConfig.custom_sms_text : (draft.emergency_sms_text || "")
+                                      return (
+                                        <span className={`text-[10px] font-mono font-bold ${text.length > 280 ? "text-rose-400" : "text-emerald-400"}`}>
+                                          {text.length} chars • {Math.ceil(text.length / 160) || 1} carrier segment(s)
+                                        </span>
+                                      )
+                                    })()}
+                                  </div>
+
+                                  {/* Quick Template Presets for this Draft */}
+                                  <div className="flex flex-wrap gap-1.5 mb-2">
+                                    {[
+                                      {
+                                        label: "🦟 Vector Alert",
+                                        text: `🦟 [TENAYE VECTOR ALERT]\n\nLocation: ${draft.cluster_region}\n\nDisease: Suspected Malaria & Acute Febrile Illness\n\nAffected Citizens: ${draft.cluster_count || 3} Cases Verified\n\nWhat Happened: Concentrated mosquito-borne transmission detected with cyclical high fevers and chills across residential sectors.\n\nAction & Clinical Support: Rapid Diagnostic Test (RDT) kits and Artemisinin combination therapies delivered to local health posts. Field extension teams mobilizing insecticide-treated bed nets and drainage support.`,
+                                      },
+                                      {
+                                        label: "💧 AWD / Waterborne",
+                                        text: `🚨 [TENAYE CRITICAL HEALTH ALERT]\n\nLocation: ${draft.cluster_region}\n\nDisease: Acute Watery Diarrhea Surge\n\nAffected Citizens: ${draft.cluster_count || 3} Cases Verified\n\nWhat Happened: Urgent surveillance detected an acute cluster of watery diarrhea and dehydration from contaminated water or foodborne exposure.\n\nAction & Clinical Support: Rapid distribution of Oral Rehydration Salts (ORS), zinc tablets, and WaterGuard chlorine solution active. Field health officers dispatched to support affected households and set up hydration stations.`,
+                                      },
+                                      {
+                                        label: "🫁 Respiratory Spike",
+                                        text: `🫁 [TENAYE EPIDEMIC ALERT]\n\nLocation: ${draft.cluster_region}\n\nDisease: Acute Respiratory Infection & High Fever Cluster\n\nAffected Citizens: ${draft.cluster_count || 3} Cases Verified\n\nWhat Happened: Surveillance identified rapid airborne transmission of severe respiratory distress and febrile symptoms across community households.\n\nAction & Clinical Support: Clinical triage beds and medical mask supplies dispatched to local health centers. Health extension workers actively monitoring vulnerable residents and conducting home-care outreach.`,
+                                      },
+                                      {
+                                        label: "⚡ Rapid Response",
+                                        text: `⚡ [TENAYE RAPID MOBILIZATION]\n\nLocation: ${draft.cluster_region}\n\nDisease: ${draft.cluster_symptoms}\n\nAffected Citizens: ${draft.cluster_count || 3} Cases Verified\n\nWhat Happened: Critical algorithmic threshold surpassed with 3+ independent community incident reports in close proximity.\n\nAction & Clinical Support: Sub-city Rapid Response Team (RRT) deployed with emergency on-site triage kits and diagnostic equipment to conduct field containment.`,
+                                      },
+                                      {
+                                        label: "🔄 Reset to AI Draft",
+                                        text: draft.emergency_sms_text || `🚨 [TENAYE EMERGENCY HEALTH ALERT]\n\nLocation: ${draft.cluster_region}\n\nDisease: ${draft.cluster_symptoms}\n\nAffected Citizens: ${draft.cluster_count || 3} Cases Verified\n\nWhat Happened: Health surveillance confirmed an active cluster of concurrent community symptoms requiring rapid medical containment.\n\nAction & Clinical Support: Sub-city Rapid Response Teams mobilized with emergency diagnostic packs. Primary clinics placed on active standby to provide immediate patient care.`,
+                                      },
+                                    ].map((tpl, tIdx) => (
+                                      <button
+                                        key={tIdx}
+                                        type="button"
+                                        onClick={() => {
+                                          setDraftReliefSettings((prev) => ({
+                                            ...prev,
+                                            [draft.id]: {
+                                              ...reliefConfig,
+                                              custom_sms_text: tpl.text,
+                                            },
+                                          }))
+                                        }}
+                                        className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
+                                          isDark
+                                            ? "border-slate-800 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800"
+                                            : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
+                                        }`}
+                                      >
+                                        {tpl.label}
+                                      </button>
+                                    ))}
+                                  </div>
+
+                                  <textarea
+                                    rows={3}
+                                    value={reliefConfig.custom_sms_text !== undefined ? reliefConfig.custom_sms_text : (draft.emergency_sms_text || "")}
+                                    onChange={(e) => {
+                                      setDraftReliefSettings((prev) => ({
+                                        ...prev,
+                                        [draft.id]: {
+                                          ...reliefConfig,
+                                          custom_sms_text: e.target.value,
+                                        },
+                                      }))
+                                    }}
+                                    className={`w-full border rounded-xl p-3 text-xs leading-relaxed focus:outline-none focus:border-[#119197] ${
                                       isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-teal-300 text-stone-900"
                                     }`}
                                   />
@@ -3271,6 +3676,712 @@ export function AdminDashboard() {
                       </tbody>
                     </table>
                   </div>
+                </div>
+              )}
+
+              {/* SUBTAB 5: REAL SMS BROADCAST DESK */}
+              {newsSubTab === "sms" && (
+                <div className="space-y-6">
+                  {/* Real SMS Dispatch Console */}
+                  <div className={`p-6 sm:p-7 rounded-3xl border ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9]"}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800/40">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Live Gateway Connected
+                          </span>
+                          <span className="text-xs text-stone-400 font-mono">Ethio Telecom / Safaricom Live Delivery</span>
+                        </div>
+                        <h3 className={`font-display font-bold text-lg ${isDark ? "text-white" : "text-stone-900"}`}>
+                          Emergency SMS Alert Broadcaster
+                        </h3>
+                        <p className={`text-xs mt-0.5 ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                          Send instant emergency health SMS messages directly to citizens' mobile phones without requiring internet access.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-teal-500/10 text-[#119197] border border-teal-500/30 font-mono">
+                          {smsLogs.length} Dispatches Logged
+                        </span>
+                      </div>
+                    </div>
+
+                    {smsBroadcastNotice && (
+                      <div className="mb-5 p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-between shadow-sm">
+                        <div className="flex items-center gap-2">
+                          <IconCheck size={16} className="shrink-0" />
+                          <span>{smsBroadcastNotice}</span>
+                        </div>
+                        <button onClick={() => setSmsBroadcastNotice(null)} className="text-emerald-400 hover:text-white cursor-pointer ml-3">
+                          <IconX size={15} />
+                        </button>
+                      </div>
+                    )}
+
+                    {smsBroadcastError && (
+                      <div className="mb-5 p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs font-bold flex items-center justify-between shadow-sm">
+                        <div className="flex items-center gap-2">
+                          <IconX size={16} className="shrink-0 text-rose-400" />
+                          <span>{smsBroadcastError}</span>
+                        </div>
+                        <button onClick={() => setSmsBroadcastError(null)} className="text-rose-400 hover:text-white cursor-pointer ml-3">
+                          <IconX size={15} />
+                        </button>
+                      </div>
+                    )}
+
+                    <form onSubmit={handleSendSms} className="space-y-5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Sub-City Selection */}
+                        <div>
+                          <label className={`block text-xs font-bold mb-1.5 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                            Target Sub-City / Jurisdiction *
+                          </label>
+                          <select
+                            value={smsZone}
+                            onChange={(e) => {
+                              const newZone = e.target.value
+                              setSmsZone(newZone)
+                              const matched = emergencyContacts.find(
+                                (c) => c.is_active && (c.zone_subcity === newZone || newZone.includes(c.zone_subcity) || c.zone_subcity.includes(newZone))
+                              )
+                              if (matched) {
+                                setSmsCustomRecipients(matched.phone_number)
+                              }
+                            }}
+                            className={`w-full border rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#119197] ${
+                              isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                            }`}
+                          >
+                            <option value="Addis Ababa - Bole Sub-City">Addis Ababa - Bole Sub-City</option>
+                            <option value="Addis Ababa - Kirkos Sub-City">Addis Ababa - Kirkos Sub-City</option>
+                            <option value="Addis Ababa - Arada Sub-City">Addis Ababa - Arada Sub-City</option>
+                            <option value="Addis Ababa - Gulele Sub-City">Addis Ababa - Gulele Sub-City</option>
+                            <option value="Addis Ababa - Kolfe Keranio Sub-City">Addis Ababa - Kolfe Keranio Sub-City</option>
+                            <option value="Addis Ababa - Yeka Sub-City">Addis Ababa - Yeka Sub-City</option>
+                            <option value="Addis Ababa - Nifas Silk Lafto Sub-City">Addis Ababa - Nifas Silk Lafto Sub-City</option>
+                            <option value="Sidama Regional Zone">Sidama Regional Zone</option>
+                            <option value="All Jurisdictions">All Registered Jurisdictions</option>
+                          </select>
+                          <p className="text-[11px] text-stone-400 mt-1">
+                            Selecting a sub-city automatically maps to its official registered emergency desk contact.
+                          </p>
+                        </div>
+
+                        {/* Target Recipient Phone Number */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className={`block text-xs font-bold ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                              Recipient Mobile Number *
+                            </label>
+                            {(() => {
+                              const registered = emergencyContacts.find(
+                                (c) => c.is_active && (c.zone_subcity === smsZone || smsZone.includes(c.zone_subcity) || c.zone_subcity.includes(smsZone))
+                              )
+                              if (registered) {
+                                return (
+                                  <button
+                                    type="button"
+                                    onClick={() => setOverrideRecipientPhone((prev) => !prev)}
+                                    className="text-[10px] font-bold text-teal-400 hover:underline cursor-pointer flex items-center gap-1"
+                                  >
+                                    <span>{overrideRecipientPhone ? "🔒 Lock to Sub-City Contact" : "✏️ Custom Phone Override"}</span>
+                                  </button>
+                                )
+                              }
+                              return null
+                            })()}
+                          </div>
+                          {(() => {
+                            const registered = emergencyContacts.find(
+                              (c) => c.is_active && (c.zone_subcity === smsZone || smsZone.includes(c.zone_subcity) || c.zone_subcity.includes(smsZone))
+                            )
+                            if (registered && !overrideRecipientPhone) {
+                              return (
+                                <div className={`p-3 rounded-xl border flex items-center justify-between gap-3 ${
+                                  isDark ? "bg-slate-950/80 border-emerald-500/30" : "bg-emerald-50/80 border-emerald-300"
+                                }`}>
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                      <IconShieldCheck size={16} />
+                                    </div>
+                                    <div>
+                                      <span className="text-xs font-mono font-bold text-emerald-400 block">
+                                        {registered.phone_number}
+                                      </span>
+                                      <span className="text-[10px] text-slate-400 block">
+                                        {registered.officer_name || "Emergency Desk"} ({registered.role || "Lead Responder"})
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                    Auto-Bound
+                                  </span>
+                                </div>
+                              )
+                            }
+                            return (
+                              <div>
+                                <input
+                                  type="text"
+                                  required
+                                  placeholder={registered ? registered.phone_number : "e.g. 0967453624 or +251967453624"}
+                                  value={smsCustomRecipients}
+                                  onChange={(e) => setSmsCustomRecipients(e.target.value)}
+                                  className={`w-full border rounded-xl px-4 py-2.5 text-xs font-mono font-bold focus:outline-none focus:border-[#119197] ${
+                                    isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                                  }`}
+                                />
+                                <p className="text-[11px] text-stone-400 mt-1">
+                                  {registered
+                                    ? `Custom override mode: Enter alternative destination number for ${smsZone}.`
+                                    : `No registered contact found for ${smsZone}. Enter number or add to Sub-City Registry below.`}
+                                </p>
+                              </div>
+                            )
+                          })()}
+                        </div>
+                      </div>
+
+                      {/* Message Content */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className={`block text-xs font-bold ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                            SMS Alert Text *
+                          </label>
+                          <span className={`text-[11px] font-mono font-bold ${smsMessage.length > 280 ? "text-rose-400" : "text-teal-400"}`}>
+                            {smsMessage.length} characters • {Math.ceil(smsMessage.length / 160) || 1} carrier segment(s)
+                          </span>
+                        </div>
+
+                        {/* Quick Detailed Presets */}
+                        <div className="flex flex-wrap gap-1.5 mb-2.5">
+                          {[
+                            {
+                              label: "🦟 Vector Alert",
+                              text: `🦟 [TENAYE VECTOR ALERT]\n\nLocation: ${smsZone}\n\nDisease: Suspected Malaria & Acute Febrile Illness\n\nAffected Citizens: 14 Cases Reported\n\nWhat Happened: High mosquito density and stagnant water pooling causing cyclical fevers and rigors across community residential clusters.\n\nAction & Clinical Support: Rapid Diagnostic Test (RDT) kits and Artemisinin therapies deployed. Vector teams distributing insecticide-treated nets and perimeter larvicide treatment.`,
+                            },
+                            {
+                              label: "💧 Waterborne / Diarrhea Surge",
+                              text: `🚨 [TENAYE CRITICAL HEALTH ALERT]\n\nLocation: ${smsZone}\n\nDisease: Acute Watery Diarrhea Surge\n\nAffected Citizens: Multiple Cases Reported\n\nWhat Happened: Urgent surveillance detected an acute cluster of watery diarrhea and dehydration from contaminated water or foodborne exposure.\n\nAction & Clinical Support: Rapid distribution of Oral Rehydration Salts (ORS), zinc tablets, and WaterGuard chlorine solution active. Field health extension teams deployed with clinical supplies.`,
+                            },
+                            {
+                              label: "🫁 Airborne / Respiratory Notice",
+                              text: `🫁 [TENAYE EPIDEMIC ALERT]\n\nLocation: ${smsZone}\n\nDisease: Acute Respiratory Infection & High Fever Cluster\n\nAffected Citizens: Multiple Cases Reported\n\nWhat Happened: Rapid airborne viral spread causing severe respiratory fatigue and febrile symptoms across community households.\n\nAction & Clinical Support: Clinical triage beds and surgical mask supplies dispatched to local health centers. Health extension workers actively monitoring vulnerable residents.`,
+                            },
+                            {
+                              label: "⚡ Rapid Response Mobilization",
+                              text: `⚡ [TENAYE RAPID MOBILIZATION]\n\nLocation: ${smsZone}\n\nDisease: Urgent Epidemiological Cluster\n\nAffected Citizens: Threshold Surpassed (3+ Reports)\n\nWhat Happened: Critical surveillance threshold reached with verified citizen reports logged in close proximity.\n\nAction & Clinical Support: Sub-city Rapid Response Team (RRT) deployed with on-site triage packs and diagnostic supplies for immediate field containment.`,
+                            },
+                          ].map((t, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setSmsMessage(t.text)}
+                              className={`text-[11px] font-bold px-3 py-1 rounded-lg border transition-all cursor-pointer ${
+                                isDark
+                                  ? "border-slate-800 bg-slate-950 text-slate-300 hover:text-white hover:bg-slate-800"
+                                  : "border-stone-200 bg-stone-100 text-stone-700 hover:bg-stone-200"
+                              }`}
+                            >
+                              {t.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        <textarea
+                          rows={3}
+                          required
+                          value={smsMessage}
+                          onChange={(e) => setSmsMessage(e.target.value)}
+                          className={`w-full border rounded-xl p-3.5 text-xs leading-relaxed focus:outline-none focus:border-[#119197] ${
+                            isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                          }`}
+                        />
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+                        <div className="flex items-center gap-2 text-[11px] text-stone-400">
+                          <IconShield size={15} className="text-emerald-400 shrink-0" />
+                          <span>Delivers directly over Ethio Telecom / Safaricom national SMS network</span>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={smsSending || !smsMessage.trim()}
+                          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-[#119197] text-white text-xs font-black shadow-lg shadow-teal-900/40 hover:scale-[1.02] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <IconPhone size={15} />
+                          <span>{smsSending ? "Sending Live SMS..." : "Send Emergency SMS Now"}</span>
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* SMS Dispatch History & Audit Ledger */}
+                  <div className={`rounded-3xl border overflow-hidden ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9]"}`}>
+                    <div className="p-4 sm:p-5 border-b border-slate-800/40 flex items-center justify-between">
+                      <div>
+                        <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                          SMS Alert Delivery Audit Ledger ({smsLogs.length})
+                        </h4>
+                        <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                          Real-time delivery receipts and telecom network confirmations.
+                        </p>
+                      </div>
+                      <button
+                        onClick={fetchSmsLogs}
+                        className="text-xs px-3 py-1.5 rounded-xl border border-teal-500/30 text-[#119197] hover:bg-teal-500/10 cursor-pointer font-bold"
+                      >
+                        Refresh Logs
+                      </button>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className={`border-b ${isDark ? "border-slate-800 text-slate-400 bg-slate-950/40" : "border-[#ebdcc9] text-stone-600 bg-[#fbf9f4]"}`}>
+                            <th className="py-3 px-4">#</th>
+                            <th className="py-3 px-4">Target Recipient</th>
+                            <th className="py-3 px-4">Sub-City / Zone</th>
+                            <th className="py-3 px-4">SMS Content</th>
+                            <th className="py-3 px-4">Gateway</th>
+                            <th className="py-3 px-4">Delivery Status</th>
+                            <th className="py-3 px-4">Timestamp</th>
+                            <th className="py-3 px-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/40">
+                          {smsLogs.length === 0 ? (
+                            <tr>
+                              <td colSpan={8} className="py-8 text-center text-stone-400 text-xs italic">
+                                No emergency SMS dispatches logged yet. Use the broadcaster above to send an alert.
+                              </td>
+                            </tr>
+                          ) : (
+                            smsLogs.map((log) => (
+                              <tr key={log.id} className={isDark ? "hover:bg-slate-800/40" : "hover:bg-stone-50"}>
+                                <td className="py-3 px-4 font-mono font-bold text-stone-400">#{log.id}</td>
+                                <td className="py-3 px-4 font-mono font-bold text-stone-300">
+                                  {log.recipient_phone}
+                                </td>
+                                <td className="py-3 px-4 font-semibold text-[#119197] whitespace-nowrap">
+                                  {log.zone}
+                                </td>
+                                <td className="py-3 px-4 max-w-sm">
+                                  <p className="line-clamp-2 text-stone-300">{log.message}</p>
+                                </td>
+                                <td className="py-3 px-4 whitespace-nowrap">
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-500/15 text-[#119197] border border-teal-500/30">
+                                    {log.provider === "smsethiopia" ? "SMSEthiopia" : log.provider === "afromessage" ? "AfroMessage" : "Simulator Demo"}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4 whitespace-nowrap">
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                                    log.status === "delivered" || log.status === "sent"
+                                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                                      : log.status === "simulated"
+                                      ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                                      : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
+                                  }`}>
+                                    {log.status}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4 text-stone-400 whitespace-nowrap text-[11px] font-mono">
+                                  {new Date(log.created_at).toLocaleString()}
+                                </td>
+                                <td className="py-3 px-4 text-right whitespace-nowrap">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedSmsLog(log)}
+                                      className="px-2.5 py-1 rounded-lg border border-teal-500/30 text-[#119197] hover:bg-teal-500/10 font-bold text-[11px] cursor-pointer"
+                                      title="View SMS Dispatch & Gateway Confirmation Details"
+                                    >
+                                      View
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteSmsLog(log.id)}
+                                      className="px-2.5 py-1 rounded-lg border border-rose-500/30 text-rose-400 hover:bg-rose-500/10 font-bold text-[11px] cursor-pointer"
+                                      title="Delete SMS Log Entry"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* SUB-CITY EMERGENCY RESPONDER REGISTRY (Bole, Kirkos, etc.) */}
+                  <div className={`rounded-3xl border overflow-hidden p-6 sm:p-8 ${isDark ? "bg-slate-900 border-slate-800" : "bg-[#fffefb] border-[#ebdcc9]"}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800/40">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                            Automated Outbreak Target
+                          </span>
+                          <span className="text-xs text-stone-400 font-mono">Cluster AI Auto-Alert Dispatch</span>
+                        </div>
+                        <h4 className={`text-base font-bold ${isDark ? "text-white" : "text-stone-900"}`}>
+                          Sub-City Emergency Responder Registry
+                        </h4>
+                        <p className={`text-xs mt-0.5 ${isDark ? "text-slate-400" : "text-stone-500"}`}>
+                          When 3 or more citizens report symptoms in the same sub-city, the AI triggers an immediate SMS alert to these registered emergency numbers.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={fetchEmergencyContacts}
+                        className="text-xs px-3 py-1.5 rounded-xl border border-teal-500/30 text-[#119197] hover:bg-teal-500/10 cursor-pointer font-bold self-start sm:self-auto"
+                      >
+                        Refresh Contacts
+                      </button>
+                    </div>
+
+                    {/* Add Emergency Contact Form */}
+                    <form onSubmit={handleAddEmergencyContact} className={`p-4 rounded-2xl border mb-6 ${isDark ? "bg-slate-950/60 border-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9]"}`}>
+                      <h5 className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDark ? "text-teal-400" : "text-teal-700"}`}>
+                        + Register Emergency Phone for Sub-City
+                      </h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div>
+                          <label className={`block text-[11px] font-bold mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                            Jurisdiction / Sub-City *
+                          </label>
+                          <select
+                            value={newContactZone}
+                            onChange={(e) => setNewContactZone(e.target.value)}
+                            className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                              isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-[#ebdcc9] text-stone-900"
+                            }`}
+                          >
+                            <option value="Addis Ababa - Bole Sub-City">Addis Ababa - Bole Sub-City</option>
+                            <option value="Addis Ababa - Kirkos Sub-City">Addis Ababa - Kirkos Sub-City</option>
+                            <option value="Addis Ababa - Arada Sub-City">Addis Ababa - Arada Sub-City</option>
+                            <option value="Addis Ababa - Gulele Sub-City">Addis Ababa - Gulele Sub-City</option>
+                            <option value="Addis Ababa - Kolfe Keranio Sub-City">Addis Ababa - Kolfe Keranio Sub-City</option>
+                            <option value="Addis Ababa - Yeka Sub-City">Addis Ababa - Yeka Sub-City</option>
+                            <option value="Addis Ababa - Nifas Silk Lafto Sub-City">Addis Ababa - Nifas Silk Lafto Sub-City</option>
+                            <option value="Addis Ababa - Lideta Sub-City">Addis Ababa - Lideta Sub-City</option>
+                            <option value="Addis Ababa - Akaki Kality Sub-City">Addis Ababa - Akaki Kality Sub-City</option>
+                            <option value="Addis Ababa - Lemi Kura Sub-City">Addis Ababa - Lemi Kura Sub-City</option>
+                            <option value="Sidama Regional Zone">Sidama Regional Zone</option>
+                            <option value="Dire Dawa Administration">Dire Dawa Administration</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className={`block text-[11px] font-bold mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                            Emergency Phone Number *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="+251967453624"
+                            value={newContactPhone}
+                            onChange={(e) => setNewContactPhone(e.target.value)}
+                            className={`w-full border rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#119197] ${
+                              isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-[#ebdcc9] text-stone-900"
+                            }`}
+                          />
+                        </div>
+
+                        <div>
+                          <label className={`block text-[11px] font-bold mb-1 ${isDark ? "text-slate-300" : "text-stone-700"}`}>
+                            Lead Officer / Desk Name
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Dr. Abebe / Bole Ops"
+                            value={newContactOfficer}
+                            onChange={(e) => setNewContactOfficer(e.target.value)}
+                            className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                              isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-[#ebdcc9] text-stone-900"
+                            }`}
+                          />
+                        </div>
+
+                        <div className="flex items-end">
+                          <button
+                            type="submit"
+                            disabled={addingContact || !newContactPhone.trim()}
+                            className="w-full py-2 px-4 rounded-xl bg-gradient-to-r from-teal-600 to-[#119197] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-md hover:scale-[1.02]"
+                          >
+                            {addingContact ? "Adding..." : "+ Add Responder Phone"}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+
+                    {/* Contacts Table */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className={`border-b ${isDark ? "border-slate-800 text-slate-400 bg-slate-950/40" : "border-[#ebdcc9] text-stone-600 bg-[#fbf9f4]"}`}>
+                            <th className="py-3 px-4">#</th>
+                            <th className="py-3 px-4">Sub-City / Jurisdiction</th>
+                            <th className="py-3 px-4">Emergency Phone</th>
+                            <th className="py-3 px-4">Responsible Officer / Unit</th>
+                            <th className="py-3 px-4">Role</th>
+                            <th className="py-3 px-4">Status</th>
+                            <th className="py-3 px-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/40">
+                          {emergencyContacts.length === 0 ? (
+                            <tr>
+                              <td colSpan={7} className="py-6 text-center text-stone-400 italic">
+                                No emergency contacts recorded yet. Add your sub-city contact above.
+                              </td>
+                            </tr>
+                          ) : (
+                            emergencyContacts.map((c, idx) => (
+                              <tr key={c.id} className={isDark ? "hover:bg-slate-800/40" : "hover:bg-stone-50"}>
+                                <td className="py-3 px-4 font-bold text-stone-400">{idx + 1}</td>
+                                <td className="py-3 px-4 font-bold text-[#119197]">{c.zone_subcity}</td>
+                                <td className="py-3 px-4 font-mono font-bold text-emerald-400">{c.phone_number}</td>
+                                <td className={`py-3 px-4 ${isDark ? "text-slate-200" : "text-stone-800"}`}>{c.officer_name || "Emergency Desk"}</td>
+                                <td className="py-3 px-4 text-stone-400">{c.role}</td>
+                                <td className="py-3 px-4">
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                                    c.is_active
+                                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                                      : "bg-stone-500/15 text-stone-400 border border-stone-500/30"
+                                  }`}>
+                                    {c.is_active ? "Active" : "Inactive"}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4 text-right whitespace-nowrap">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingContact({ ...c })}
+                                      className="px-2.5 py-1 rounded-lg border border-teal-500/30 text-[#119197] hover:bg-teal-500/10 font-bold text-[11px] cursor-pointer"
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteEmergencyContact(c.id)}
+                                      className="px-2.5 py-1 rounded-lg border border-rose-500/30 text-rose-400 hover:bg-rose-500/10 font-bold text-[11px] cursor-pointer"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Edit Contact Modal */}
+                  {editingContact && (
+                    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+                      <div className={`rounded-3xl shadow-2xl border max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200 ${
+                        isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-[#fffefb] border-[#ebdcc9] text-stone-900"
+                      }`}>
+                        <div className={`flex items-center justify-between pb-4 border-b ${isDark ? "border-slate-800" : "border-[#ebdcc9]"}`}>
+                          <h4 className="font-bold text-base">Edit Emergency Contact #{editingContact.id}</h4>
+                          <button
+                            type="button"
+                            onClick={() => setEditingContact(null)}
+                            className={`p-1.5 rounded-lg cursor-pointer ${isDark ? "text-slate-400 hover:text-white" : "text-stone-500 hover:text-stone-900"}`}
+                          >
+                            <IconX size={18} />
+                          </button>
+                        </div>
+
+                        <form onSubmit={handleUpdateEmergencyContact} className="space-y-4 mt-4">
+                          <div>
+                            <label className={`block text-xs font-semibold mb-1 ${isDark ? "text-slate-400" : "text-stone-600"}`}>
+                              Jurisdiction / Sub-City
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={editingContact.zone_subcity}
+                              onChange={(e) => setEditingContact({ ...editingContact, zone_subcity: e.target.value })}
+                              className={`w-full border rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                                isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                              }`}
+                            />
+                          </div>
+
+                          <div>
+                            <label className={`block text-xs font-semibold mb-1 ${isDark ? "text-slate-400" : "text-stone-600"}`}>
+                              Emergency Phone Number
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={editingContact.phone_number}
+                              onChange={(e) => setEditingContact({ ...editingContact, phone_number: e.target.value })}
+                              className={`w-full border rounded-xl px-3.5 py-2 text-xs font-mono focus:outline-none focus:border-[#119197] ${
+                                isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                              }`}
+                            />
+                          </div>
+
+                          <div>
+                            <label className={`block text-xs font-semibold mb-1 ${isDark ? "text-slate-400" : "text-stone-600"}`}>
+                              Officer / Unit Name
+                            </label>
+                            <input
+                              type="text"
+                              value={editingContact.officer_name || ""}
+                              onChange={(e) => setEditingContact({ ...editingContact, officer_name: e.target.value })}
+                              className={`w-full border rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                                isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                              }`}
+                            />
+                          </div>
+
+                          <div>
+                            <label className={`block text-xs font-semibold mb-1 ${isDark ? "text-slate-400" : "text-stone-600"}`}>
+                              Role
+                            </label>
+                            <input
+                              type="text"
+                              value={editingContact.role || ""}
+                              onChange={(e) => setEditingContact({ ...editingContact, role: e.target.value })}
+                              className={`w-full border rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-[#119197] ${
+                                isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-[#fbf9f4] border-[#ebdcc9] text-stone-900"
+                              }`}
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-2 pt-1">
+                            <input
+                              type="checkbox"
+                              id="editContactActive"
+                              checked={Boolean(editingContact.is_active)}
+                              onChange={(e) => setEditingContact({ ...editingContact, is_active: e.target.checked ? 1 : 0 })}
+                              className="rounded accent-teal-600 cursor-pointer"
+                            />
+                            <label htmlFor="editContactActive" className="text-xs font-medium cursor-pointer">
+                              Active (Receives automatic cluster alerts)
+                            </label>
+                          </div>
+
+                          <div className="flex justify-end gap-2 pt-3 border-t border-slate-800/40">
+                            <button
+                              type="button"
+                              onClick={() => setEditingContact(null)}
+                              className="px-4 py-2 rounded-xl border border-slate-700 text-xs font-bold cursor-pointer hover:bg-slate-800"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="submit"
+                              className="px-5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-[#119197] text-white text-xs font-bold cursor-pointer shadow-md"
+                            >
+                              Save Changes
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* View SMS Details Modal */}
+                  {selectedSmsLog && (
+                    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+                      <div className={`rounded-3xl shadow-2xl border max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-200 ${
+                        isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-[#fffefb] border-[#ebdcc9] text-stone-900"
+                      }`}>
+                        <div className={`flex items-center justify-between pb-4 border-b ${isDark ? "border-slate-800" : "border-[#ebdcc9]"}`}>
+                          <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full bg-teal-400 animate-pulse" />
+                            <h4 className="font-bold text-base">SMS Dispatch Audit #{selectedSmsLog.id}</h4>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedSmsLog(null)}
+                            className={`p-1.5 rounded-lg cursor-pointer ${isDark ? "text-slate-400 hover:text-white" : "text-stone-500 hover:text-stone-900"}`}
+                          >
+                            <IconX size={18} />
+                          </button>
+                        </div>
+
+                        <div className="space-y-4 mt-4 text-xs">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className={`p-3 rounded-xl border ${isDark ? "bg-slate-950/60 border-slate-800" : "bg-stone-50 border-stone-200"}`}>
+                              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">Target Recipient</span>
+                              <span className="font-mono font-bold text-emerald-400 block">{selectedSmsLog.recipient_phone}</span>
+                            </div>
+                            <div className={`p-3 rounded-xl border ${isDark ? "bg-slate-950/60 border-slate-800" : "bg-stone-50 border-stone-200"}`}>
+                              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">Sub-City / Zone</span>
+                              <span className="font-bold text-[#119197] block">{selectedSmsLog.zone}</span>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className={`p-3 rounded-xl border ${isDark ? "bg-slate-950/60 border-slate-800" : "bg-stone-50 border-stone-200"}`}>
+                              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">Gateway Provider</span>
+                              <span className="font-bold uppercase tracking-wider text-teal-400 block">
+                                {selectedSmsLog.provider === "smsethiopia" ? "SMSEthiopia (Carrier: Tenaye Alert)" : selectedSmsLog.provider}
+                              </span>
+                            </div>
+                            <div className={`p-3 rounded-xl border ${isDark ? "bg-slate-950/60 border-slate-800" : "bg-stone-50 border-stone-200"}`}>
+                              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">Delivery Status</span>
+                              <span className={`font-black uppercase tracking-wider block ${
+                                selectedSmsLog.status === "delivered" || selectedSmsLog.status === "sent" ? "text-emerald-400" : "text-amber-400"
+                              }`}>
+                                {selectedSmsLog.status}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-stone-400 block mb-1.5">Full Dispatched SMS Message</span>
+                            <div className={`p-4 rounded-2xl border font-sans text-xs leading-relaxed whitespace-pre-wrap ${
+                              isDark ? "bg-slate-950 border-slate-800 text-stone-200" : "bg-white border-stone-200 text-stone-800"
+                            }`}>
+                              {selectedSmsLog.message}
+                            </div>
+                          </div>
+
+                          {selectedSmsLog.detail && (
+                            <div>
+                              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-1">Gateway Confirmation / Audit Detail</span>
+                              <p className={`p-2.5 rounded-xl border font-mono text-[11px] ${
+                                isDark ? "bg-slate-950/40 border-slate-800 text-stone-400" : "bg-stone-50 border-stone-200 text-stone-600"
+                              }`}>
+                                {selectedSmsLog.detail}
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between pt-2 border-t border-slate-800/40 text-[11px] text-stone-400">
+                            <span>Logged at: {new Date(selectedSmsLog.created_at).toLocaleString()}</span>
+                            <span>Triggered by: {selectedSmsLog.triggered_by || "Admin Operations"}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end pt-4 mt-4 border-t border-slate-800/40">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedSmsLog(null)}
+                            className="px-5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-[#119197] text-white text-xs font-bold cursor-pointer shadow-md"
+                          >
+                            Close Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -5020,6 +6131,138 @@ export function AdminDashboard() {
                 type="button"
                 onClick={() => setSelectedCommunityReport(null)}
                 className={`px-5 py-2 rounded-xl text-xs font-semibold cursor-pointer ${
+                  isDark ? "bg-slate-800 text-white hover:bg-slate-700" : "bg-stone-200 text-stone-800 hover:bg-stone-300"
+                }`}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 6: VIEW SMS DELIVERY & TELECOM RECEIPT DETAILS     */}
+      {/* ======================================================== */}
+      {selectedSmsLog && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className={`rounded-3xl shadow-2xl border max-w-lg w-full p-6 sm:p-7 animate-in fade-in zoom-in-95 duration-200 ${
+            isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-[#fffefb] border-[#ebdcc9] text-stone-900"
+          }`}>
+            <div className={`flex items-center justify-between pb-4 border-b ${isDark ? "border-slate-800" : "border-[#ebdcc9]"}`}>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-500 font-mono">
+                  Dispatch Record #{selectedSmsLog.id}
+                </span>
+                <h3 className={`font-display font-bold text-base mt-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>
+                  Emergency SMS Transmission Detail
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedSmsLog(null)}
+                className={`p-1.5 rounded-lg cursor-pointer ${isDark ? "text-slate-400 hover:text-white" : "text-stone-500 hover:text-stone-900"}`}
+              >
+                <IconX size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4 my-5">
+              {/* Properties Grid */}
+              <div className={`rounded-2xl border divide-y text-xs ${
+                isDark ? "bg-slate-950/40 border-slate-800 divide-slate-800" : "bg-[#fbf9f4] border-[#ebdcc9] divide-[#ebdcc9]"
+              }`}>
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Target Recipient:</span>
+                  <span className="font-mono font-bold text-emerald-400">
+                    {selectedSmsLog.recipient_phone}
+                  </span>
+                </div>
+
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Sub-City Jurisdiction:</span>
+                  <strong className="text-[#119197]">{selectedSmsLog.zone}</strong>
+                </div>
+
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Telecom Gateway Provider:</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-500/15 text-[#119197] border border-teal-500/30">
+                    {selectedSmsLog.provider === "smsethiopia" ? "SMSEthiopia (Direct Ethio Telecom / Safaricom)" : selectedSmsLog.provider}
+                  </span>
+                </div>
+
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Delivery Status:</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                    selectedSmsLog.status === "delivered" || selectedSmsLog.status === "sent"
+                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                      : selectedSmsLog.status === "simulated"
+                      ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                      : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
+                  }`}>
+                    {selectedSmsLog.status}
+                  </span>
+                </div>
+
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Initiated By:</span>
+                  <span className={isDark ? "text-slate-200" : "text-stone-800"}>
+                    {selectedSmsLog.triggered_by || "Admin Officer"}
+                  </span>
+                </div>
+
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-stone-400">Dispatched At:</span>
+                  <span className="font-mono text-stone-400 text-[11px]">
+                    {new Date(selectedSmsLog.created_at).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* Message Payload */}
+              <div className={`p-4 rounded-2xl border ${
+                isDark ? "bg-slate-950 border-slate-800" : "bg-white border-[#ebdcc9]"
+              }`}>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1.5">
+                  Handset SMS Text Message:
+                </span>
+                <p className={`text-xs leading-relaxed font-sans ${isDark ? "text-slate-200" : "text-stone-800"}`}>
+                  {selectedSmsLog.message}
+                </p>
+              </div>
+
+              {/* Gateway Response Detail */}
+              {selectedSmsLog.detail && (
+                <div className={`p-3.5 rounded-2xl border text-xs ${
+                  isDark ? "bg-slate-950/60 border-slate-800 text-stone-300" : "bg-stone-100 border-[#ebdcc9] text-stone-700"
+                }`}>
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 block mb-1">
+                    Gateway Telecom Receipt / Confirmation:
+                  </span>
+                  <p className="font-mono text-[11px] leading-relaxed break-all">
+                    {selectedSmsLog.detail}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-slate-800/40">
+              <button
+                type="button"
+                onClick={() => {
+                  handleDeleteSmsLog(selectedSmsLog.id)
+                  setSelectedSmsLog(null)
+                }}
+                className="px-3.5 py-2 rounded-xl border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <IconTrash size={14} />
+                <span>Delete Log</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedSmsLog(null)}
+                className={`px-5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
                   isDark ? "bg-slate-800 text-white hover:bg-slate-700" : "bg-stone-200 text-stone-800 hover:bg-stone-300"
                 }`}
               >

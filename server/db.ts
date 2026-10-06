@@ -116,6 +116,8 @@ export function initDatabase() {
   try { db.exec("ALTER TABLE news_posts ADD COLUMN cluster_region TEXT;") } catch {}
   try { db.exec("ALTER TABLE news_posts ADD COLUMN cluster_count INTEGER DEFAULT 0;") } catch {}
   try { db.exec("ALTER TABLE news_posts ADD COLUMN ai_generated INTEGER DEFAULT 0;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN emergency_sms_text TEXT;") } catch {}
+  try { db.exec("ALTER TABLE news_posts ADD COLUMN report_ids TEXT;") } catch {}
 
   // 5. Emergency Relief / GoFundMe-style Community Support Pledges
   db.exec(`
@@ -152,6 +154,47 @@ export function initDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `)
+
+  // 7. AfroMessage SMS Alert Broadcasts Audit Ledger
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS sms_broadcast_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      recipient_phone TEXT NOT NULL,
+      zone TEXT NOT NULL,
+      message TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'sent',
+      provider TEXT NOT NULL DEFAULT 'afromessage',
+      detail TEXT,
+      triggered_by TEXT DEFAULT 'Admin',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `)
+
+  // 8. Regional & Sub-City Emergency Responder Contact Registry
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS emergency_contacts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      zone_subcity TEXT NOT NULL,
+      phone_number TEXT NOT NULL,
+      officer_name TEXT DEFAULT 'Sub-City Health Emergency Desk',
+      role TEXT DEFAULT 'Health Officer',
+      is_active INTEGER DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `)
+
+  // Seed default emergency contact for Bole Sub-City if none exists
+  try {
+    const existingBole = db.prepare("SELECT COUNT(*) as c FROM emergency_contacts WHERE zone_subcity LIKE '%Bole%'").get() as any
+    if (existingBole.c === 0) {
+      db.prepare(`
+        INSERT INTO emergency_contacts (zone_subcity, phone_number, officer_name, role, is_active)
+        VALUES ('Addis Ababa - Bole Sub-City', '+251967453624', 'Bole Sub-City Health Operations Lead', 'Rapid Response Lead', 1)
+      `).run()
+    }
+  } catch (seedErr) {
+    console.warn("[DB] Emergency contact seed error:", seedErr)
+  }
 
   // News table initialized clean with 0 records - real posts created via Admin
 

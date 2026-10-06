@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import { db, logAuditEvent } from "../db"
 import { requireAuth, requireSuperAdmin, JWT_SECRET, type AdminUserPayload } from "../middleware/auth"
+import { sendOutbreakSms } from "../services/afroMessage"
 
 export const adminRouter = Router()
 
@@ -236,6 +237,134 @@ adminRouter.put("/admins/:id", requireSuperAdmin, (req: Request, res: Response):
     })
   } catch (err: any) {
     res.status(500).json({ error: "Failed to update admin account", details: err?.message })
+  }
+})
+
+// GET /api/admin/contacts - list contact inquiries
+adminRouter.get("/contacts", requireAuth, (req: Request, res: Response): void => {
+  const { status, search } = req.query
+
+  let query = "SELECT * FROM contact_messages WHERE 1=1"
+  const params: any[] = []
+
+  if (status && typeof status === "string" && status !== "all") {
+    query += " AND status = ?"
+    params.push(status)
+  }
+
+  if (search && typeof search === "string" && search.trim()) {
+    query += " AND (name LIKE ? OR email LIKE ? OR phone LIKE ? OR category LIKE ? OR subject LIKE ? OR message LIKE ?)"
+    const pattern = `%${search.trim()}%`
+    params.push(pattern, pattern, pattern, pattern, pattern, pattern)
+  }
+
+  query += " ORDER BY id ASC"
+
+  try {
+    const messages = db.prepare(query).all(...params)
+    res.json({ messages })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to retrieve contact messages", details: err?.message })
+  }
+})
+
+// POST /api/admin/contacts/:id/reply - reply to contact inquiry
+adminRouter.post("/contacts/:id/reply", requireAuth, (req: Request, res: Response): void => {
+  const { id } = req.params
+  const { replyContent } = req.body
+
+  if (!replyContent || !String(replyContent).trim()) {
+    res.status(400).json({ error: "Reply content cannot be empty" })
+    return
+  }
+
+  const existing = db.prepare("SELECT * FROM contact_messages WHERE id = ?").get(id) as any
+  if (!existing) {
+    res.status(404).json({ error: "Message not found" })
+    return
+  }
+
+  const repliedBy = req.admin?.name || "Tenaye Health Officer"
+
+  try {
+    db.prepare(`
+      UPDATE contact_messages
+      SET status = 'replied',
+          reply_content = ?,
+          replied_at = CURRENT_TIMESTAMP,
+          replied_by = ?
+      WHERE id = ?
+    `).run(String(replyContent).trim(), repliedBy, id)
+
+    logAuditEvent({
+      actionType: "MESSAGE_REPLIED",
+      entityType: "contact_message",
+      entityId: Number(id),
+      actorName: repliedBy,
+      actorEmail: req.admin?.email,
+      details: `Officer replied to message #${id} (User: ${existing.name} <${existing.email}>)`,
+      ipAddress: req.ip,
+    })
+
+    res.json({
+      success: true,
+      message: `Reply sent successfully to ${existing.email}`,
+      repliedAt: new Date().toISOString(),
+      repliedBy,
+    })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to record reply", details: err?.message })
+  }
+})
+
+// PATCH /api/admin/contacts/:id/status
+adminRouter.patch("/contacts/:id/status", requireAuth, (req: Request, res: Response): void => {
+  const { id } = req.params
+  const { status } = req.body
+
+  if (!status || !["unread", "read", "replied", "archived"].includes(status)) {
+    res.status(400).json({ error: "Invalid status value" })
+    return
+  }
+
+  try {
+    db.prepare("UPDATE contact_messages SET status = ? WHERE id = ?").run(status, id)
+    logAuditEvent({
+      actionType: "STATUS_CHANGED",
+      entityType: "contact_message",
+      entityId: Number(id),
+      actorName: req.admin?.name || "Officer",
+      actorEmail: req.admin?.email,
+      details: `Status of message #${id} changed to '${status}'`,
+      ipAddress: req.ip,
+    })
+    res.json({ success: true, status })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to update status", details: err?.message })
+  }
+})
+
+// DELETE /api/admin/contacts/:id
+adminRouter.delete("/contacts/:id", requireAuth, (req: Request, res: Response): void => {
+  const { id } = req.params
+
+  try {
+    const existing = db.prepare("SELECT * FROM contact_messages WHERE id = ?").get(id) as any
+    db.prepare("DELETE FROM contact_messages WHERE id = ?").run(id)
+
+    logAuditEvent({
+      actionType: "MESSAGE_DELETED",
+      entityType: "contact_message",
+      entityId: Number(id),
+      actorName: req.admin?.name || "Officer",
+      actorEmail: req.admin?.email,
+      details: `Deleted contact message #${id} (originally from ${existing?.name || "Unknown"})`,
+      ipAddress: req.ip,
+    })
+
+    res.json({ success: true, message: "Message deleted" })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to delete message", details: err?.message })
   }
 })
 
@@ -591,4 +720,261 @@ https://tenaye.health`
     intentCategory,
     language: isAmharic ? "am" : "en",
   })
+})
+
+// POST /api/admin/sms/broadcast - Dispatch Emergency Outbreak Alert SMS via AfroMessage
+adminRouter.post("/sms/broadcast", requireAuth, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const admin = req.admin
+    const { zone, message, customRecipients, targetType, senderName } = req.body
+
+    if (!message || typeof message !== "string" || !message.trim()) {
+      res.status(400).json({ error: "SMS message text is required" })
+      return
+    }
+
+    const trimmedMsg = message.trim()
+    const targetZone = (zone || "All Jurisdictions").trim()
+    const chosenSender = typeof senderName === "string" && senderName.trim() ? senderName.trim() : "Tenaye Alert"
+    const phoneSet = new Set<string>()
+
+    // 1. If custom phone numbers provided, add them
+    if (Array.isArray(customRecipients)) {
+      customRecipients.forEach((p) => {
+        if (typeof p === "string" && p.trim()) phoneSet.add(p.trim())
+      })
+    } else if (typeof customRecipients === "string" && customRecipients.trim()) {
+      customRecipients.split(/[\n,;]+/).forEach((p) => {
+        if (p.trim()) phoneSet.add(p.trim())
+      })
+    }
+
+    // 2. Fetch registered emergency contacts for this sub-city / zone
+    if (targetZone !== "All Jurisdictions" && targetZone !== "All Zones") {
+      const registeredContacts = db.prepare(`
+        SELECT phone_number FROM emergency_contacts 
+        WHERE is_active = 1 AND (zone_subcity LIKE ? OR ? LIKE '%' || zone_subcity || '%')
+      `).all(`%${targetZone}%`, targetZone) as any[]
+      registeredContacts.forEach((ec) => {
+        if (ec.phone_number) phoneSet.add(String(ec.phone_number).trim())
+      })
+    } else {
+      const allRegistered = db.prepare(`
+        SELECT phone_number FROM emergency_contacts WHERE is_active = 1
+      `).all() as any[]
+      allRegistered.forEach((ec) => {
+        if (ec.phone_number) phoneSet.add(String(ec.phone_number).trim())
+      })
+    }
+
+    // 3. Fetch phone numbers of citizen reporters in this sub-city / zone
+    if (targetType !== "custom_only") {
+      let query = "SELECT DISTINCT reporter_contact FROM outbreak_reports WHERE reporter_contact IS NOT NULL"
+      const params: any[] = []
+      if (targetZone !== "All Jurisdictions" && targetZone !== "All Zones") {
+        query += " AND region_subcity LIKE ?"
+        params.push(`%${targetZone}%`)
+      }
+      const contacts = db.prepare(query).all(...params) as any[]
+      contacts.forEach((c) => {
+        const contactVal = String(c.reporter_contact || "").trim()
+        // If looks like phone number (contains digits)
+        if (/\d{9,}/.test(contactVal) && !contactVal.includes("@")) {
+          phoneSet.add(contactVal)
+        }
+      })
+    }
+
+    // Fallback: If no resident or responder numbers found, use default Bole sub-city emergency phone
+    if (phoneSet.size === 0) {
+      phoneSet.add("+251967453624")
+    }
+
+    const recipients = Array.from(phoneSet)
+    const dispatchResults: any[] = []
+
+    // Dispatch via AfroMessage Service
+    for (const phone of recipients) {
+      const result = await sendOutbreakSms({
+        to: phone,
+        message: trimmedMsg,
+        zone: targetZone,
+        senderName: chosenSender,
+        triggeredBy: admin?.name || "Operations Officer",
+      })
+      dispatchResults.push({ phone, ...result })
+    }
+
+    logAuditEvent({
+      actionType: "SMS_BROADCAST_DISPATCHED",
+      entityType: "outbreak",
+      entityId: null,
+      actorName: admin?.name || "Admin Officer",
+      actorEmail: admin?.email || null,
+      details: `Dispatched SMS to ${recipients.length} recipients in ${targetZone}: "${trimmedMsg.slice(0, 60)}..."`,
+      ipAddress: req.ip,
+    })
+
+    const isLive = Boolean(process.env.SMS_ETHIOPIA_API_KEY || process.env.SMSETHIOPIA_API_KEY || process.env.AFROMESSAGE_API_TOKEN || "H08YSMTVVS5C8I6PNMIMI0TOPB7E265ZVAS99CD3")
+    const primaryProvider = dispatchResults[0]?.provider || "smsethiopia"
+    const lastDetail = dispatchResults[0]?.detail
+
+    res.json({
+      success: true,
+      recipientCount: recipients.length,
+      zone: targetZone,
+      results: dispatchResults,
+      hasLiveToken: isLive,
+      activeProvider: primaryProvider === "smsethiopia" ? "SMSEthiopia" : (primaryProvider === "afromessage" ? "AfroMessage" : "Simulator"),
+      lastStatus: dispatchResults[0]?.status,
+      lastDetail: lastDetail,
+    })
+  } catch (err: any) {
+    console.error("[SMS Broadcast Error]:", err)
+    res.status(500).json({ error: "Failed to dispatch SMS broadcast", details: err?.message })
+  }
+})
+
+// GET /api/admin/sms/logs - Retrieve SMS Broadcast Delivery Audit Ledger
+adminRouter.get("/sms/logs", requireAuth, (_req: Request, res: Response): void => {
+  try {
+    const logs = db
+      .prepare(`
+        SELECT id, recipient_phone, zone, message, status, provider, detail, triggered_by, created_at
+        FROM sms_broadcast_logs
+        ORDER BY id DESC
+        LIMIT 100
+      `)
+      .all()
+    res.json({ logs })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to retrieve SMS logs", details: err?.message })
+  }
+})
+
+// DELETE /api/admin/sms/logs/:id - Delete an SMS Log entry
+adminRouter.delete("/sms/logs/:id", requireAuth, (req: Request, res: Response): void => {
+  try {
+    const logId = parseInt(req.params.id, 10)
+    db.prepare("DELETE FROM sms_broadcast_logs WHERE id = ?").run(logId)
+    res.json({ success: true })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to delete SMS log", details: err?.message })
+  }
+})
+
+// GET /api/admin/emergency-contacts - List Sub-City Emergency Responder Contacts
+adminRouter.get("/emergency-contacts", requireAuth, (_req: Request, res: Response): void => {
+  try {
+    const contacts = db.prepare(`
+      SELECT id, zone_subcity, phone_number, officer_name, role, is_active, created_at
+      FROM emergency_contacts
+      ORDER BY id ASC
+    `).all()
+    res.json({ contacts })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to fetch emergency contacts", details: err?.message })
+  }
+})
+
+// POST /api/admin/emergency-contacts - Add New Sub-City Emergency Contact
+adminRouter.post("/emergency-contacts", requireAuth, (req: Request, res: Response): void => {
+  try {
+    const admin = req.admin
+    const { zone_subcity, phone_number, officer_name, role } = req.body
+
+    if (!zone_subcity || !phone_number) {
+      res.status(400).json({ error: "Zone/Sub-City and Phone Number are required" })
+      return
+    }
+
+    const info = db.prepare(`
+      INSERT INTO emergency_contacts (zone_subcity, phone_number, officer_name, role, is_active)
+      VALUES (?, ?, ?, ?, 1)
+    `).run(
+      zone_subcity.trim(),
+      phone_number.trim(),
+      (officer_name || "Sub-City Health Emergency Desk").trim(),
+      (role || "Health Officer").trim()
+    )
+
+    logAuditEvent({
+      actionType: "EMERGENCY_CONTACT_ADDED",
+      entityType: "contact",
+      entityId: Number(info.lastInsertRowid),
+      actorName: admin?.name || "Admin",
+      actorEmail: admin?.email || null,
+      details: `Added emergency contact for ${zone_subcity}: ${phone_number}`,
+      ipAddress: req.ip,
+    })
+
+    res.json({ success: true, id: info.lastInsertRowid })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to add emergency contact", details: err?.message })
+  }
+})
+
+// PUT /api/admin/emergency-contacts/:id - Edit Sub-City Emergency Contact
+adminRouter.put("/emergency-contacts/:id", requireAuth, (req: Request, res: Response): void => {
+  try {
+    const admin = req.admin
+    const contactId = parseInt(req.params.id, 10)
+    const { zone_subcity, phone_number, officer_name, role, is_active } = req.body
+
+    if (!zone_subcity || !phone_number) {
+      res.status(400).json({ error: "Zone/Sub-City and Phone Number are required" })
+      return
+    }
+
+    db.prepare(`
+      UPDATE emergency_contacts
+      SET zone_subcity = ?, phone_number = ?, officer_name = ?, role = ?, is_active = ?
+      WHERE id = ?
+    `).run(
+      zone_subcity.trim(),
+      phone_number.trim(),
+      officer_name.trim(),
+      role.trim(),
+      is_active !== undefined ? (is_active ? 1 : 0) : 1,
+      contactId
+    )
+
+    logAuditEvent({
+      actionType: "EMERGENCY_CONTACT_UPDATED",
+      entityType: "contact",
+      entityId: contactId,
+      actorName: admin?.name || "Admin",
+      actorEmail: admin?.email || null,
+      details: `Updated emergency contact #${contactId} for ${zone_subcity}: ${phone_number}`,
+      ipAddress: req.ip,
+    })
+
+    res.json({ success: true })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to update emergency contact", details: err?.message })
+  }
+})
+
+// DELETE /api/admin/emergency-contacts/:id - Delete Emergency Contact
+adminRouter.delete("/emergency-contacts/:id", requireAuth, (req: Request, res: Response): void => {
+  try {
+    const admin = req.admin
+    const contactId = parseInt(req.params.id, 10)
+
+    db.prepare("DELETE FROM emergency_contacts WHERE id = ?").run(contactId)
+
+    logAuditEvent({
+      actionType: "EMERGENCY_CONTACT_DELETED",
+      entityType: "contact",
+      entityId: contactId,
+      actorName: admin?.name || "Admin",
+      actorEmail: admin?.email || null,
+      details: `Deleted emergency contact #${contactId}`,
+      ipAddress: req.ip,
+    })
+
+    res.json({ success: true })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to delete emergency contact", details: err?.message })
+  }
 })

@@ -1,14 +1,16 @@
 import { Router, type Request, type Response } from "express"
 import { db, logAuditEvent } from "../db"
 import { requireAuth, type AdminUserPayload } from "../middleware/auth"
+import { sendOutbreakSms } from "../services/afroMessage"
 
 export const outbreakRouter = Router()
 
 /**
  * AI Outbreak Advisory Draft Generator
  * When 3+ matching community reports are detected in a zone, synthesizes an epidemiological bulletin
+ * and an urgent, highly detailed emergency SMS alert payload.
  */
-function generateAiOutbreakDraft(region: string, symptoms: string, reportCount: number) {
+async function generateAiOutbreakDraft(region: string, symptoms: string, reportCount: number): Promise<{ title: string; excerpt: string; content: string; sms_alert: string }> {
   const isDiarrhea = /diarrhea|watery|vomit|cholera|stomach|ተቅማጥ|ማስታወክ/i.test(symptoms)
   const isRespiratory = /cough|breath|fever|flu|pneumonia|ሳል|ትኩሳት|የትንፋሽ/i.test(symptoms)
   const isMalaria = /malaria|chills|shivering|ወባ|ብርድ/i.test(symptoms)
@@ -21,6 +23,7 @@ function generateAiOutbreakDraft(region: string, symptoms: string, reportCount: 
   let whatHappened = ""
   let environmentalAdvice = ""
   let clinicalTriage = ""
+  let defaultSms = ""
 
   if (isDiarrhea) {
     title = `Public Health Alert: Acute Watery Diarrhea & Gastrointestinal Cluster in ${region}`
@@ -33,6 +36,17 @@ function generateAiOutbreakDraft(region: string, symptoms: string, reportCount: 
     clinicalTriage = `### Treatability Assessment & Home Care vs. Hospital Escalation:
 - **Mild to Moderate Cases (Home Supportive Treatment)**: Conscious patients able to swallow without intractable vomiting can be safely managed at home with continuous Oral Rehydration Salts (ORS) dissolved in boiled water, zinc supplements (20mg daily for children), and clean broth/water. Do not administer anti-diarrheal stoppage pills (e.g. loperamide) to children as they trap bacterial toxins inside the intestines.
 - **Severe / Untreatable at Home (Immediate Hospital Transfer)**: If the patient exhibits sunken eyes, skin tenting, extreme lethargy/unresponsiveness, cold limbs, or persistent vomiting that prevents fluid retention, this CANNOT be treated at home. The patient requires emergency intravenous (IV) Ringer's Lactate. Evacuate immediately to the nearest referral clinic or dispatch the Ethiopian Red Cross at **907**.`
+    defaultSms = `🚨 [TENAYE CRITICAL HEALTH ALERT]
+
+Location: ${region}
+
+Disease: Acute Watery Diarrhea & Gastrointestinal Surge
+
+Affected Citizens: ${reportCount} Cases Verified
+
+What Happened: Urgent surveillance detected an acute cluster of watery diarrhea and dehydration from contaminated water or foodborne exposure.
+
+Action & Clinical Support: Rapid distribution of Oral Rehydration Salts (ORS), zinc tablets, and WaterGuard chlorine solution active. Field health officers dispatched to support affected households and set up hydration stations.`
   } else if (isRespiratory) {
     title = `Epidemic Notice: Acute Respiratory Infection & High Fever Cluster in ${region}`
     excerpt = `Clinical surveillance identified ${reportCount} active community cases of high fever, productive cough, and respiratory fatigue in ${region}. Containment protocols issued.`
@@ -44,6 +58,17 @@ function generateAiOutbreakDraft(region: string, symptoms: string, reportCount: 
     clinicalTriage = `### Treatability Assessment & Home Care vs. Hospital Escalation:
 - **Mild Cases (Home Care Protocol)**: Mild cough, low-grade fever, and runny nose can be managed safely at home with strict bed rest, plenty of warm liquids, steam inhalation, and paracetamol for temperature control. Keep the patient isolated in a well-ventilated room.
 - **Severe / Untreatable at Home (Emergency Clinical Escalation)**: Rapid breathing, chest indrawing (ribs sucking inwards during inhalation), inability to speak full sentences, blue lips/fingernails (hypoxia), or unyielding high fever CANNOT be treated at home. Oxygen therapy and hospital intravenous medication are required. Transfer immediately to emergency triage or call **907 Ambulance**.`
+    defaultSms = `🫁 [TENAYE EPIDEMIC ALERT]
+
+Location: ${region}
+
+Disease: Acute Respiratory Infection & High Fever Cluster
+
+Affected Citizens: ${reportCount} Cases Verified
+
+What Happened: Surveillance identified rapid airborne transmission of severe respiratory distress and febrile symptoms across community households.
+
+Action & Clinical Support: Clinical triage beds and medical mask supplies dispatched to local health centers. Health extension workers actively monitoring vulnerable residents and conducting home-care outreach.`
   } else if (isMalaria) {
     title = `Vector Alert: Cluster of Suspected Malaria & Acute Febrile Illness in ${region}`
     excerpt = `Multiple verified reports (${reportCount} cases) of cyclical high fever, chills, and muscle ache logged in ${region}. Prompt diagnostic testing and vector prevention directives active.`
@@ -56,6 +81,17 @@ function generateAiOutbreakDraft(region: string, symptoms: string, reportCount: 
 - **Clinical Testing Prerequisite (Do Not Self-Medicate)**: Malaria CANNOT be cured with home remedies or leftover antibiotics. A finger-prick Rapid Diagnostic Test (RDT) or blood smear at a local health center is strictly required prior to taking Artemisinin-based Combination Therapy (Coartem). Unconfirmed medication causes severe treatment failure.
 - **Home Symptom Support**: Tepid sponging with lukewarm water and paracetamol can help control dangerous febrile spikes while en route to a medical facility.
 - **Dangerous Complications**: Incessant vomiting, jaundice (yellow eyes), dark urine, convulsions, or confusion indicate severe or complicated malaria. The resident must be evacuated to an inpatient ward immediately via **907**.`
+    defaultSms = `🦟 [TENAYE VECTOR ALERT]
+
+Location: ${region}
+
+Disease: Suspected Malaria & Acute Febrile Illness
+
+Affected Citizens: ${reportCount} Cases Verified
+
+What Happened: Concentrated mosquito-borne transmission detected with cyclical high fevers and severe chills across residential sectors.
+
+Action & Clinical Support: Rapid Diagnostic Test (RDT) kits and Artemisinin combination therapies delivered to local health posts. Field extension teams mobilizing insecticide-treated bed nets and drainage support.`
   } else if (isMpoxOrSkin) {
     title = `Dermatological Surveillance Alert: Suspected Febrile Rash Cluster in ${region}`
     excerpt = `Tenaye AI recorded ${reportCount} community incident reports of acute rash and swollen lymph nodes in ${region}. Protective barrier precautions in effect.`
@@ -66,6 +102,17 @@ function generateAiOutbreakDraft(region: string, symptoms: string, reportCount: 
     clinicalTriage = `### Treatability Assessment & Home Care vs. Hospital Escalation:
 - **Mild Supportive Home Isolation**: If lesions are few, stable, and the individual can hydrate and eat, maintain strict home isolation in a private room with dry, covered lesions. Do not scratch or pop blisters. Apply soothing calamine lotion and take paracetamol for pain/fever.
 - **Red-Flag Escalation (Hospital Evacuation)**: Lesions spreading near or inside the eyes, severe throat pain impairing swallowing or breathing, or signs of secondary bacterial infections (foul-smelling pus, high fever spikes) CANNOT be treated at home. Contact public health hotline **8335** or call **907**.`
+    defaultSms = `🛡️ [TENAYE DERMATOLOGICAL ALERT]
+
+Location: ${region}
+
+Disease: Febrile Skin Rash & Mucosal Lesions
+
+Affected Citizens: ${reportCount} Cases Verified
+
+What Happened: Localized transmission of acute eruptions and lymphadenopathy reported across residential clusters.
+
+Action & Clinical Support: Clinical barrier supplies and soothing topical treatments dispatched. Specialized triage teams conducting safe contact tracing and patient supportive care.`
   } else {
     title = `Community Health Advisory: Emerging Symptom Cluster (${symptoms}) in ${region}`
     excerpt = `Tenaye AI epidemiological monitoring recorded ${reportCount} concurrent community reports of ${symptoms} in ${region}. General clinical guidance and precautions.`
@@ -76,6 +123,17 @@ function generateAiOutbreakDraft(region: string, symptoms: string, reportCount: 
     clinicalTriage = `### Treatability Assessment & Home Care vs. Hospital Escalation:
 - **Mild Symptoms (Home Observation)**: Mild discomfort without respiratory distress, severe pain, or neurological impairment can be monitored at home for 24-48 hours with adequate bed rest, clean fluids, and good nutrition.
 - **Hospital Escalation**: Any persistent high fever (>39°C) unresponsive to medicine, chest pain, difficulty breathing, or severe fatigue warrants an in-person diagnostic evaluation at a health facility. Contact **907** in emergency circumstances.`
+    defaultSms = `🚨 [TENAYE EMERGENCY HEALTH ALERT]
+
+Location: ${region}
+
+Disease: ${symptoms}
+
+Affected Citizens: ${reportCount} Cases Verified
+
+What Happened: Health surveillance confirmed an active cluster of concurrent community symptoms requiring rapid medical containment.
+
+Action & Clinical Support: Sub-city Rapid Response Teams mobilized with emergency diagnostic packs. Primary clinics placed on active standby to provide immediate patient care.`
   }
 
   const content = `
@@ -96,11 +154,66 @@ ${environmentalAdvice}
 ${clinicalTriage}
   `.trim()
 
-  return { title, excerpt, content }
+  // Google Gemini API in background (if configured in environment)
+  const geminiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY
+  if (geminiKey && geminiKey !== "your_gemini_api_key_here" && geminiKey.length > 10) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`
+      const prompt = `You are the Tenaye Clinical AI Epidemiologist in Ethiopia. A disease cluster of ${reportCount} citizens with symptoms "${symptoms}" has been detected in "${region}".
+Generate a structured JSON output with:
+1. "title": Official alert title for public portal.
+2. "excerpt": A 2-sentence clinical synopsis.
+3. "content": Markdown formatted epidemiological bulletin with Investigation Summary, What Happened, Environmental Guidance, and Clinical Treatment/Emergency Triage Protocol.
+4. "sms_alert": A high-urgency, detailed, professional emergency SMS alert formatted EXACTLY with blank lines separating sections:
+"<emoji> [TENAYE ALERT]
+
+Location: ${region}
+
+Disease: <specific condition>
+
+Affected Citizens: ${reportCount} Cases Verified
+
+What Happened: <1-2 lines concise clinical explanation of what happened and transmission route>
+
+Action & Clinical Support: <professional actions and direct support measures provided to the community, such as distributing medical supplies, bed nets, ORS, or RRT dispatch. DO NOT simply write call 907>"
+
+Output ONLY valid JSON without backticks.`
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 1200, temperature: 0.3 },
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+        if (text) {
+          const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim()
+          const parsed = JSON.parse(cleanJson)
+          if (parsed.title && parsed.content && parsed.sms_alert) {
+            return {
+              title: parsed.title,
+              excerpt: parsed.excerpt || excerpt,
+              content: parsed.content,
+              sms_alert: parsed.sms_alert,
+            }
+          }
+        }
+      }
+    } catch (geminiErr) {
+      console.warn("[Gemini Outbreak AI Background Warning - Local Clinical Engine Activated]:", geminiErr)
+    }
+  }
+
+  return { title, excerpt, content, sms_alert: defaultSms }
 }
 
 // POST /api/outbreak-reports - Public Citizen Community Health Report
-outbreakRouter.post("/", (req: Request, res: Response): void => {
+outbreakRouter.post("/", async (req: Request, res: Response): Promise<void> => {
   try {
     const {
       reporter_name,
@@ -171,9 +284,13 @@ outbreakRouter.post("/", (req: Request, res: Response): void => {
         const combinedSymptoms = Array.from(new Set(pendingReports.map(r => r.disease_or_symptoms))).join(", ")
         const totalPeople = pendingReports.reduce((sum, r) => sum + (r.affected_count || 1), 0)
 
-        const { title, excerpt, content } = generateAiOutbreakDraft(region_subcity.trim(), combinedSymptoms, totalPeople)
+        const { title, excerpt, content, sms_alert } = await generateAiOutbreakDraft(region_subcity.trim(), combinedSymptoms, totalPeople)
 
         const slug = `outbreak-advisory-${region_subcity.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`
+
+        // 1. Gather report IDs that triggered this cluster
+        const reportIds = pendingReports.map(r => r.id)
+        const reportIdsJson = JSON.stringify(reportIds)
 
         // Insert AI Outbreak Post Draft (waiting for Admin Approval) - has_relief defaults to 0 (pure news advisory)
         const postInfo = db.prepare(`
@@ -181,8 +298,8 @@ outbreakRouter.post("/", (req: Request, res: Response): void => {
             title, slug, excerpt, content, category, author_name,
             status, published, views_count, has_relief, relief_goal, relief_raised,
             relief_beneficiary, relief_description, cluster_symptoms, cluster_region,
-            cluster_count, ai_generated
-          ) VALUES (?, ?, ?, ?, 'outbreak', 'Tenaye AI Epidemiological Engine', 'draft', 0, 0, 0, 0, 0, ?, ?, ?, ?, ?, 1)
+            cluster_count, ai_generated, emergency_sms_text, report_ids
+          ) VALUES (?, ?, ?, ?, 'outbreak', 'Tenaye AI Epidemiological Engine', 'draft', 0, 0, 0, 0, 0, ?, ?, ?, ?, ?, 1, ?, ?)
         `).run(
           title,
           slug,
@@ -192,13 +309,14 @@ outbreakRouter.post("/", (req: Request, res: Response): void => {
           `Community emergency fund providing water purification tablets, essential rehydration medicines, and clinical supplies to families in ${region_subcity}.`,
           combinedSymptoms,
           region_subcity.trim(),
-          pendingReports.length
+          pendingReports.length,
+          sms_alert,
+          reportIdsJson
         )
 
         draftId = Number(postInfo.lastInsertRowid)
 
-        // Mark matching reports as clustered
-        const reportIds = pendingReports.map(r => r.id)
+        // Mark only these reports as clustered
         db.prepare(`
           UPDATE outbreak_reports
           SET status = 'clustered'
@@ -214,6 +332,48 @@ outbreakRouter.post("/", (req: Request, res: Response): void => {
           details: `AI Outbreak cluster triggered in ${region_subcity} from ${pendingReports.length} reports. Created post draft #${draftId}.`,
           ipAddress: req.ip,
         })
+
+        // 🚨 AUTOMATIC REAL-TIME SMS ALERT DISPATCH:
+        // When 3+ people report in the same place, AI writes detailed message and dispatches immediately
+        try {
+          const aiSmsAlertText = sms_alert
+          
+          // 1. Find registered emergency response phone numbers for this sub-city (e.g. +251967453624 for Bole)
+          const emergencyContacts = db.prepare(`
+            SELECT phone_number FROM emergency_contacts 
+            WHERE is_active = 1 AND (zone_subcity LIKE ? OR ? LIKE '%' || zone_subcity || '%')
+          `).all(`%${region_subcity}%`, region_subcity) as any[]
+
+          const targetPhones = new Set<string>()
+          emergencyContacts.forEach(ec => {
+            if (ec.phone_number) targetPhones.add(String(ec.phone_number).trim())
+          })
+
+          // 2. Also gather phone numbers of reporting citizens in this cluster
+          pendingReports.forEach(r => {
+            const contact = String(r.reporter_contact || "").trim()
+            if (/\d{9,}/.test(contact) && !contact.includes("@")) {
+              targetPhones.add(contact)
+            }
+          })
+
+          // Fallback if none in sub-city: target default Bole sub-city emergency phone
+          if (targetPhones.size === 0) {
+            targetPhones.add("+251967453624")
+          }
+
+          // Asynchronously dispatch SMS alerts to all target numbers
+          for (const phone of targetPhones) {
+            sendOutbreakSms({
+              to: phone,
+              message: aiSmsAlertText,
+              zone: region_subcity,
+              triggeredBy: "Tenaye AI Clustering Engine",
+            }).catch(e => console.warn(`[SMS Auto-Alert Error ${phone}]:`, e))
+          }
+        } catch (smsAutoErr) {
+          console.warn("[Outbreak SMS Auto-Trigger Warning]:", smsAutoErr)
+        }
       }
     }
 
@@ -253,16 +413,54 @@ outbreakRouter.get("/drafts", requireAuth, (_req: Request, res: Response): void 
     const drafts = db.prepare(`
       SELECT id, title, excerpt, content, category, author_name, status,
              cluster_region, cluster_symptoms, cluster_count, ai_generated,
-             has_relief, relief_goal, relief_beneficiary, created_at
+             has_relief, relief_goal, relief_beneficiary, relief_description,
+             emergency_sms_text, report_ids, created_at
       FROM news_posts
       WHERE status = 'draft' AND ai_generated = 1
       ORDER BY id ASC
     `).all() as any[]
 
-    // Enrich each draft with the underlying clustered citizen reports for admin inspection
+    // Enrich each draft with ONLY the underlying clustered citizen reports for that specific draft
     const enrichedDrafts = drafts.map((draft) => {
       let reports: any[] = []
-      if (draft.cluster_region) {
+      let detectedContact: any = null
+
+      let parsedReportIds: number[] = []
+      if (draft.report_ids) {
+        try {
+          const parsed = JSON.parse(draft.report_ids)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            parsedReportIds = parsed.map(Number).filter((n: number) => !isNaN(n))
+          }
+        } catch {}
+      }
+
+      if (parsedReportIds.length > 0) {
+        const placeholders = parsedReportIds.map(() => "?").join(",")
+        reports = db.prepare(`
+          SELECT id, reporter_name, reporter_contact, disease_or_symptoms, affected_count, severity, notes, created_at
+          FROM outbreak_reports
+          WHERE id IN (${placeholders})
+          ORDER BY id ASC
+        `).all(...parsedReportIds) as any[]
+      } else if (draft.cluster_region && draft.cluster_symptoms) {
+        // Fallback for earlier drafts: match region and symptoms keywords so unrelated reports are NOT mixed
+        const symptomTerms = draft.cluster_symptoms.split(",").map((s: string) => s.trim()).filter(Boolean)
+        const whereClause = symptomTerms.length > 0
+          ? `region_subcity = ? AND (${symptomTerms.map(() => "disease_or_symptoms LIKE ?").join(" OR ")})`
+          : `region_subcity = ?`
+        const params = symptomTerms.length > 0
+          ? [draft.cluster_region, ...symptomTerms.map((t: string) => `%${t}%`)]
+          : [draft.cluster_region]
+
+        reports = db.prepare(`
+          SELECT id, reporter_name, reporter_contact, disease_or_symptoms, affected_count, severity, notes, created_at
+          FROM outbreak_reports
+          WHERE ${whereClause}
+          ORDER BY id ASC
+          LIMIT 10
+        `).all(...params) as any[]
+      } else if (draft.cluster_region) {
         reports = db.prepare(`
           SELECT id, reporter_name, reporter_contact, disease_or_symptoms, affected_count, severity, notes, created_at
           FROM outbreak_reports
@@ -271,8 +469,34 @@ outbreakRouter.get("/drafts", requireAuth, (_req: Request, res: Response): void 
           LIMIT 10
         `).all(draft.cluster_region) as any[]
       }
+
+      if (draft.cluster_region) {
+        detectedContact = db.prepare(`
+          SELECT id, zone_subcity, phone_number, officer_name, role, is_active
+          FROM emergency_contacts
+          WHERE is_active = 1 AND (zone_subcity LIKE ? OR ? LIKE '%' || zone_subcity || '%')
+          LIMIT 1
+        `).get(`%${draft.cluster_region}%`, draft.cluster_region) as any
+      }
+
+      // Generate default emergency SMS text if not stored
+      const smsText = draft.emergency_sms_text ||
+        `🚨 [TENAYE EMERGENCY HEALTH ALERT]
+
+Location: ${draft.cluster_region || "Addis Ababa"}
+
+Disease: ${draft.cluster_symptoms || "Health Outbreak"}
+
+Affected Citizens: ${draft.cluster_count || 3} Cases Verified
+
+What Happened: Health surveillance confirmed an active cluster of concurrent community symptoms requiring rapid medical containment.
+
+Action & Clinical Support: Sub-city Rapid Response Teams mobilized with emergency diagnostic packs. Primary clinics placed on active standby to provide immediate patient care.`
+
       return {
         ...draft,
+        emergency_sms_text: smsText,
+        detected_contact: detectedContact || null,
         citizen_reports: reports,
       }
     })
@@ -284,7 +508,7 @@ outbreakRouter.get("/drafts", requireAuth, (_req: Request, res: Response): void 
 })
 
 // POST /api/admin/outbreak-drafts/:id/approve - Approve & Publish Outbreak Alert (Admin Only)
-outbreakRouter.post("/drafts/:id/approve", requireAuth, (req: Request, res: Response): void => {
+outbreakRouter.post("/drafts/:id/approve", requireAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = ((req as any).admin || (req as any).user || {
       id: 1,
@@ -293,7 +517,17 @@ outbreakRouter.post("/drafts/:id/approve", requireAuth, (req: Request, res: Resp
       role: "admin",
     }) as AdminUserPayload
     const id = parseInt(req.params.id, 10)
-    const { title, content, has_relief, relief_goal, relief_beneficiary, relief_description } = req.body
+    const {
+      title,
+      content,
+      has_relief,
+      relief_goal,
+      relief_beneficiary,
+      relief_description,
+      send_sms,
+      custom_sms_text,
+      target_phone,
+    } = req.body
 
     const draft = db.prepare("SELECT * FROM news_posts WHERE id = ?").get(id) as any
     if (!draft) {
@@ -322,19 +556,91 @@ outbreakRouter.post("/drafts/:id/approve", requireAuth, (req: Request, res: Resp
       id
     )
 
+    let smsDispatched = false
+    let dispatchedPhone = ""
+
+    // Optional: Send Emergency Alert by SMS on approval
+    if (send_sms) {
+      try {
+        const clusterRegion = draft.cluster_region || "Your Area"
+        const clusterSymptoms = draft.cluster_symptoms || "health symptoms"
+        const smsMsg = (custom_sms_text || draft.emergency_sms_text ||
+          `[TENAYE EMERGENCY ALERT] Location: ${clusterRegion} | Disease: ${clusterSymptoms} | Affected: ${draft.cluster_count || 3} citizens. Urgent medical response requested. Public advisory published at tenaye.health | Dial 907`).trim()
+
+        // Find registered emergency response numbers and citizen contacts
+        const targetPhones = new Set<string>()
+
+        if (target_phone && typeof target_phone === "string" && target_phone.trim()) {
+          targetPhones.add(target_phone.trim())
+        } else {
+          const emergencyContacts = db.prepare(`
+            SELECT phone_number FROM emergency_contacts 
+            WHERE is_active = 1 AND (zone_subcity LIKE ? OR ? LIKE '%' || zone_subcity || '%')
+          `).all(`%${clusterRegion}%`, clusterRegion) as any[]
+
+          emergencyContacts.forEach((ec) => {
+            if (ec.phone_number) targetPhones.add(String(ec.phone_number).trim())
+          })
+        }
+
+        // Also add citizen contacts from reports in that specific cluster
+        let reports: any[] = []
+        if (draft.report_ids) {
+          try {
+            const parsed = JSON.parse(draft.report_ids)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const placeholders = parsed.map(() => "?").join(",")
+              reports = db.prepare(`
+                SELECT reporter_contact FROM outbreak_reports WHERE id IN (${placeholders}) AND reporter_contact IS NOT NULL
+              `).all(...parsed) as any[]
+            }
+          } catch {}
+        }
+        if (reports.length === 0) {
+          reports = db.prepare(`
+            SELECT reporter_contact FROM outbreak_reports WHERE region_subcity = ? AND reporter_contact IS NOT NULL LIMIT 10
+          `).all(clusterRegion) as any[]
+        }
+
+        reports.forEach((r) => {
+          const c = String(r.reporter_contact || "").trim()
+          if (/\d{9,}/.test(c) && !c.includes("@")) targetPhones.add(c)
+        })
+
+        if (targetPhones.size === 0) targetPhones.add("+251967453624")
+
+        dispatchedPhone = Array.from(targetPhones).join(", ")
+
+        for (const phone of targetPhones) {
+          sendOutbreakSms({
+            to: phone,
+            message: smsMsg,
+            zone: clusterRegion,
+            triggeredBy: `Approved Outbreak: ${user.name}`,
+          }).catch((err) => console.warn("[Approval SMS dispatch error]:", err))
+        }
+
+        smsDispatched = true
+      } catch (smsErr) {
+        console.warn("[Approve Draft SMS Error]:", smsErr)
+      }
+    }
+
     logAuditEvent({
       actionType: "OUTBREAK_APPROVED",
       entityType: "outbreak",
       entityId: id,
       actorName: user.name,
       actorEmail: user.email,
-      details: `Admin ${user.name} approved and published AI Outbreak Bulletin: "${title || draft.title}"`,
+      details: `Admin ${user.name} approved and published AI Outbreak Bulletin: "${title || draft.title}"${send_sms ? ` (with SMS broadcast to ${dispatchedPhone})` : ""}`,
       ipAddress: req.ip,
     })
 
     res.json({
       success: true,
-      message: "Outbreak alert approved and published to the public News & Health Bulletins page!",
+      message: `Outbreak alert approved and published to /news!${smsDispatched ? ` Emergency SMS alert dispatched to ${dispatchedPhone}.` : ""}`,
+      sms_dispatched: smsDispatched,
+      sms_destination: dispatchedPhone,
     })
   } catch (err: any) {
     res.status(500).json({ error: "Failed to approve draft", details: err?.message })

@@ -33,12 +33,11 @@ app.get("/api/health", (_req, res) => {
 
 // API routes
 app.use("/api/auth", authRouter)
-app.use("/api/contact", contactRouter)
-app.use("/api", contactRouter) // Also mount /api/admin/contacts directly
 app.use("/api/admin", adminRouter)
+app.use("/api/admin/outbreak", outbreakRouter)
+app.use("/api/contact", contactRouter)
 app.use("/api/news", newsRouter)
 app.use("/api/outbreak-reports", outbreakRouter)
-app.use("/api/admin/outbreak", outbreakRouter)
 
 // In production on Render / Vercel, serve static frontend from dist
 const distPath = path.resolve(process.cwd(), "dist")
