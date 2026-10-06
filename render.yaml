@@ -5,7 +5,8 @@ services:
     region: oregon
     plan: starter            # upgrade to "standard" when you need more RAM
     buildCommand: npm install && npm run build
-    startCommand: npm run start
+    # On first boot, seed /data/tenaye.db from the committed repo copy if not already present
+    startCommand: node -e "const fs=require('fs'),path=require('path');const dest='/data/tenaye.db';const src=path.join(process.cwd(),'data','tenaye.db');if(!fs.existsSync(dest)&&fs.existsSync(src)){fs.mkdirSync('/data',{recursive:true});fs.copyFileSync(src,dest);console.log('[Render] Seeded /data/tenaye.db from repo');}" && npm run start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -17,6 +18,18 @@ services:
         value: "10000"        # Render injects PORT automatically; kept explicit for clarity
       - key: JWT_SECRET
         generateValue: true   # Render auto-generates a strong random secret
+      # SMS Gateway — SMSEthiopia (primary, free 100 test SMS on signup)
+      - key: SMS_ETHIOPIA_API_KEY
+        value: H08YSMTVVS5C8I6PNMIMI0TOPB7E265ZVAS99CD3
+      - key: SMS_SENDER_NAME
+        value: Tenaye Alert
+      # AfroMessage fallback (optional — leave blank to skip)
+      - key: AFROMESSAGE_API_TOKEN
+        value: ""
+      - key: AFROMESSAGE_IDENTIFIER_ID
+        value: ""
+      - key: AFROMESSAGE_SENDER_NAME
+        value: Tenaye Alert
       - key: SUPERADMIN_EMAIL
         sync: false           # set manually in Render dashboard
       - key: SUPERADMIN_PASSWORD
@@ -27,3 +40,4 @@ services:
       name: tenaye-data
       mountPath: /data        # persisted across all restarts & deploys
       sizeGB: 1               # 1 GB is plenty for SQLite; raise if needed
+

@@ -11,6 +11,17 @@ if (!fs.existsSync(dataDir)) {
 }
 
 const dbPath = path.join(dataDir, "tenaye.db")
+
+// Seed the persistent disk on first Render deployment.
+// If the target DB doesn't exist yet but the committed seed copy does, copy it.
+if (!fs.existsSync(dbPath)) {
+  const seedPath = path.resolve(process.cwd(), "data", "tenaye.db")
+  if (seedPath !== dbPath && fs.existsSync(seedPath)) {
+    fs.copyFileSync(seedPath, dbPath)
+    console.log(`[Database] Seeded ${dbPath} from ${seedPath}`)
+  }
+}
+
 export const db = new Database(dbPath)
 
 // Enable Write-Ahead Logging for high performance
