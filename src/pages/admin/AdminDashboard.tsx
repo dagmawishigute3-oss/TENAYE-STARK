@@ -504,7 +504,7 @@ export function AdminDashboard() {
     if (!token) return
     const customSettings = draftReliefSettings[draft.id]
     const hasRelief = customSettings ? customSettings.has_relief : Boolean(draft.has_relief)
-    const sendSms = customSettings?.send_sms !== undefined ? customSettings.send_sms : true
+    const sendSms = customSettings?.send_sms === true
     const customSmsText = (customSettings?.custom_sms_text || draft.emergency_sms_text || "").trim()
     const targetPhone = (customSettings?.target_phone || draft.detected_contact?.phone_number || "").trim()
     const reliefGoal = customSettings ? parseFloat(customSettings.relief_goal) || 0 : draft.relief_goal || 0
@@ -3153,17 +3153,17 @@ export function AdminDashboard() {
                             )}
                           </div>
 
-                            {/* ── CARD 4: GEMINI AI BACKGROUND EMERGENCY SMS DISPATCH ── */}
+                            {/* ── CARD 4: OPTIONAL EMERGENCY SMS ALERT BROADCAST ── */}
                           <div className={`p-4 rounded-2xl border transition-all ${
                             isDark
-                              ? reliefConfig.send_sms !== false ? "bg-emerald-950/40 border-emerald-700/60" : "bg-slate-950/40 border-slate-800"
-                              : reliefConfig.send_sms !== false ? "bg-emerald-50 border-emerald-300" : "bg-stone-50 border-stone-200"
+                              ? reliefConfig.send_sms ? "bg-emerald-950/40 border-emerald-700/60" : "bg-slate-950/40 border-slate-800"
+                              : reliefConfig.send_sms ? "bg-emerald-50 border-emerald-300" : "bg-stone-50 border-stone-200"
                           }`}>
                             <div className="flex items-center justify-between">
                               <label className="flex items-center gap-3 cursor-pointer">
                                 <input
                                   type="checkbox"
-                                  checked={reliefConfig.send_sms !== false}
+                                  checked={Boolean(reliefConfig.send_sms)}
                                   onChange={(e) => {
                                     setDraftReliefSettings((prev) => ({
                                       ...prev,
@@ -3180,16 +3180,16 @@ export function AdminDashboard() {
                                     Send Live Emergency Alert via Real SMS on Publish
                                   </span>
                                   <span className="text-[11px] text-slate-400 block">
-                                    {reliefConfig.send_sms !== false
-                                      ? `Active: Automatically dispatches SMS alert to the official ${draft.cluster_region} emergency desk and citizen reporters.`
-                                      : "Optional: Leave unchecked to publish advisory to /news without dispatching handset SMS alerts."}
+                                    {reliefConfig.send_sms
+                                      ? `Selected: Approving will post to /news AND dispatch real SMS alert to ${draft.cluster_region} emergency responders and citizen reporters.`
+                                      : "Unselected (Default): Approving will ONLY publish bulletin to /news without dispatching any SMS."}
                                   </span>
                                 </div>
                               </label>
-                              <IconPhone size={18} className={reliefConfig.send_sms !== false ? "text-emerald-400" : "text-slate-400"} />
+                              <IconPhone size={18} className={reliefConfig.send_sms ? "text-emerald-400" : "text-slate-400"} />
                             </div>
 
-                            {reliefConfig.send_sms !== false && (
+                            {reliefConfig.send_sms && (
                               <div className="mt-4 pt-3.5 border-t border-emerald-200/60 dark:border-emerald-800/60 space-y-3">
                                 {/* Sub-City Emergency Responder Contact Binding */}
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/80">

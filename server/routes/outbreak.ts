@@ -329,51 +329,9 @@ outbreakRouter.post("/", async (req: Request, res: Response): Promise<void> => {
           entityId: draftId,
           actorName: "Tenaye AI Engine",
           actorEmail: null,
-          details: `AI Outbreak cluster triggered in ${region_subcity} from ${pendingReports.length} reports. Created post draft #${draftId}.`,
+          details: `AI Outbreak cluster triggered in ${region_subcity} from ${pendingReports.length} reports. Created post draft #${draftId}. Waiting for Admin review and approval.`,
           ipAddress: req.ip,
         })
-
-        // 🚨 AUTOMATIC REAL-TIME SMS ALERT DISPATCH:
-        // When 3+ people report in the same place, AI writes detailed message and dispatches immediately
-        try {
-          const aiSmsAlertText = sms_alert
-          
-          // 1. Find registered emergency response phone numbers for this sub-city (e.g. +251967453624 for Bole)
-          const emergencyContacts = db.prepare(`
-            SELECT phone_number FROM emergency_contacts 
-            WHERE is_active = 1 AND (zone_subcity LIKE ? OR ? LIKE '%' || zone_subcity || '%')
-          `).all(`%${region_subcity}%`, region_subcity) as any[]
-
-          const targetPhones = new Set<string>()
-          emergencyContacts.forEach(ec => {
-            if (ec.phone_number) targetPhones.add(String(ec.phone_number).trim())
-          })
-
-          // 2. Also gather phone numbers of reporting citizens in this cluster
-          pendingReports.forEach(r => {
-            const contact = String(r.reporter_contact || "").trim()
-            if (/\d{9,}/.test(contact) && !contact.includes("@")) {
-              targetPhones.add(contact)
-            }
-          })
-
-          // Fallback if none in sub-city: target default Bole sub-city emergency phone
-          if (targetPhones.size === 0) {
-            targetPhones.add("+251967453624")
-          }
-
-          // Asynchronously dispatch SMS alerts to all target numbers
-          for (const phone of targetPhones) {
-            sendOutbreakSms({
-              to: phone,
-              message: aiSmsAlertText,
-              zone: region_subcity,
-              triggeredBy: "Tenaye AI Clustering Engine",
-            }).catch(e => console.warn(`[SMS Auto-Alert Error ${phone}]:`, e))
-          }
-        } catch (smsAutoErr) {
-          console.warn("[Outbreak SMS Auto-Trigger Warning]:", smsAutoErr)
-        }
       }
     }
 
