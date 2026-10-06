@@ -6,7 +6,7 @@
 
 📋 **1. Project Overview**
 
-Tenaye (ጤናዬ) is a bilingual (Amharic and English) health and emergency web application developed for the Stark Official Hackathon. Designed to eliminate critical delays during medical emergencies, Tenaye integrates voice-first symptom reporting via the Voxide processing engine, rapid emergency dialing, hospital geolocation, a comprehensive medical reference library, a globally persistent AI assistant widget accessible across all pages with a full-screen display mode, an integrated **Scholarship/ScholarXiv search feature** directly accessible via the search bar for instant verified research, a **community-driven Health & Outbreak News portal with an integrated Emergency Relief / GoFundMe donation engine**, automated **crowdsourced epidemic surveillance with clinical AI synthesis**, and a full-fledged **Admin Management Dashboard & Operations Hub** for healthcare administrators.
+Tenaye (ጤናዬ) is a bilingual (Amharic and English) health and emergency web application developed for the Stark Official Hackathon. Designed to eliminate critical delays during medical emergencies, Tenaye integrates voice-first symptom reporting via the Voxide processing engine, rapid emergency dialing, hospital geolocation, a comprehensive medical reference library, a globally persistent AI assistant widget accessible across all pages with a full-screen display mode, an integrated **Scholarship/ScholarXiv search feature** directly accessible via the search bar for instant verified research, a **community-driven Health & Outbreak News portal with an integrated Emergency Relief / GoFundMe donation engine**, automated **crowdsourced epidemic surveillance with clinical AI synthesis**, a **live telecom SMS emergency alert broadcaster with sub-city responder routing**, and a full-fledged **Admin Management Dashboard & Operations Hub** for healthcare administrators.
 
 ---
 
@@ -77,6 +77,29 @@ During medical emergencies or health crises in regions like Ethiopia:
 
 ---
 
+### 📡 Emergency SMS Alert Engine & Sub-City Responder Network
+* **Real-Time Telecom Carrier Integration:**
+  * Integrated directly with **SMSEthiopia** telecom gateway (`https://smsethiopia.com/api/sms/send`) supporting all major Ethiopian mobile networks (Ethio Telecom and Safaricom Ethiopia).
+  * Sender ID branded under approved healthcare dispatch headers (e.g. `Tenaye Alert`).
+  * Automatic MSISDN phone normalization for Ethiopian formats (`09...`, `+2519...`, `2519...`, `07...` Safaricom).
+* **Automated AI Outbreak Clustering & Immediate SMS Dispatch:**
+  * When 3 or more citizens in a specific sub-city/zone report symptoms (e.g., Acute Watery Diarrhea, Malaria, Acute Respiratory Distress), the system clusters the reports and auto-synthesizes an urgent, highly structured emergency SMS.
+  * **Direct Multi-Line Professional Layout:**
+    * High-visibility emoji & category alert tag (`🦟 [TENAYE VECTOR ALERT]`, `🚨 [TENAYE CRITICAL HEALTH ALERT]`, `🫁 [TENAYE EPIDEMIC ALERT]`).
+    * Clear double-spaced sections: Jurisdiction/Location, Clinical Condition, Affected Citizen Count, Transmission/Vector Context ("What Happened"), and Actionable Community Clinical Support Directives (ORS distribution, RDT diagnostic kits, ITN bed nets, larvicide, medical extension outreach).
+  * **Zero-Delay Trigger:** Instantly alerts registered sub-city health desks and contact-verified citizens upon cluster detection.
+* **Sub-City Emergency Responder Registry:**
+  * Administrative CRUD registry mapping Ethiopian jurisdictions (e.g., *Addis Ababa - Bole Sub-City*, *Kirkos*, *Yeka*, *Arada*, *Gulele*, *Sidama Regional Zone*, etc.) to verified local emergency desks, response officers, and phone lines.
+  * Auto-binding phone numbers: When admins review an outbreak or draft an alert for a sub-city, the system automatically detects and binds the registered desk number (e.g., `+251967453624` for Bole Sub-City) with an optional custom override.
+* **Outbreak Approval Broadcast:**
+  * When reviewing AI-generated outbreak bulletins in the Admin Hub, admins can toggle **"Send Live Emergency Alert via Real SMS on Publish"**. Approving the bulletin publishes it to the public `/news` portal and simultaneously dispatches the SMS payload to registered responders and affected citizens.
+* **SMS Alert Audit Ledger & Log Inspector:**
+  * Sequential chronological audit ledger (`#1`, `#2`, `#10`, `#11`, `#12`...) tracking recipient phone numbers, target sub-cities, message content, telecom carrier gateway, delivery status (`delivered`, `sent`, `failed`), and timestamps.
+  * Detailed modal inspector to audit carrier responses and confirmation IDs.
+  * Administrative controls for entry inspection and audit cleanup.
+
+---
+
 ### 📩 Contact & Triage Intake Portal
 * **Structured Multi-Attribute Form:**
   * **Full Name, Email Address, and Phone Number:** Accurate sender identity and contact tracing.
@@ -98,8 +121,13 @@ During medical emergencies or health crises in regions like Ethiopia:
   * **Contact Messages:** Comprehensive inbox table with sequential message numbering (`1`, `2`, `3`...), category tags, priority indicators, and search/filtering.
   * **News & Epidemic Triage:**
     * **Surveillance Intake & Reports:** Table listing all citizen community illness reports with full detail viewing (`IconEye` modal).
-    * **Automated AI Outbreak Drafts:** Review synthesized cluster drafts, customize attached emergency GoFundMe targets, and approve/reject with one click.
+    * **Automated AI Outbreak Drafts:** Review synthesized cluster drafts, isolate underlying clustered citizen reports matching that specific outbreak, customize attached emergency GoFundMe targets, preview/edit emergency SMS alerts, and approve/reject with one click.
     * **Published Articles Catalog:** Manage existing bulletins with in-dashboard reading previews and safe deletion controls.
+  * **SMS Alerts & Emergency Telecom Operations:**
+    * Direct Sub-City SMS Broadcaster with dynamic character counts and carrier segment counters.
+    * Curated multi-line professional templates (Vector Alerts, Waterborne Surges, Respiratory Notices, Rapid Mobilization).
+    * Full Sub-City Emergency Responder Registry management (Add, Edit, Delete, Toggle Active).
+    * Chronological SMS Audit Ledger with view details and log deletion controls.
   * **Community Relief Funds & Donations Management:**
     * Visual summary cards: Total Verified Relief (ETB), Pending Approvals, Total Donors, and Approval Rate.
     * Filterable donation audit table (`all`, `pending`, `approved`, `rejected`) with sequential numbering.
@@ -136,6 +164,7 @@ During medical emergencies or health crises in regions like Ethiopia:
 * **Frontend:** React 19, TypeScript, Tailwind CSS v4, Lucide Icons, Vite
 * **Backend & API:** Node.js, Express, RESTful APIs
 * **Database & Persistence:** SQLite (`server/db.ts`) with Write-Ahead Logging (WAL) and client-side mirrored state management (`src/services/db.ts`)
+* **Emergency Telecom & SMS:** SMSEthiopia REST Gateway (live Ethiopian telecom carrier delivery for Ethio Telecom & Safaricom)
 * **Voice Processing Engine:** Voxide (Amharic and English Speech-to-Text and Web Audio voice streaming)
 * **Search & Research Integration:** ScholarXiv API (direct frontend query integration)
 * **Artificial Intelligence:** Google Gemini API and Local Clinical Medical Knowledge Base
