@@ -429,6 +429,10 @@ export const APP_ROUTES = [
   },
   { path: "/contact", description: "Contact inquiry and feedback form" },
   {
+    path: "/news",
+    description: "Public health news, epidemic outbreak alerts, and community relief campaigns",
+  },
+  {
     path: "/legal",
     description: "Terms of service, privacy policy, and medical disclaimer",
   },
@@ -564,6 +568,28 @@ ai.register({
       return {
         status: "not_found",
         message: `Condition "${diseaseName}" was not found directly in catalog. Showing search results.`,
+      }
+    },
+  },
+  getDiseaseInfo: {
+    description:
+      "Get detailed clinical guidance for a specific condition: overview, key symptoms, causes, medical treatment, home care, and prevention.",
+    params: {
+      diseaseName: {
+        type: "string",
+        required: true,
+        description: "Name of the disease (in English or Amharic)",
+      },
+      requestedAspects: {
+        type: "string",
+        description:
+          "Optional specific sections requested e.g. 'symptoms only' or 'symptoms, cause and treatment'",
+      },
+    },
+    handler: async (args: Record<string, any>) => {
+      return (ai as any).tools?.getDiseaseDetails?.handler(args) || {
+        status: "ok",
+        message: "Retrieved disease details.",
       }
     },
   },
@@ -946,6 +972,23 @@ ai.register({
       }
     },
   },
+  getHealthTips: {
+    description:
+      "Get evidence-based daily wellness, nutrition, hygiene, maternal care, or fitness tips for healthy living in Ethiopia.",
+    params: {
+      topic: {
+        type: "string",
+        description:
+          "Optional wellness topic (nutrition, hydration, sleep, exercise, heart)",
+      },
+    },
+    handler: async (args: Record<string, any>) => {
+      return (ai as any).tools?.getDailyHealthTip?.handler(args) || {
+        status: "ok",
+        message: "Opened Daily Health Tips.",
+      }
+    },
+  },
   fillContactForm: {
     description:
       "Fill in the contact inquiry and feedback form to send a message to the Tenaye medical platform team.",
@@ -1000,6 +1043,27 @@ ai.register({
           "Tenaye (ጤናዬ) provides accessible, evidence-based healthcare guidance, emergency dispatch 907, and disease education across Ethiopia.",
         message:
           "The founders and core team behind Tenaye are Yonatan Muluken, Nahom Tibebu, Dagmawi Shigute, and Ayub Ebrahim.",
+      }
+    },
+  },
+  getOutbreakAlertsAndNews: {
+    description:
+      "Get latest public health announcements, active epidemic outbreak alerts, or open the news portal (/news).",
+    params: {
+      category: {
+        type: "string",
+        description: "Optional category filter: outbreak, relief, health_tip, announcement",
+      },
+    },
+    handler: async ({ category }: Record<string, any>) => {
+      navigateTo("/news")
+      return {
+        status: "ok",
+        navigatedTo: "/news",
+        message:
+          currentActiveLanguage === "am"
+            ? "የቅርብ ጊዜ የወረርሽኝ መረጃዎችን እና የህዝብ ጤና ዜናዎችን ወደያዘው የዜና ገጽ ወስጄዎታለሁ።"
+            : "Opened the Public Health News and Outbreak Alerts portal (/news).",
       }
     },
   },
@@ -1126,12 +1190,28 @@ export function resolveSpokenPage(rawText: string): string | null {
     return "/diseases"
   }
   if (
+    /\b(open\s+news(\s+page)?|health\s+news|outbreak\s+news|outbreak\s+alerts?|epidemic\s+page|go\s+to\s+news)\b/i.test(
+      s,
+    ) ||
+    /(የዜና\s*ገጽ\s*(ክፈት|ሂድ)|የወረርሽኝ\s*መረጃ\s*(ክፈት|ሂድ)|ዜና\s*ክፈት)/i.test(s)
+  ) {
+    return "/news"
+  }
+  if (
     /\b(open\s+contact(\s+page)?|contact\s+us\s+page|go\s+to\s+contact(\s+page)?)\b/i.test(
       s,
     ) ||
     /(አግኙን\s*ገጽ\s*(ክፈት|ሂድ)|የአግኙን\s*ገጽ\s*ክፈት)/i.test(s)
   ) {
     return "/contact"
+  }
+  if (
+    /\b(open\s+(?:the\s+)?terms|terms\s+(?:of\s+service|and\s+conditions)|privacy\s+policy|legal\s+page|disclaimer)\b/i.test(
+      s,
+    ) ||
+    /(የግላዊነት\s*ፖሊሲ|የአገልግሎት\s*ውል|ህጋዊ\s*ገጽ|የህግ\s*ገጽ)/i.test(s)
+  ) {
+    return "/legal"
   }
   if (
     /\b(open\s+home(\s+page)?|go\s+home|back\s+to\s+home|home\s+page)\b/i.test(

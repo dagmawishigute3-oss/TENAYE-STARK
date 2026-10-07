@@ -28,6 +28,7 @@ import {
   IconCheck,
   IconArrowRight,
   IconStethoscope,
+  IconSend,
 } from "./Icons"
 
 import { VoiceStage } from "./VoiceStage"
@@ -999,20 +1000,6 @@ export function AIAssistant() {
 
   const clearedTurnEpochRef = useRef<number>(0)
 
-  // Telegram-style Tap-to-Talk / Hold-to-Talk Input Mic state
-
-  const [isInputMicRecording, setIsInputMicRecording] = useState<boolean>(false)
-
-  const isInputMicRecordingRef = useRef<boolean>(false)
-
-  const inputRecognitionRef = useRef<any>(null)
-
-  const inputHoldStartRef = useRef<number>(0)
-
-  const latestInputTextRef = useRef<string>("")
-
-  const startedInThisGestureRef = useRef<boolean>(false)
-
   const wasSentByVoiceRef = useRef<boolean>(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -1950,8 +1937,8 @@ export function AIAssistant() {
         }
 
         recognition.onend = () => {
-          // Restart if voice stage is still active and user hasn't finished speaking
-          if (isVoiceRecordingRef.current && !userSpeechRef.current.trim()) {
+          // Keep listening seamlessly if voice stage is still actively recording
+          if (isVoiceRecordingRef.current) {
             try {
               recognition.start()
             } catch {}
@@ -2152,9 +2139,25 @@ export function AIAssistant() {
                   ? isAm
                     ? "የመጀመሪያ እርዳታ"
                     : "First Aid"
-                  : isAm
-                    ? "የተጠየቀውን"
-                    : "requested"
+                  : targetPage.includes("diseases")
+                    ? isAm
+                      ? "የበሽታዎች ማውጫ"
+                      : "Disease Library"
+                    : targetPage.includes("health-tips")
+                      ? isAm
+                        ? "የጤና ምክሮች"
+                        : "Health Tips"
+                      : targetPage.includes("news")
+                        ? isAm
+                          ? "የህዝብ ጤና ዜናዎችና የወረርሽኝ ማንቂያ"
+                          : "Health News & Outbreak Alerts"
+                        : targetPage.includes("legal")
+                          ? isAm
+                            ? "የህግና የግላዊነት ፖሊሲ"
+                            : "Terms & Privacy Policy"
+                          : isAm
+                            ? "የተጠየቀውን"
+                            : "requested"
 
         const reply = isAm
           ? `አዎ! የ${pageName} ገጽን ከፍቼልዎታለሁ።`
@@ -2860,7 +2863,7 @@ export function AIAssistant() {
           <div className="max-w-3xl mx-auto">
             {/* Quick Questions Without Emojis */}
             <div className="flex items-center gap-2 overflow-x-auto pb-3 scrollbar-none">
-              {QUICK_QUESTIONS_EN.map((item) => (
+              {(currentLang === "am" ? QUICK_QUESTIONS_AM : QUICK_QUESTIONS_EN).map((item) => (
                 <button
                   key={item.label}
                   onClick={() => handleSend(item.q)}
@@ -2904,9 +2907,25 @@ export function AIAssistant() {
                     handleSend(input)
                   }
                 }}
-                placeholder="Ask in English or አማርኛ (Press Enter to send)..."
+                placeholder={currentLang === "am" ? "በአማርኛ ወይም በእንግሊዝኛ ይጠይቁ (Enter ይጫኑ)..." : "Ask in English or አማርኛ (Press Enter to send)..."}
                 className="flex-1 text-[15px] text-gray-800 placeholder-gray-400 outline-none bg-transparent"
               />
+              {input.trim() ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (input.trim() && !isTyping) {
+                      handleSend(input)
+                    }
+                  }}
+                  disabled={isTyping}
+                  title="Send message"
+                  aria-label="Send message"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0 cursor-pointer bg-[#119197] hover:bg-[#0c6e73] text-white shadow-xs"
+                >
+                  <IconSend size={18} />
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={startVoiceUI}
@@ -3195,7 +3214,7 @@ export function AIAssistant() {
           {/* Quick Questions Pills Without Emojis */}
           <div className="px-4 pt-2 pb-1.5 bg-white border-t border-gray-100 shrink-0">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              {QUICK_QUESTIONS_EN.map((item) => (
+              {(currentLang === "am" ? QUICK_QUESTIONS_AM : QUICK_QUESTIONS_EN).map((item) => (
                 <button
                   key={item.label}
                   onClick={() => handleSend(item.q)}
@@ -3241,9 +3260,25 @@ export function AIAssistant() {
                     handleSend(input)
                   }
                 }}
-                placeholder="Ask in English or አማርኛ (Press Enter)..."
+                placeholder={currentLang === "am" ? "በአማርኛ ወይም በእንግሊዝኛ ይጠይቁ..." : "Ask in English or አማርኛ (Press Enter)..."}
                 className="flex-1 text-xs text-gray-800 placeholder-gray-400 outline-none bg-transparent"
               />
+              {input.trim() ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (input.trim() && !isTyping) {
+                      handleSend(input)
+                    }
+                  }}
+                  disabled={isTyping}
+                  title="Send message"
+                  aria-label="Send message"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all cursor-pointer bg-[#119197] hover:bg-[#0c6e73] text-white shadow-xs"
+                >
+                  <IconSend size={13} />
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={startVoiceUI}
