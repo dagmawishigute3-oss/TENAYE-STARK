@@ -10,7 +10,7 @@ export const outbreakRouter = Router()
  * When 3+ matching community reports are detected in a zone, synthesizes an epidemiological bulletin
  * and an urgent, highly detailed emergency SMS alert payload.
  */
-async function generateAiOutbreakDraft(region: string, symptoms: string, reportCount: number): Promise<{ title: string; excerpt: string; content: string; sms_alert: string }> {
+export async function generateAiOutbreakDraft(region: string, symptoms: string, reportCount: number): Promise<{ title: string; excerpt: string; content: string; sms_alert: string }> {
   const isDiarrhea = /diarrhea|watery|vomit|cholera|stomach|ተቅማጥ|ማስታወክ/i.test(symptoms)
   const isRespiratory = /cough|breath|fever|flu|pneumonia|ሳል|ትኩሳት|የትንፋሽ/i.test(symptoms)
   const isMalaria = /malaria|chills|shivering|ወባ|ብርድ/i.test(symptoms)
@@ -260,80 +260,7 @@ outbreakRouter.post("/", async (req: Request, res: Response): Promise<void> => {
     })
 
     // 2. AI Epidemiological Cluster Detection
-    // Check total pending reports in the same region
-    const pendingReports = db.prepare(`
-      SELECT id, reporter_name, disease_or_symptoms, affected_count, severity, notes, created_at
-      FROM outbreak_reports
-      WHERE region_subcity = ? AND status = 'pending'
-    `).all(region_subcity.trim()) as any[]
-
-    let clusterDetected = false
-    let draftId: number | null = null
-
-    if (pendingReports.length >= 3) {
-      clusterDetected = true
-
-      // Check if an unreviewed draft already exists for this region
-      const existingDraft = db.prepare(`
-        SELECT id FROM news_posts
-        WHERE cluster_region = ? AND status = 'draft'
-      `).get(region_subcity.trim()) as any
-
-      if (!existingDraft) {
-        // Aggregate symptoms from reports
-        const combinedSymptoms = Array.from(new Set(pendingReports.map(r => r.disease_or_symptoms))).join(", ")
-        const totalPeople = pendingReports.reduce((sum, r) => sum + (r.affected_count || 1), 0)
-
-        const { title, excerpt, content, sms_alert } = await generateAiOutbreakDraft(region_subcity.trim(), combinedSymptoms, totalPeople)
-
-        const slug = `outbreak-advisory-${region_subcity.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`
-
-        // 1. Gather report IDs that triggered this cluster
-        const reportIds = pendingReports.map(r => r.id)
-        const reportIdsJson = JSON.stringify(reportIds)
-
-        // Insert AI Outbreak Post Draft (waiting for Admin Approval) - has_relief defaults to 0 (pure news advisory)
-        const postInfo = db.prepare(`
-          INSERT INTO news_posts (
-            title, slug, excerpt, content, category, author_name,
-            status, published, views_count, has_relief, relief_goal, relief_raised,
-            relief_beneficiary, relief_description, cluster_symptoms, cluster_region,
-            cluster_count, ai_generated, emergency_sms_text, report_ids
-          ) VALUES (?, ?, ?, ?, 'outbreak', 'Tenaye AI Epidemiological Engine', 'draft', 0, 0, 0, 0, 0, ?, ?, ?, ?, ?, 1, ?, ?)
-        `).run(
-          title,
-          slug,
-          excerpt,
-          content,
-          `${region_subcity} Emergency Medical Relief`,
-          `Community emergency fund providing water purification tablets, essential rehydration medicines, and clinical supplies to families in ${region_subcity}.`,
-          combinedSymptoms,
-          region_subcity.trim(),
-          pendingReports.length,
-          sms_alert,
-          reportIdsJson
-        )
-
-        draftId = Number(postInfo.lastInsertRowid)
-
-        // Mark only these reports as clustered
-        db.prepare(`
-          UPDATE outbreak_reports
-          SET status = 'clustered'
-          WHERE id IN (${reportIds.map(() => "?").join(",")})
-        `).run(...reportIds)
-
-        logAuditEvent({
-          actionType: "OUTBREAK_CLUSTERED",
-          entityType: "outbreak",
-          entityId: draftId,
-          actorName: "Tenaye AI Engine",
-          actorEmail: null,
-          details: `AI Outbreak cluster triggered in ${region_subcity} from ${pendingReports.length} reports. Created post draft #${draftId}. Waiting for Admin review and approval.`,
-          ipAddress: req.ip,
-        })
-      }
-    }
+    const { clusterDetected, draftId } = await evaluateAndClusterReports(region_subcity, req.ip)
 
     res.json({
       success: true,
@@ -348,6 +275,87 @@ outbreakRouter.post("/", async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: "Failed to submit outbreak report", details: err?.message })
   }
 })
+
+/**
+ * Evaluates pending reports in a given region and creates an AI outbreak draft if >= 3 reports exist.
+ */
+export async function evaluateAndClusterReports(region_subcity: string, ipAddress?: string): Promise<{ clusterDetected: boolean; draftId: number | null }> {
+  const pendingReports = db.prepare(`
+    SELECT id, reporter_name, disease_or_symptoms, affected_count, severity, notes, created_at
+    FROM outbreak_reports
+    WHERE region_subcity = ? AND status = 'pending'
+  `).all(region_subcity.trim()) as any[]
+
+  let clusterDetected = false
+  let draftId: number | null = null
+
+  if (pendingReports.length >= 3) {
+    clusterDetected = true
+
+    // Check if an unreviewed draft already exists for this region
+    const existingDraft = db.prepare(`
+      SELECT id FROM news_posts
+      WHERE cluster_region = ? AND status = 'draft'
+    `).get(region_subcity.trim()) as any
+
+    if (!existingDraft) {
+      // Aggregate symptoms from reports
+      const combinedSymptoms = Array.from(new Set(pendingReports.map(r => r.disease_or_symptoms))).join(", ")
+      const totalPeople = pendingReports.reduce((sum, r) => sum + (r.affected_count || 1), 0)
+
+      const { title, excerpt, content, sms_alert } = await generateAiOutbreakDraft(region_subcity.trim(), combinedSymptoms, totalPeople)
+
+      const slug = `outbreak-advisory-${region_subcity.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`
+
+      // 1. Gather report IDs that triggered this cluster
+      const reportIds = pendingReports.map(r => r.id)
+      const reportIdsJson = JSON.stringify(reportIds)
+
+      // Insert AI Outbreak Post Draft (waiting for Admin Approval)
+      const postInfo = db.prepare(`
+        INSERT INTO news_posts (
+          title, slug, excerpt, content, category, author_name,
+          status, published, views_count, has_relief, relief_goal, relief_raised,
+          relief_beneficiary, relief_description, cluster_symptoms, cluster_region,
+          cluster_count, ai_generated, emergency_sms_text, report_ids
+        ) VALUES (?, ?, ?, ?, 'outbreak', 'Tenaye AI Epidemiological Engine', 'draft', 0, 0, 0, 0, 0, ?, ?, ?, ?, ?, 1, ?, ?)
+      `).run(
+        title,
+        slug,
+        excerpt,
+        content,
+        `${region_subcity} Emergency Medical Relief`,
+        `Community emergency fund providing water purification tablets, essential rehydration medicines, and clinical supplies to families in ${region_subcity}.`,
+        combinedSymptoms,
+        region_subcity.trim(),
+        pendingReports.length,
+        sms_alert,
+        reportIdsJson
+      )
+
+      draftId = Number(postInfo.lastInsertRowid)
+
+      // Mark only these reports as clustered
+      db.prepare(`
+        UPDATE outbreak_reports
+        SET status = 'clustered'
+        WHERE id IN (${reportIds.map(() => "?").join(",")})
+      `).run(...reportIds)
+
+      logAuditEvent({
+        actionType: "OUTBREAK_CLUSTERED",
+        entityType: "outbreak",
+        entityId: draftId,
+        actorName: "Tenaye AI Engine",
+        actorEmail: null,
+        details: `AI Outbreak cluster triggered in ${region_subcity} from ${pendingReports.length} reports. Created post draft #${draftId}. Waiting for Admin review and approval.`,
+        ipAddress: ipAddress,
+      })
+    }
+  }
+
+  return { clusterDetected, draftId }
+}
 
 // GET /api/admin/outbreak-reports - List community reports (Admin Only)
 outbreakRouter.get("/reports", requireAuth, (_req: Request, res: Response): void => {

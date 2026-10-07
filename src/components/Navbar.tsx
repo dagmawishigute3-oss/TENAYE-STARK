@@ -298,7 +298,6 @@ export function Navbar() {
             )}
           </div>
 
-          
           {/* Admin Console Quick Link */}
           <Link
             to="/admin"

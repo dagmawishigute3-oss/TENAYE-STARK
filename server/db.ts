@@ -77,6 +77,7 @@ export function initDatabase() {
       severity TEXT NOT NULL DEFAULT 'medium',
       notes TEXT,
       status TEXT NOT NULL DEFAULT 'pending',
+      channel TEXT NOT NULL DEFAULT 'web',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `)
@@ -88,6 +89,7 @@ export function initDatabase() {
   try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN severity TEXT DEFAULT 'medium';") } catch {}
   try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN notes TEXT;") } catch {}
   try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN status TEXT DEFAULT 'pending';") } catch {}
+  try { db.exec("ALTER TABLE outbreak_reports ADD COLUMN channel TEXT DEFAULT 'web';") } catch {}
 
   // 4. News, Announcements & Outbreak Bulletins table
   db.exec(`

@@ -10,7 +10,7 @@ const API_KEY =
   ""
 
 // Prefer fast and responsive Gemini model for interactive triage
-const MODEL = "gemini-3.5-flash-lite"
+const MODEL = "gemini-2.5-flash"
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`
 
 export interface GeminiClinicalResponse {

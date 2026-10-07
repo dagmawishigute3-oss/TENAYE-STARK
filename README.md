@@ -1,5 +1,6 @@
-# Tenaye (ጤናዬ) - Multilingual AI Health & Emergency Assistant
+# Tenaye (ጤናዬ) v1.0.0 — Multilingual AI Health & Emergency Assistant
 
+**Official Production Release (v1.0.0)** | Stark Official Hackathon Submission  
 **Tagline:** Bridging the gap between a health crisis and immediate care with Voxide-powered voice intelligence, real-time hospital routing, and rapid emergency triage.
 
 ---
@@ -156,8 +157,6 @@ During medical emergencies or health crises in regions like Ethiopia:
   * **Local Database Match:** Instantly pulls structured summaries for known conditions and links directly to the Disease Library.
   * **Gemini API Fallback:** Dynamically generates structured medical insights for less common queries.
 * **Interactive First-Aid Hub:** Step-by-step visual instructional guides designed for acute accidents and high-stress medical situations.
-
----
 
 🛠 **4. Technical Stack**
 
