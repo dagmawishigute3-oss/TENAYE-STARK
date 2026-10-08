@@ -525,8 +525,10 @@ outbreakRouter.post("/drafts/:id/approve", requireAuth, async (req: Request, res
     let smsDispatched = false
     let dispatchedPhone = ""
 
+    const isSmsRequested = send_sms === true || send_sms === "true" || send_sms === 1 || send_sms === "1"
+
     // Optional: Send Emergency Alert by SMS on approval
-    if (send_sms) {
+    if (isSmsRequested) {
       try {
         const clusterRegion = draft.cluster_region || "Your Area"
         const clusterSymptoms = draft.cluster_symptoms || "health symptoms"
@@ -537,8 +539,11 @@ outbreakRouter.post("/drafts/:id/approve", requireAuth, async (req: Request, res
         const targetPhones = new Set<string>()
 
         if (target_phone && typeof target_phone === "string" && target_phone.trim()) {
-          targetPhones.add(target_phone.trim())
-        } else {
+          const parts = target_phone.split(/[,;\s]+/).map((p: string) => p.trim()).filter(Boolean)
+          parts.forEach((p: string) => targetPhones.add(p))
+        }
+
+        if (targetPhones.size === 0) {
           const emergencyContacts = db.prepare(`
             SELECT phone_number FROM emergency_contacts 
             WHERE is_active = 1 AND (zone_subcity LIKE ? OR ? LIKE '%' || zone_subcity || '%')
@@ -562,7 +567,7 @@ outbreakRouter.post("/drafts/:id/approve", requireAuth, async (req: Request, res
             }
           } catch {}
         }
-        if (reports.length === 0) {
+        if (reports.length === 0 && targetPhones.size === 0) {
           reports = db.prepare(`
             SELECT reporter_contact FROM outbreak_reports WHERE region_subcity = ? AND reporter_contact IS NOT NULL LIMIT 10
           `).all(clusterRegion) as any[]
@@ -575,19 +580,48 @@ outbreakRouter.post("/drafts/:id/approve", requireAuth, async (req: Request, res
 
         if (targetPhones.size === 0) targetPhones.add("+251967453624")
 
-        dispatchedPhone = Array.from(targetPhones).join(", ")
+        const phonesList = Array.from(targetPhones)
+        dispatchedPhone = phonesList.join(", ")
 
-        for (const phone of targetPhones) {
+        console.log(`[Outbreak Approve] Dispatching emergency SMS to ${phonesList.length} recipient(s): ${dispatchedPhone}`)
+
+        // Await all SMS dispatch promises so DB log is committed and carrier gateway settles
+        const dispatchPromises = phonesList.map((phone) =>
           sendOutbreakSms({
             to: phone,
             message: smsMsg,
             zone: clusterRegion,
             triggeredBy: `Approved Outbreak: ${user.name}`,
-          }).catch((err) => console.warn("[Approval SMS dispatch error]:", err))
-        }
+          })
+        )
 
-        smsDispatched = true
-      } catch (smsErr) {
+        const results = await Promise.allSettled(dispatchPromises)
+        const successful = results.filter((r) => r.status === "fulfilled" && (r.value as any)?.success)
+        console.log(`[Outbreak Approve] SMS Settled: ${successful.length}/${results.length} succeeded`)
+        smsDispatched = successful.length > 0
+        const primaryResult = results[0]?.status === "fulfilled" ? (results[0].value as any) : null
+
+        logAuditEvent({
+          actionType: "OUTBREAK_APPROVED",
+          entityType: "outbreak",
+          entityId: id,
+          actorName: user.name,
+          actorEmail: user.email,
+          details: `Admin ${user.name} approved and published AI Outbreak Bulletin: "${title || draft.title}" (with SMS broadcast to ${dispatchedPhone}, status: ${primaryResult?.status || 'sent'})`,
+          ipAddress: req.ip,
+        })
+
+        res.json({
+          success: true,
+          message: `Outbreak alert approved and published to /news!${smsDispatched ? ` Emergency SMS alert dispatched to ${dispatchedPhone}.` : ` SMS dispatch failed: ${primaryResult?.detail || 'Gateway error'}`}`,
+          sms_dispatched: smsDispatched,
+          sms_destination: dispatchedPhone,
+          sms_status: primaryResult?.status,
+          sms_provider: primaryResult?.provider,
+          sms_detail: primaryResult?.detail,
+        })
+        return
+      } catch (smsErr: any) {
         console.warn("[Approve Draft SMS Error]:", smsErr)
       }
     }
@@ -598,15 +632,14 @@ outbreakRouter.post("/drafts/:id/approve", requireAuth, async (req: Request, res
       entityId: id,
       actorName: user.name,
       actorEmail: user.email,
-      details: `Admin ${user.name} approved and published AI Outbreak Bulletin: "${title || draft.title}"${send_sms ? ` (with SMS broadcast to ${dispatchedPhone})` : ""}`,
+      details: `Admin ${user.name} approved and published AI Outbreak Bulletin: "${title || draft.title}"`,
       ipAddress: req.ip,
     })
 
     res.json({
       success: true,
-      message: `Outbreak alert approved and published to /news!${smsDispatched ? ` Emergency SMS alert dispatched to ${dispatchedPhone}.` : ""}`,
-      sms_dispatched: smsDispatched,
-      sms_destination: dispatchedPhone,
+      message: `Outbreak alert approved and published to /news!`,
+      sms_dispatched: false,
     })
   } catch (err: any) {
     res.status(500).json({ error: "Failed to approve draft", details: err?.message })

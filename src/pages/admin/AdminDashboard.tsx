@@ -321,6 +321,7 @@ export function AdminDashboard() {
   >({})
   const [approvingDraftId, setApprovingDraftId] = useState<number | null>(null)
   const [selectedSmsLog, setSelectedSmsLog] = useState<any | null>(null)
+  const [retryingSmsId, setRetryingSmsId] = useState<number | null>(null)
 
   // Article creation form state
   const [newArticleTitle, setNewArticleTitle] = useState("")
@@ -331,6 +332,9 @@ export function AdminDashboard() {
   const [newArticleReliefGoal, setNewArticleReliefGoal] = useState("50000")
   const [newArticleReliefBeneficiary, setNewArticleReliefBeneficiary] = useState("")
   const [newArticleReliefDesc, setNewArticleReliefDesc] = useState("")
+  const [newArticleSendSms, setNewArticleSendSms] = useState(false)
+  const [newArticleTargetPhone, setNewArticleTargetPhone] = useState("+251967453624")
+  const [newArticleCustomSms, setNewArticleCustomSms] = useState("")
   const [creatingArticle, setCreatingArticle] = useState(false)
   const [createArticleNotice, setCreateArticleNotice] = useState<string | null>(null)
 
@@ -504,9 +508,11 @@ export function AdminDashboard() {
     if (!token) return
     const customSettings = draftReliefSettings[draft.id]
     const hasRelief = customSettings ? customSettings.has_relief : Boolean(draft.has_relief)
-    const sendSms = customSettings?.send_sms === true
-    const customSmsText = (customSettings?.custom_sms_text || draft.emergency_sms_text || "").trim()
-    const targetPhone = (customSettings?.target_phone || draft.detected_contact?.phone_number || "").trim()
+    // Fix: Default to true (matching UI reliefConfig default), or customSettings.send_sms if user toggled
+    const sendSms = customSettings?.send_sms !== undefined ? Boolean(customSettings.send_sms) : true
+    const defaultTargetPhone = draft.detected_contact?.phone_number || "+251967453624"
+    const targetPhone = (customSettings?.target_phone !== undefined ? customSettings.target_phone : defaultTargetPhone).trim()
+    const customSmsText = (customSettings?.custom_sms_text !== undefined ? customSettings.custom_sms_text : (draft.emergency_sms_text || "")).trim()
     const reliefGoal = customSettings ? parseFloat(customSettings.relief_goal) || 0 : draft.relief_goal || 0
     const reliefBeneficiary = customSettings
       ? customSettings.relief_beneficiary
@@ -537,13 +543,20 @@ export function AdminDashboard() {
       })
       if (res.ok) {
         const respData = await res.json().catch(() => ({}))
-        const smsNotice = sendSms && respData.sms_destination ? ` (Emergency SMS dispatched to ${respData.sms_destination})` : sendSms ? " (SMS Dispatched)" : ""
+        const smsNotice = sendSms && respData.sms_destination
+          ? respData.sms_dispatched
+            ? ` (Emergency SMS dispatched to ${respData.sms_destination})`
+            : ` (SMS dispatch failed: ${respData.sms_detail || respData.sms_status || "Gateway balance error"})`
+          : sendSms ? " (SMS Dispatched)" : ""
         setActionNotice(`Approved & published outbreak advisory: "${draft.title}" ${hasRelief ? "(With Relief Campaign)" : ""}${smsNotice}`)
         fetchOutbreakDrafts()
         fetchAdminNews()
         fetchStats()
         fetchNotifications()
         fetchSmsLogs()
+        if (sendSms && respData.sms_dispatched && soundAlertsEnabled) {
+          playAudioAlert("success")
+        }
       } else {
         let errData: any = {}
         try { errData = await res.json() } catch {}
@@ -570,6 +583,47 @@ export function AdminDashboard() {
       }
     } catch (err: any) {
       alert(err.message || "Error deleting SMS log")
+    }
+  }
+
+  const handleRetrySms = async (id: number) => {
+    if (!token) return
+    setRetryingSmsId(id)
+    try {
+      const res = await fetch(`/api/admin/sms/logs/${id}/retry`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      let data: any = null
+      const contentType = res.headers.get("content-type") || ""
+      if (contentType.includes("application/json")) {
+        data = await res.json().catch(() => null)
+      }
+
+      if (res.ok && data?.success) {
+        if (data.result?.status === "delivered" || data.result?.status === "sent") {
+          setActionNotice("✅ SMS alert re-dispatched and delivered successfully via SMSEthiopia!")
+          if (soundAlertsEnabled) playAudioAlert("success")
+        } else {
+          setActionNotice(`⚠️ SMSEthiopia Gateway Notice: ${data.result?.detail || "Delivery failed (Error 10005: 0 credits)"}`)
+          if (soundAlertsEnabled) playAudioAlert("urgent")
+        }
+        fetchSmsLogs()
+        if (selectedSmsLog?.id === id && data.result) {
+          setSelectedSmsLog((prev: any) => ({
+            ...prev,
+            status: data.result.status,
+            provider: data.result.provider,
+            detail: data.result.detail,
+          }))
+        }
+      } else {
+        alert(data?.error || `Failed to retry SMS (${res.status} ${res.statusText})`)
+      }
+    } catch (err: any) {
+      alert(err.message || "Error retrying SMS")
+    } finally {
+      setRetryingSmsId(null)
     }
   }
 
@@ -620,6 +674,9 @@ export function AdminDashboard() {
           relief_goal: parseFloat(newArticleReliefGoal) || 0,
           relief_beneficiary: newArticleReliefBeneficiary || undefined,
           relief_description: newArticleReliefDesc || undefined,
+          send_sms: newArticleSendSms,
+          target_phone: newArticleTargetPhone,
+          custom_sms_text: newArticleCustomSms,
         }),
       })
 
@@ -630,13 +687,20 @@ export function AdminDashboard() {
 
       if (!res.ok) throw new Error(data?.error || `Failed to create article (${res.status})`)
 
-      setCreateArticleNotice("Article published successfully to the public News & Health Bulletins page!")
+      const smsNotice = newArticleSendSms && data?.sms_destination ? ` (Emergency SMS dispatched to ${data.sms_destination})` : ""
+      setCreateArticleNotice(`Article published successfully to the public News & Health Bulletins page!${smsNotice}`)
       setNewArticleTitle("")
       setNewArticleExcerpt("")
       setNewArticleContent("")
       setNewArticleHasRelief(false)
+      setNewArticleSendSms(false)
+      setNewArticleCustomSms("")
       fetchAdminNews()
       fetchStats()
+      fetchSmsLogs()
+      if (newArticleSendSms && soundAlertsEnabled) {
+        playAudioAlert("success")
+      }
       setTimeout(() => {
         setNewsSubTab("articles")
         setCreateArticleNotice(null)
@@ -696,12 +760,20 @@ export function AdminDashboard() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Failed to dispatch SMS broadcast")
 
-      const providerLabel = data.activeProvider ? `Gateway: ${data.activeProvider}` : (data.hasLiveToken ? "Gateway: Live Network" : "Simulator Demo Active")
-      setSmsBroadcastNotice(
-        `✅ Emergency SMS broadcast successfully dispatched to ${data.recipientCount} recipient(s) in ${data.zone}! (${providerLabel})`
-      )
-      if (soundAlertsEnabled) {
-        playAudioAlert("success")
+      const allDelivered = data.results?.every((r: any) => r.status === "delivered" || r.status === "sent")
+      const failedItem = data.results?.find((r: any) => r.status === "failed")
+
+      if (allDelivered) {
+        setSmsBroadcastNotice(
+          `✅ Emergency SMS broadcast dispatched to ${data.recipientCount} recipient(s) in ${data.zone}! (Gateway: SMSEthiopia)`
+        )
+        if (soundAlertsEnabled) playAudioAlert("success")
+      } else {
+        const errorDetail = failedItem?.detail || data.lastDetail || "Insufficient package credits"
+        setSmsBroadcastError(
+          `⚠️ SMSEthiopia Gateway: ${errorDetail}. Please check your SMS package balance on smsethiopia.com.`
+        )
+        if (soundAlertsEnabled) playAudioAlert("urgent")
       }
       fetchSmsLogs()
     } catch (err: any) {
@@ -3181,8 +3253,8 @@ export function AdminDashboard() {
                                   </span>
                                   <span className="text-[11px] text-slate-400 block">
                                     {reliefConfig.send_sms
-                                      ? `Selected: Approving will post to /news AND dispatch real SMS alert to ${draft.cluster_region} emergency responders and citizen reporters.`
-                                      : "Unselected (Default): Approving will ONLY publish bulletin to /news without dispatching any SMS."}
+                                      ? `Enabled (Live Carrier Broadcast Active): Approving will publish bulletin to /news AND dispatch real emergency SMS alert to ${draft.cluster_region} responders.`
+                                      : "Disabled: Approving will ONLY publish bulletin to /news without dispatching any SMS."}
                                   </span>
                                 </div>
                               </label>
@@ -3253,23 +3325,23 @@ export function AdminDashboard() {
                                     {[
                                       {
                                         label: "🦟 Vector Alert",
-                                        text: `🦟 [TENAYE VECTOR ALERT]\n\nLocation: ${draft.cluster_region}\n\nDisease: Suspected Malaria & Acute Febrile Illness\n\nAffected Citizens: ${draft.cluster_count || 3} Cases Verified\n\nWhat Happened: Concentrated mosquito-borne transmission detected with cyclical high fevers and chills across residential sectors.\n\nAction & Clinical Support: Rapid Diagnostic Test (RDT) kits and Artemisinin combination therapies delivered to local health posts. Field extension teams mobilizing insecticide-treated bed nets and drainage support.`,
+                                        text: `[TENAYE ALERT] ${draft.cluster_region}: Malaria cluster (${draft.cluster_count || 3} cases). RDT kits & bed nets deployed. Details: tenaye.health | Call 907`,
                                       },
                                       {
                                         label: "💧 AWD / Waterborne",
-                                        text: `🚨 [TENAYE CRITICAL HEALTH ALERT]\n\nLocation: ${draft.cluster_region}\n\nDisease: Acute Watery Diarrhea Surge\n\nAffected Citizens: ${draft.cluster_count || 3} Cases Verified\n\nWhat Happened: Urgent surveillance detected an acute cluster of watery diarrhea and dehydration from contaminated water or foodborne exposure.\n\nAction & Clinical Support: Rapid distribution of Oral Rehydration Salts (ORS), zinc tablets, and WaterGuard chlorine solution active. Field health officers dispatched to support affected households and set up hydration stations.`,
+                                        text: `[TENAYE ALERT] ${draft.cluster_region}: Acute watery diarrhea cluster (${draft.cluster_count || 3} cases). Boil drinking water; ORS active. Dial 907 | tenaye.health`,
                                       },
                                       {
                                         label: "🫁 Respiratory Spike",
-                                        text: `🫁 [TENAYE EPIDEMIC ALERT]\n\nLocation: ${draft.cluster_region}\n\nDisease: Acute Respiratory Infection & High Fever Cluster\n\nAffected Citizens: ${draft.cluster_count || 3} Cases Verified\n\nWhat Happened: Surveillance identified rapid airborne transmission of severe respiratory distress and febrile symptoms across community households.\n\nAction & Clinical Support: Clinical triage beds and medical mask supplies dispatched to local health centers. Health extension workers actively monitoring vulnerable residents and conducting home-care outreach.`,
+                                        text: `[TENAYE ALERT] ${draft.cluster_region}: Acute respiratory infection cluster (${draft.cluster_count || 3} cases). Seek clinic triage. Dial 907 | tenaye.health`,
                                       },
                                       {
                                         label: "⚡ Rapid Response",
-                                        text: `⚡ [TENAYE RAPID MOBILIZATION]\n\nLocation: ${draft.cluster_region}\n\nDisease: ${draft.cluster_symptoms}\n\nAffected Citizens: ${draft.cluster_count || 3} Cases Verified\n\nWhat Happened: Critical algorithmic threshold surpassed with 3+ independent community incident reports in close proximity.\n\nAction & Clinical Support: Sub-city Rapid Response Team (RRT) deployed with emergency on-site triage kits and diagnostic equipment to conduct field containment.`,
+                                        text: `[TENAYE ALERT] ${draft.cluster_region}: Health cluster (${draft.cluster_count || 3} cases). Rapid response unit deployed for containment. Dial 907 | tenaye.health`,
                                       },
                                       {
-                                        label: "🔄 Reset to AI Draft",
-                                        text: draft.emergency_sms_text || `🚨 [TENAYE EMERGENCY HEALTH ALERT]\n\nLocation: ${draft.cluster_region}\n\nDisease: ${draft.cluster_symptoms}\n\nAffected Citizens: ${draft.cluster_count || 3} Cases Verified\n\nWhat Happened: Health surveillance confirmed an active cluster of concurrent community symptoms requiring rapid medical containment.\n\nAction & Clinical Support: Sub-city Rapid Response Teams mobilized with emergency diagnostic packs. Primary clinics placed on active standby to provide immediate patient care.`,
+                                        label: "🔄 Concise AI Draft",
+                                        text: `[TENAYE ALERT] ${draft.cluster_region}: Active ${draft.cluster_symptoms || "health"} cluster. Emergency response mobilized. Dial 907 | tenaye.health`,
                                       },
                                     ].map((tpl, tIdx) => (
                                       <button
@@ -3496,6 +3568,69 @@ export function AdminDashboard() {
                       )}
                     </div>
 
+                    {/* Emergency SMS Broadcast Option */}
+                    <div className={`p-4 rounded-2xl border transition-all ${
+                      isDark
+                        ? newArticleSendSms ? "bg-emerald-950/40 border-emerald-700/60" : "bg-slate-950 border-slate-800"
+                        : newArticleSendSms ? "bg-emerald-50 border-emerald-300" : "bg-stone-50 border-stone-200"
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={newArticleSendSms}
+                            onChange={(e) => setNewArticleSendSms(e.target.checked)}
+                            className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-600 cursor-pointer"
+                          />
+                          <div>
+                            <span className={`text-xs font-bold block ${isDark ? "text-white" : "text-stone-900"}`}>
+                              Dispatch Real Emergency SMS Alert on Publish
+                            </span>
+                            <span className="text-[11px] text-slate-400 block">
+                              {newArticleSendSms
+                                ? "Enabled: Publishing this article will also dispatch an emergency SMS broadcast to responders."
+                                : "Disabled: Publishing will only save the article to the public /news feed without dispatching SMS."}
+                            </span>
+                          </div>
+                        </label>
+                        <IconPhone size={18} className={newArticleSendSms ? "text-emerald-400" : "text-slate-400"} />
+                      </div>
+
+                      {newArticleSendSms && (
+                        <div className="mt-3 pt-3 border-t border-emerald-200/60 dark:border-emerald-800/60 space-y-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <label className={`text-[11px] font-bold ${isDark ? "text-slate-200" : "text-stone-800"}`}>
+                              Recipient Phone Number (Ethiopian Mobile / Gateways):
+                            </label>
+                            <input
+                              type="text"
+                              value={newArticleTargetPhone}
+                              onChange={(e) => setNewArticleTargetPhone(e.target.value)}
+                              placeholder="+251967453624"
+                              className={`border rounded-lg px-2.5 py-1 text-xs font-mono font-bold focus:outline-none focus:border-[#119197] w-48 ${
+                                isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-teal-300 text-stone-900"
+                              }`}
+                            />
+                          </div>
+
+                          <div>
+                            <label className={`block text-[11px] font-bold mb-1 ${isDark ? "text-slate-200" : "text-stone-800"}`}>
+                              Custom SMS Message (Leave blank to auto-generate from Title & Excerpt):
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={newArticleCustomSms}
+                              onChange={(e) => setNewArticleCustomSms(e.target.value)}
+                              placeholder={`🚨 [TENAYE ALERT] ${newArticleTitle || "Emergency Health Notice"}: Check tenaye.health for details. Dial 907.`}
+                              className={`w-full border rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#119197] ${
+                                isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-teal-300 text-stone-900"
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="flex justify-end pt-2">
                       <button
                         type="submit"
@@ -3673,7 +3808,7 @@ export function AdminDashboard() {
                             <td className="py-3 px-4 text-right whitespace-nowrap">
                               <button
                                 type="button"
-                                onClick={() => setSelectedCommunityReport(cr)}
+                                onClick={() => setSelectedCommunityReport({ ...cr, displayIndex: idx + 1 })}
                                 className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 ml-auto cursor-pointer transition-colors ${
                                   isDark
                                     ? "border-slate-700 text-teal-400 hover:text-teal-300 hover:bg-slate-800"
@@ -3745,6 +3880,61 @@ export function AdminDashboard() {
                         </button>
                       </div>
                     )}
+
+                    {(() => {
+                      const latestLog = smsLogs.slice().sort((a, b) => b.id - a.id)[0]
+                      if (!latestLog || latestLog.status !== "failed") return null
+                      const detail = latestLog.detail || ""
+
+                      if (detail.includes("10007") || /whitelisted/i.test(detail)) {
+                        return (
+                          <div className="mb-5 p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+                            <div className="flex items-start gap-2.5">
+                              <IconAlertTriangle size={18} className="shrink-0 text-amber-400 mt-0.5" />
+                              <div>
+                                <strong className="block text-amber-200">SMSEthiopia Notice: Number Not Whitelisted (Error 10007)</strong>
+                                <p className="text-[11px] text-amber-300/90 mt-0.5">
+                                  Your latest dispatch failed because the recipient is not verified in your <a href="https://smsethiopia.com/#/campaign" target="_blank" rel="noreferrer" className="underline font-bold text-amber-200 hover:text-white">Campaign Whitelist</a>. Please ensure your target recipient is verified at <strong>smsethiopia.com</strong>.
+                                </p>
+                              </div>
+                            </div>
+                            <a
+                              href="https://smsethiopia.com/#/campaign"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 font-bold text-[11px] whitespace-nowrap self-start sm:self-center transition-all cursor-pointer"
+                            >
+                              Check Whitelist →
+                            </a>
+                          </div>
+                        )
+                      }
+
+                      if (detail.includes("10005") || /package|credit|balance/i.test(detail)) {
+                        return (
+                          <div className="mb-5 p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+                            <div className="flex items-start gap-2.5">
+                              <IconAlertTriangle size={18} className="shrink-0 text-amber-400 mt-0.5" />
+                              <div>
+                                <strong className="block text-amber-200">SMSEthiopia Account Notice: Carrier Credits Depleted (Error 10005)</strong>
+                                <p className="text-[11px] text-amber-300/90 mt-0.5">
+                                  The live SMSEthiopia gateway is active, but your account package has 0 remaining SMS credits. Dispatches will fail until credits are topped up on <a href="https://smsethiopia.com" target="_blank" rel="noreferrer" className="underline font-bold text-amber-200 hover:text-white">smsethiopia.com</a>.
+                                </p>
+                              </div>
+                            </div>
+                            <a
+                              href="https://smsethiopia.com"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 font-bold text-[11px] whitespace-nowrap self-start sm:self-center transition-all cursor-pointer"
+                            >
+                              Top Up Credits →
+                            </a>
+                          </div>
+                        )
+                      }
+                      return null
+                    })()}
 
                     <form onSubmit={handleSendSms} className="space-y-5">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3875,19 +4065,19 @@ export function AdminDashboard() {
                           {[
                             {
                               label: "🦟 Vector Alert",
-                              text: `🦟 [TENAYE VECTOR ALERT]\n\nLocation: ${smsZone}\n\nDisease: Suspected Malaria & Acute Febrile Illness\n\nAffected Citizens: 14 Cases Reported\n\nWhat Happened: High mosquito density and stagnant water pooling causing cyclical fevers and rigors across community residential clusters.\n\nAction & Clinical Support: Rapid Diagnostic Test (RDT) kits and Artemisinin therapies deployed. Vector teams distributing insecticide-treated nets and perimeter larvicide treatment.`,
+                              text: `[TENAYE ALERT] ${smsZone}: Malaria febrile cluster. Diagnostic kits & bed nets deployed. Info: tenaye.health | Call 907`,
                             },
                             {
                               label: "💧 Waterborne / Diarrhea Surge",
-                              text: `🚨 [TENAYE CRITICAL HEALTH ALERT]\n\nLocation: ${smsZone}\n\nDisease: Acute Watery Diarrhea Surge\n\nAffected Citizens: Multiple Cases Reported\n\nWhat Happened: Urgent surveillance detected an acute cluster of watery diarrhea and dehydration from contaminated water or foodborne exposure.\n\nAction & Clinical Support: Rapid distribution of Oral Rehydration Salts (ORS), zinc tablets, and WaterGuard chlorine solution active. Field health extension teams deployed with clinical supplies.`,
+                              text: `[TENAYE ALERT] ${smsZone}: Acute watery diarrhea cluster. Boil drinking water; ORS kits active. Dial 907 | tenaye.health`,
                             },
                             {
                               label: "🫁 Airborne / Respiratory Notice",
-                              text: `🫁 [TENAYE EPIDEMIC ALERT]\n\nLocation: ${smsZone}\n\nDisease: Acute Respiratory Infection & High Fever Cluster\n\nAffected Citizens: Multiple Cases Reported\n\nWhat Happened: Rapid airborne viral spread causing severe respiratory fatigue and febrile symptoms across community households.\n\nAction & Clinical Support: Clinical triage beds and surgical mask supplies dispatched to local health centers. Health extension workers actively monitoring vulnerable residents.`,
+                              text: `[TENAYE ALERT] ${smsZone}: Acute respiratory infection cluster. Seek clinical care. Dial 907 | tenaye.health`,
                             },
                             {
                               label: "⚡ Rapid Response Mobilization",
-                              text: `⚡ [TENAYE RAPID MOBILIZATION]\n\nLocation: ${smsZone}\n\nDisease: Urgent Epidemiological Cluster\n\nAffected Citizens: Threshold Surpassed (3+ Reports)\n\nWhat Happened: Critical surveillance threshold reached with verified citizen reports logged in close proximity.\n\nAction & Clinical Support: Sub-city Rapid Response Team (RRT) deployed with on-site triage packs and diagnostic supplies for immediate field containment.`,
+                              text: `[TENAYE ALERT] ${smsZone}: Verified health threshold exceeded. Rapid response team mobilized. Dial 907 | tenaye.health`,
                             },
                           ].map((t, idx) => (
                             <button
@@ -3992,28 +4182,52 @@ export function AdminDashboard() {
                                 </td>
                                 <td className="py-3 px-4 whitespace-nowrap">
                                   <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-500/15 text-[#119197] border border-teal-500/30">
-                                    {log.provider === "smsethiopia" ? "SMSEthiopia" : "Simulator Demo"}
+                                    SMSEthiopia
                                   </span>
                                 </td>
                                 <td className="py-3 px-4 whitespace-nowrap">
-                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                                    log.status === "delivered" || log.status === "sent"
-                                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                                      : log.status === "simulated"
-                                      ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-                                      : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
-                                  }`}>
-                                    {log.status}
-                                  </span>
+                                  <div className="flex flex-col items-start gap-1">
+                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                                      log.status === "delivered" || log.status === "sent"
+                                        ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                                        : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
+                                    }`}
+                                    title={log.detail || undefined}>
+                                      {log.status === "simulated" ? "failed" : log.status}
+                                    </span>
+                                    {(log.status === "failed" || log.status === "simulated") && log.detail && (
+                                      <span
+                                        className="text-[9px] text-rose-400/90 font-mono max-w-[190px] truncate"
+                                        title={log.detail}
+                                      >
+                                        {log.detail.includes("10005") || /package|credit|balance/i.test(log.detail)
+                                          ? "0 Credits (Error 10005)"
+                                          : log.detail.includes("10007") || /whitelisted/i.test(log.detail)
+                                          ? "Not Whitelisted (Error 10007)"
+                                          : log.detail.replace(/^SMSEthiopia error:\s*/i, "")}
+                                      </span>
+                                    )}
+                                  </div>
                                 </td>
                                 <td className="py-3 px-4 text-stone-400 whitespace-nowrap text-[11px] font-mono">
                                   {formatUtcToLocal(log.created_at)}
                                 </td>
                                 <td className="py-3 px-4 text-right whitespace-nowrap">
                                   <div className="flex items-center justify-end gap-1.5">
+                                    {(log.status === "failed" || log.status === "simulated") && (
+                                      <button
+                                        type="button"
+                                        disabled={retryingSmsId === log.id}
+                                        onClick={() => handleRetrySms(log.id)}
+                                        className="px-2.5 py-1 rounded-lg border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-bold text-[11px] cursor-pointer disabled:opacity-50"
+                                        title="Retry dispatching this SMS alert via SMSEthiopia"
+                                      >
+                                        {retryingSmsId === log.id ? "Retrying..." : "Retry"}
+                                      </button>
+                                    )}
                                     <button
                                       type="button"
-                                      onClick={() => setSelectedSmsLog(log)}
+                                      onClick={() => setSelectedSmsLog({ ...log, displayIndex: idx + 1 })}
                                       className="px-2.5 py-1 rounded-lg border border-teal-500/30 text-[#119197] hover:bg-teal-500/10 font-bold text-[11px] cursor-pointer"
                                       title="View SMS Dispatch & Gateway Confirmation Details"
                                     >
@@ -4311,94 +4525,6 @@ export function AdminDashboard() {
                       </div>
                     </div>
                   )}
-
-                  {/* View SMS Details Modal */}
-                  {selectedSmsLog && (
-                    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-                      <div className={`rounded-3xl shadow-2xl border max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-200 ${
-                        isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-[#fffefb] border-[#ebdcc9] text-stone-900"
-                      }`}>
-                        <div className={`flex items-center justify-between pb-4 border-b ${isDark ? "border-slate-800" : "border-[#ebdcc9]"}`}>
-                          <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-full bg-teal-400 animate-pulse" />
-                            <h4 className="font-bold text-base">SMS Dispatch Audit #{selectedSmsLog.id}</h4>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedSmsLog(null)}
-                            className={`p-1.5 rounded-lg cursor-pointer ${isDark ? "text-slate-400 hover:text-white" : "text-stone-500 hover:text-stone-900"}`}
-                          >
-                            <IconX size={18} />
-                          </button>
-                        </div>
-
-                        <div className="space-y-4 mt-4 text-xs">
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className={`p-3 rounded-xl border ${isDark ? "bg-slate-950/60 border-slate-800" : "bg-stone-50 border-stone-200"}`}>
-                              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">Target Recipient</span>
-                              <span className="font-mono font-bold text-emerald-400 block">{selectedSmsLog.recipient_phone}</span>
-                            </div>
-                            <div className={`p-3 rounded-xl border ${isDark ? "bg-slate-950/60 border-slate-800" : "bg-stone-50 border-stone-200"}`}>
-                              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">Sub-City / Zone</span>
-                              <span className="font-bold text-[#119197] block">{selectedSmsLog.zone}</span>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className={`p-3 rounded-xl border ${isDark ? "bg-slate-950/60 border-slate-800" : "bg-stone-50 border-stone-200"}`}>
-                              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">Gateway Provider</span>
-                              <span className="font-bold uppercase tracking-wider text-teal-400 block">
-                                {selectedSmsLog.provider === "smsethiopia" ? "SMSEthiopia (Carrier: Tenaye Alert)" : selectedSmsLog.provider}
-                              </span>
-                            </div>
-                            <div className={`p-3 rounded-xl border ${isDark ? "bg-slate-950/60 border-slate-800" : "bg-stone-50 border-stone-200"}`}>
-                              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">Delivery Status</span>
-                              <span className={`font-black uppercase tracking-wider block ${
-                                selectedSmsLog.status === "delivered" || selectedSmsLog.status === "sent" ? "text-emerald-400" : "text-amber-400"
-                              }`}>
-                                {selectedSmsLog.status}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div>
-                            <span className="text-[10px] uppercase font-bold text-stone-400 block mb-1.5">Full Dispatched SMS Message</span>
-                            <div className={`p-4 rounded-2xl border font-sans text-xs leading-relaxed whitespace-pre-wrap ${
-                              isDark ? "bg-slate-950 border-slate-800 text-stone-200" : "bg-white border-stone-200 text-stone-800"
-                            }`}>
-                              {selectedSmsLog.message}
-                            </div>
-                          </div>
-
-                          {selectedSmsLog.detail && (
-                            <div>
-                              <span className="text-[10px] uppercase font-bold text-stone-400 block mb-1">Gateway Confirmation / Audit Detail</span>
-                              <p className={`p-2.5 rounded-xl border font-mono text-[11px] ${
-                                isDark ? "bg-slate-950/40 border-slate-800 text-stone-400" : "bg-stone-50 border-stone-200 text-stone-600"
-                              }`}>
-                                {selectedSmsLog.detail}
-                              </p>
-                            </div>
-                          )}
-
-                          <div className="flex items-center justify-between pt-2 border-t border-slate-800/40 text-[11px] text-stone-400">
-                            <span>Logged at: {formatUtcToLocal(selectedSmsLog.created_at)}</span>
-                            <span>Triggered by: {selectedSmsLog.triggered_by || "Admin Operations"}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-end pt-4 mt-4 border-t border-slate-800/40">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedSmsLog(null)}
-                            className="px-5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-[#119197] text-white text-xs font-bold cursor-pointer shadow-md"
-                          >
-                            Close Details
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -4646,7 +4772,7 @@ export function AdminDashboard() {
                               {p.receipt_image ? (
                                 <button
                                   type="button"
-                                  onClick={() => setViewingReceiptModal(p)}
+                                  onClick={() => setViewingReceiptModal({ ...p, displayIndex: idx + 1 })}
                                   className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-teal-500/10 border border-teal-500/30 text-[#119197] hover:bg-teal-500/20 font-bold text-[10px] cursor-pointer"
                                 >
                                   <IconEye size={12} />
@@ -4674,7 +4800,7 @@ export function AdminDashboard() {
                               <div className="flex items-center justify-end gap-1.5">
                                 <button
                                   type="button"
-                                  onClick={() => setSelectedFundDetail(p)}
+                                  onClick={() => setSelectedFundDetail({ ...p, displayIndex: idx + 1 })}
                                   className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
                                     isDark
                                       ? "border-slate-700 text-stone-300 hover:text-white hover:bg-slate-800"
@@ -5791,7 +5917,7 @@ export function AdminDashboard() {
               <div>
                 <h3 className="text-sm font-bold">Payment Receipt Verification</h3>
                 <p className="text-[11px] text-stone-400 font-mono">
-                  Donation #{viewingReceiptModal.id} • {viewingReceiptModal.donor_name}
+                  Donation #{viewingReceiptModal.displayIndex ?? (fundPledges.filter((p) => fundStatusFilter === "all" || p.status === fundStatusFilter).slice().sort((a, b) => a.id - b.id).findIndex((p) => p.id === viewingReceiptModal.id) + 1 || viewingReceiptModal.id)} • {viewingReceiptModal.donor_name}
                 </p>
               </div>
               <button
@@ -5874,7 +6000,7 @@ export function AdminDashboard() {
                 <div>
                   <h3 className="text-sm font-bold">Relief Contribution Record</h3>
                   <p className="text-[11px] text-stone-400 font-mono">
-                    Pledge #{selectedFundDetail.id} • {selectedFundDetail.donor_name}
+                    Pledge #{selectedFundDetail.displayIndex ?? (fundPledges.filter((p) => fundStatusFilter === "all" || p.status === fundStatusFilter).slice().sort((a, b) => a.id - b.id).findIndex((p) => p.id === selectedFundDetail.id) + 1 || selectedFundDetail.id)} • {selectedFundDetail.donor_name}
                   </p>
                 </div>
               </div>
@@ -6046,7 +6172,9 @@ export function AdminDashboard() {
                 }`}>
                   {selectedCommunityReport.status === "clustered" ? "Clustered by AI" : "Pending Surveillance Clearance"}
                 </span>
-                <span className="text-xs text-stone-400 font-mono">Report #{selectedCommunityReport.id}</span>
+                <span className="text-xs text-stone-400 font-mono">
+                  Report #{selectedCommunityReport.displayIndex ?? (communityReports.slice().sort((a, b) => a.id - b.id).findIndex((cr) => cr.id === selectedCommunityReport.id) + 1 || selectedCommunityReport.id)}
+                </span>
               </div>
               <button
                 type="button"
@@ -6169,7 +6297,7 @@ export function AdminDashboard() {
             <div className={`flex items-center justify-between pb-4 border-b ${isDark ? "border-slate-800" : "border-[#ebdcc9]"}`}>
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-teal-500 font-mono">
-                  Dispatch Record #{selectedSmsLog.id}
+                  Dispatch Record #{selectedSmsLog.displayIndex ?? (smsLogs.slice().sort((a, b) => a.id - b.id).findIndex((l) => l.id === selectedSmsLog.id) + 1 || 1)}
                 </span>
                 <h3 className={`font-display font-bold text-base mt-0.5 ${isDark ? "text-white" : "text-stone-900"}`}>
                   Emergency SMS Transmission Detail
@@ -6204,7 +6332,7 @@ export function AdminDashboard() {
                 <div className="p-3 flex justify-between items-center">
                   <span className="text-stone-400">Telecom Gateway Provider:</span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-500/15 text-[#119197] border border-teal-500/30">
-                    {selectedSmsLog.provider === "smsethiopia" ? "SMSEthiopia (Direct Ethio Telecom / Safaricom)" : selectedSmsLog.provider}
+                    SMSEthiopia (Direct Ethio Telecom / Safaricom)
                   </span>
                 </div>
 
@@ -6213,11 +6341,9 @@ export function AdminDashboard() {
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
                     selectedSmsLog.status === "delivered" || selectedSmsLog.status === "sent"
                       ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                      : selectedSmsLog.status === "simulated"
-                      ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
                       : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
                   }`}>
-                    {selectedSmsLog.status}
+                    {selectedSmsLog.status === "simulated" ? "FAILED" : selectedSmsLog.status}
                   </span>
                 </div>
 

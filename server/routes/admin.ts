@@ -821,7 +821,6 @@ adminRouter.post("/sms/broadcast", requireAuth, async (req: Request, res: Respon
       ipAddress: req.ip,
     })
 
-    const isLive = Boolean(process.env.SMS_ETHIOPIA_API_KEY || process.env.SMSETHIOPIA_API_KEY || process.env.AFROMESSAGE_API_TOKEN)
     const primaryProvider = dispatchResults[0]?.provider || "smsethiopia"
     const lastDetail = dispatchResults[0]?.detail
 
@@ -830,8 +829,8 @@ adminRouter.post("/sms/broadcast", requireAuth, async (req: Request, res: Respon
       recipientCount: recipients.length,
       zone: targetZone,
       results: dispatchResults,
-      hasLiveToken: isLive,
-      activeProvider: primaryProvider === "smsethiopia" ? "SMSEthiopia" : "Simulator",
+      hasLiveToken: true,
+      activeProvider: "SMSEthiopia",
       lastStatus: dispatchResults[0]?.status,
       lastDetail: lastDetail,
     })
@@ -866,6 +865,37 @@ adminRouter.delete("/sms/logs/:id", requireAuth, (req: Request, res: Response): 
     res.json({ success: true })
   } catch (err: any) {
     res.status(500).json({ error: "Failed to delete SMS log", details: err?.message })
+  }
+})
+
+// POST /api/admin/sms/logs/:id/retry - Retry dispatching a failed SMS alert
+adminRouter.post("/sms/logs/:id/retry", requireAuth, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const admin = req.admin
+    const logId = parseInt(req.params.id, 10)
+    const log = db.prepare("SELECT * FROM sms_broadcast_logs WHERE id = ?").get(logId) as any
+    if (!log) {
+      res.status(404).json({ error: "SMS log not found" })
+      return
+    }
+
+    const result = await sendOutbreakSms({
+      to: log.recipient_phone,
+      message: log.message,
+      zone: log.zone,
+      triggeredBy: `Retry by ${admin?.name || "Admin"}`,
+    })
+
+    // Update the existing record with the new status
+    db.prepare(`
+      UPDATE sms_broadcast_logs
+      SET status = ?, provider = ?, detail = ?, created_at = datetime('now')
+      WHERE id = ?
+    `).run(result.status, result.provider, result.detail || null, logId)
+
+    res.json({ success: true, result })
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to retry SMS alert", details: err?.message })
   }
 })
 

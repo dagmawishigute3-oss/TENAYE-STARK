@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express"
 import { db, logAuditEvent } from "../db"
 import { requireAuth, type AdminUserPayload } from "../middleware/auth"
+import { sendOutbreakSms } from "../services/smsService"
 
 export const newsRouter = Router()
 
@@ -267,7 +268,7 @@ newsRouter.post("/admin/funds/:id/reject", requireAuth, (req: Request, res: Resp
 })
 
 // POST /api/news - Create News / Platform Announcement (Admin Only)
-newsRouter.post("/", requireAuth, (req: Request, res: Response): void => {
+newsRouter.post("/", requireAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = ((req as any).admin || (req as any).user || {
       id: 1,
@@ -284,6 +285,10 @@ newsRouter.post("/", requireAuth, (req: Request, res: Response): void => {
       relief_goal,
       relief_beneficiary,
       relief_description,
+      send_sms,
+      custom_sms_text,
+      target_phone,
+      zone,
     } = req.body
 
     if (!title || !content) {
@@ -314,20 +319,45 @@ newsRouter.post("/", requireAuth, (req: Request, res: Response): void => {
       relief_description || null
     )
 
+    let smsDispatched = false
+    let dispatchedPhone = ""
+
+    const isSmsRequested = send_sms === true || send_sms === "true" || send_sms === 1 || send_sms === "1"
+    if (isSmsRequested) {
+      try {
+        const targetPhone = target_phone?.trim() || "+251967453624"
+        const smsMessage = (custom_sms_text || `🚨 [TENAYE ALERT] ${title}: ${excerpt || content.slice(0, 140)}`).trim()
+        const alertZone = zone || "All Regions"
+
+        const smsRes = await sendOutbreakSms({
+          to: targetPhone,
+          message: smsMessage,
+          zone: alertZone,
+          triggeredBy: `Published Announcement: ${user.name}`,
+        })
+        smsDispatched = smsRes.success
+        dispatchedPhone = targetPhone
+      } catch (smsErr) {
+        console.warn("[News Publish SMS Error]:", smsErr)
+      }
+    }
+
     logAuditEvent({
       actionType: "NEWS_PUBLISHED",
       entityType: "news",
       entityId: Number(info.lastInsertRowid),
       actorName: user.name,
       actorEmail: user.email,
-      details: `Published news article: "${title}" (Category: ${category || "announcement"})`,
+      details: `Published news article: "${title}" (Category: ${category || "announcement"})${smsDispatched ? ` (Emergency SMS dispatched to ${dispatchedPhone})` : ""}`,
       ipAddress: req.ip,
     })
 
     res.json({
       success: true,
       postId: info.lastInsertRowid,
-      message: "News article published successfully",
+      message: `News article published successfully!${smsDispatched ? ` Emergency SMS dispatched to ${dispatchedPhone}.` : ""}`,
+      sms_dispatched: smsDispatched,
+      sms_destination: dispatchedPhone,
     })
   } catch (err: any) {
     res.status(500).json({ error: "Failed to publish news", details: err?.message })

@@ -13,9 +13,9 @@ export interface SendSmsParams {
 
 export interface SmsResult {
   success: boolean
-  provider: "smsethiopia" | "simulator"
+  provider: "smsethiopia"
   messageId?: string
-  status: "delivered" | "sent" | "simulated" | "failed"
+  status: "delivered" | "sent" | "failed"
   detail?: string
 }
 
@@ -39,14 +39,16 @@ export function formatMsisdn(raw: string): string {
 }
 
 /**
- * SMSEthiopia SMS Gateway Dispatcher
- * Priority 1: SMSEthiopia API (Free 100 test SMS included on signup with https://smsethiopia.com)
- * Priority 2: Built-in local simulator with audit ledger for demo & testing
+ * SMSEthiopia Real Gateway Dispatcher
+ * Dispatches real SMS directly through the SMSEthiopia telecom API.
  */
 export async function sendOutbreakSms(params: SendSmsParams): Promise<SmsResult> {
   const { to, message, zone, senderName, triggeredBy } = params
 
-  // Read API key from environment only — set SMS_ETHIOPIA_API_KEY in your .env or Render dashboard
+  try {
+    dotenv.config({ override: true })
+  } catch {}
+
   const smsEthKey =
     process.env.SMS_ETHIOPIA_API_KEY?.trim() ||
     process.env.SMSETHIOPIA_API_KEY?.trim() ||
@@ -58,20 +60,21 @@ export async function sendOutbreakSms(params: SendSmsParams): Promise<SmsResult>
 
   let result: SmsResult = {
     success: false,
-    provider: "simulator",
-    status: "simulated",
+    provider: "smsethiopia",
+    status: "failed",
   }
 
-  // ==========================================
-  // 1. SMSEthiopia API (PRIMARY FREE CARRIER GATEWAY)
-  // Endpoint: https://smsethiopia.com/api/sms/send
-  // Headers: { 'KEY': 'YOUR_API_KEY' }
-  // Body: { msisdn: '251911639555', text: 'Hello World' }
-  // ==========================================
-  if (smsEthKey) {
+  if (!smsEthKey) {
+    result = {
+      success: false,
+      provider: "smsethiopia",
+      status: "failed",
+      detail: "Missing SMS_ETHIOPIA_API_KEY in environment configuration",
+    }
+  } else {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 8000)
+      const timeoutId = setTimeout(() => controller.abort(), 12000)
 
       const response = await fetch("https://smsethiopia.com/api/sms/send", {
         method: "POST",
@@ -90,7 +93,13 @@ export async function sendOutbreakSms(params: SendSmsParams): Promise<SmsResult>
 
       const data = await response.json().catch(() => null)
 
-      if (response.ok && (data?.sent === true || data?.status === "success" || data?.success === true || response.status === 200)) {
+      const isSuccess =
+        response.ok &&
+        !data?.error_message &&
+        !data?.error &&
+        (data?.sent === true || data?.status === "success" || data?.success === true || (response.status === 200 && data?.id !== undefined))
+
+      if (isSuccess) {
         result = {
           success: true,
           provider: "smsethiopia",
@@ -99,12 +108,12 @@ export async function sendOutbreakSms(params: SendSmsParams): Promise<SmsResult>
           detail: data?.description ? `${data.description} (Carrier Gateway: ${customSender})` : `Delivered via SMSEthiopia (Carrier Gateway: ${customSender})`,
         }
       } else {
-        const errorDetail = data?.description || data?.message || data?.error || (typeof data === "string" ? data : JSON.stringify(data)) || `HTTP ${response.status}`
+        const rawError = data?.error_message || data?.description || data?.message || data?.error || (typeof data === "string" ? data : JSON.stringify(data)) || `HTTP ${response.status}`
         result = {
           success: false,
           provider: "smsethiopia",
           status: "failed",
-          detail: `SMSEthiopia error: ${errorDetail}`,
+          detail: `SMSEthiopia error: ${rawError}`,
         }
       }
     } catch (err: any) {
@@ -113,20 +122,8 @@ export async function sendOutbreakSms(params: SendSmsParams): Promise<SmsResult>
         success: false,
         provider: "smsethiopia",
         status: "failed",
-        detail: err.message || "Network error connecting to smsethiopia.com",
+        detail: `SMSEthiopia connection error: ${err.message}`,
       }
-    }
-  }
-  // ==========================================
-  // 2. Zero-Config Simulator Fallback
-  // ==========================================
-  else {
-    result = {
-      success: true,
-      provider: "simulator",
-      messageId: `SIM-${Date.now().toString(36).toUpperCase()}`,
-      status: "simulated",
-      detail: "Demo Mode: Pre-configured for SMSEthiopia (Add SMS_ETHIOPIA_API_KEY in .env for live carrier SMS with 100 free test messages)",
     }
   }
 
